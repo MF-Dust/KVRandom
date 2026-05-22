@@ -36,6 +36,13 @@ export const tabGroups = [
         title: '抽选演出',
         hint: '音效和动画的设置都在这里～让抽选的瞬间更有仪式感吧！',
         icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+      },
+      {
+        key: 'recruitPools',
+        label: '招募卡池～',
+        title: '招募卡池',
+        hint: '老师，在这里可以新增、删除或自定义所有的招募卡池，包括名称、起止时间、背景视频等哦～',
+        icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
       }
     ]
   },

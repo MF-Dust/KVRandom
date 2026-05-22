@@ -42,6 +42,7 @@ pub(crate) struct RuntimeState {
     pub(crate) is_quitting: bool,
     pub(crate) logs: VecDeque<LogEntry>,
     pub(crate) log_dedup: HashMap<u64, std::time::Instant>,
+    pub(crate) draw_trigger_source: Option<String>,
 }
 
 impl RuntimeState {
@@ -57,6 +58,7 @@ impl RuntimeState {
             is_quitting: false,
             logs: VecDeque::new(),
             log_dedup: HashMap::new(),
+            draw_trigger_source: None,
         }
     }
 

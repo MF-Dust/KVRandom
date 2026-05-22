@@ -40,7 +40,19 @@ pub(crate) async fn get_floating_button_config(
 
 #[tauri::command]
 pub(crate) async fn floating_button_clicked(app: AppHandle) -> Result<(), String> {
-    open_pick_count(app).await
+    let mode = {
+        let state = app.state::<AppState>();
+        let guard = state
+            .inner
+            .lock()
+            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+        guard.config.floating_button.mode.clone()
+    };
+    if mode == "simple" {
+        open_pick_count(app).await
+    } else {
+        open_recruit(app).await
+    }
 }
 
 #[tauri::command]
@@ -194,6 +206,7 @@ pub(crate) async fn confirm_pick_count(
     app: AppHandle,
     count: i32,
     play_music: bool,
+    source: Option<String>,
 ) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         let state = app.state::<AppState>();
@@ -236,6 +249,10 @@ pub(crate) async fn confirm_pick_count(
         }
 
         hide_pick_count_window(&app);
+        crate::windows::hide_recruit_window(&app);
+        if source.as_deref() == Some("recruit") {
+            let _ = state.audio.send(AudioCommand::StopBgm);
+        }
 
         {
             let mut guard = state
@@ -245,9 +262,63 @@ pub(crate) async fn confirm_pick_count(
             guard.floating_hidden_for_pick_count = true;
             guard.current_pick_results = picked_students.clone();
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
+            guard.draw_trigger_source = source;
         }
 
         open_pick_result_window(&app, &state, picked_students)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub(crate) async fn confirm_select_student(
+    app: AppHandle,
+    student_name: String,
+    source: Option<String>,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<AppState>();
+        let config = refresh_config(&app, &state)?;
+        push_log(
+            &app,
+            &state,
+            "info",
+            &format!("Select student confirmed. student_name={student_name}"),
+        );
+        if let Some(window) = app.get_webview_window("floating") {
+            apply_floating_window_config(&window, &config);
+        }
+
+        let picked_student = {
+            let name = student_name.trim();
+            let student = config.student_list.iter().find(|s| s.name.trim() == name);
+            PickedStudent {
+                name: name.to_string(),
+                avatar: student.and_then(|s| s.avatar.clone()),
+                academy: student.and_then(|s| s.academy.clone()),
+                club: student.and_then(|s| s.club.clone()),
+            }
+        };
+
+        hide_pick_count_window(&app);
+        crate::windows::hide_recruit_window(&app);
+        if source.as_deref() == Some("recruit") {
+            let _ = state.audio.send(AudioCommand::StopBgm);
+        }
+
+        {
+            let mut guard = state
+                .inner
+                .lock()
+                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            guard.floating_hidden_for_pick_count = true;
+            guard.current_pick_results = vec![picked_student.clone()];
+            guard.pick_result_token = guard.pick_result_token.saturating_add(1);
+            guard.draw_trigger_source = source;
+        }
+
+        open_pick_result_window(&app, &state, vec![picked_student])
     })
     .await
     .map_err(|e| e.to_string())?
@@ -336,7 +407,7 @@ pub(crate) async fn get_pick_results(app: AppHandle) -> Result<Vec<PickedStudent
 pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         let state = app.state::<AppState>();
-        let token = {
+        let (token, source) = {
             let mut guard = state
                 .inner
                 .lock()
@@ -344,15 +415,83 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
             guard.current_pick_results.clear();
             guard.floating_hidden_for_pick_count = false;
-            guard.pick_result_token
+            let src = guard.draw_trigger_source.take();
+            (guard.pick_result_token, src)
         };
         reset_and_hide_pick_result_window(&app, token, "close");
         stop_pick_count_bgm(&app);
+
+        if let Some(src) = source {
+            if src == "recruit" {
+                if let Some(window) = app.get_webview_window("recruit") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    let _ = state.audio.send(AudioCommand::PlayBgm);
+                    {
+                        let mut guard = state
+                            .inner
+                            .lock()
+                            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+                        guard.floating_hidden_for_pick_count = true;
+                    }
+                    hide_floating_window(&app);
+                    return Ok(());
+                }
+            }
+        }
+
         show_floating_window(&app);
         Ok(())
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub(crate) async fn open_recruit(app: AppHandle) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<AppState>();
+        let config = refresh_config(&app, &state)?;
+        if let Some(window) = app.get_webview_window("floating") {
+            apply_floating_window_config(&window, &config);
+        }
+        crate::windows::open_recruit_window(&app, &config)?;
+        let _ = state.audio.send(AudioCommand::PlayBgm);
+        state
+            .inner
+            .lock()
+            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?
+            .floating_hidden_for_pick_count = true;
+        hide_floating_window(&app);
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub(crate) async fn close_recruit(app: AppHandle) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let state = app.state::<AppState>();
+        crate::windows::hide_recruit_window(&app);
+        let _ = state.audio.send(AudioCommand::StopBgm);
+        state
+            .inner
+            .lock()
+            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?
+            .floating_hidden_for_pick_count = false;
+        show_floating_window(&app);
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub(crate) async fn open_config(app: AppHandle) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || crate::windows::open_config_window(&app))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]

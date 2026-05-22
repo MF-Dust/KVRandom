@@ -257,3 +257,35 @@ pub(crate) fn open_pick_result_window(
     hide_floating_window(app);
     Ok(())
 }
+
+pub(crate) fn create_recruit_window(app: &AppHandle) -> Result<WebviewWindow, String> {
+    if let Some(window) = app.get_webview_window("recruit") {
+        return Ok(window);
+    }
+
+    WebviewWindowBuilder::new(app, "recruit", route_url("/recruit"))
+        .title("ブルーアーカイブ")
+        .inner_size(1280.0, 720.0)
+        .min_inner_size(960.0, 540.0)
+        .decorations(true)
+        .resizable(true)
+        .maximizable(true)
+        .minimizable(true)
+        .transparent(false)
+        .visible(false)
+        .build()
+        .map_err(|error| format!("创建招募窗口失败啦: {error}"))
+}
+
+pub(crate) fn open_recruit_window(app: &AppHandle, _config: &AppConfig) -> Result<(), String> {
+    let window = create_recruit_window(app)?;
+    let _ = window.show();
+    let _ = window.set_focus();
+    Ok(())
+}
+
+pub(crate) fn hide_recruit_window(app: &AppHandle) {
+    if let Some(window) = app.get_webview_window("recruit") {
+        let _ = window.hide();
+    }
+}

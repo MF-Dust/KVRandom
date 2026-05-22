@@ -10,6 +10,15 @@
       </div>
 
       <div class="ba-form-item">
+        <label class="ba-label">点击交互模式</label>
+        <p class="ba-sublabel">选择点击悬浮按钮时的动作～极简模式只开启点名，完整模式会打开招募界面！</p>
+        <n-radio-group v-model:value="config.floatingButton.mode" name="floating-button-mode" style="width: 100%;">
+          <n-radio-button value="full" style="width: 50%; text-align: center;">完整模式 (招募)</n-radio-button>
+          <n-radio-button value="simple" style="width: 50%; text-align: center;">极简模式 (点名)</n-radio-button>
+        </n-radio-group>
+      </div>
+
+      <div class="ba-form-item">
         <label class="ba-label">按钮大小</label>
         <p class="ba-sublabel">基础是 50×50 px，100就是原始尺寸～范围 0-1000哦</p>
         <n-input-number
@@ -70,7 +79,7 @@
 </template>
 
 <script setup>
-import { NInputNumber, NSlider, NSwitch } from 'naive-ui'
+import { NInputNumber, NSlider, NSwitch, NRadioGroup, NRadioButton } from 'naive-ui'
 
 defineProps({
   config: {

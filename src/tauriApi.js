@@ -4,8 +4,9 @@ import { floatingButtonApi } from './api/floatingButtonApi'
 import { logApi } from './api/logApi'
 import { pickCountApi } from './api/pickCountApi'
 import { pickResultApi } from './api/pickResultApi'
+import { recruitApi } from './api/recruitApi'
 
-export { appApi }
+export { appApi, recruitApi }
 
 export function installTauriCompatApis() {
   window.floatingButtonApi = floatingButtonApi
@@ -13,4 +14,5 @@ export function installTauriCompatApis() {
   window.pickResultApi = pickResultApi
   window.audioApi = audioApi
   window.logApi = logApi
+  window.recruitApi = recruitApi
 }

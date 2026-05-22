@@ -59,6 +59,7 @@
                 :config="config"
                 @remove-student="removeStudent"
                 @reset-weights="resetWeights"
+                @add-students="addStudents"
               />
             </div>
 
@@ -68,6 +69,10 @@
 
             <div class="ba-tab-content" v-else-if="activeTab === 'pickCount'" key="pickCount">
               <PickSettingsPanel :config="config" />
+            </div>
+
+            <div class="ba-tab-content" v-else-if="activeTab === 'recruitPools'" key="recruitPools">
+              <RecruitPoolsSettingsPanel :config="config" />
             </div>
 
             <div class="ba-tab-content" v-else-if="activeTab === 'web'" key="web">
@@ -100,6 +105,7 @@ import { NConfigProvider } from 'naive-ui'
 import ConfigTabs from '../components/config/ConfigTabs.vue'
 import FloatingSettingsPanel from '../components/config/FloatingSettingsPanel.vue'
 import PickSettingsPanel from '../components/config/PickSettingsPanel.vue'
+import RecruitPoolsSettingsPanel from '../components/config/RecruitPoolsSettingsPanel.vue'
 import RuntimeLogPanel from '../components/config/RuntimeLogPanel.vue'
 import StudentImportPanel from '../components/config/StudentImportPanel.vue'
 import StudentManagerPanel from '../components/config/StudentManagerPanel.vue'
@@ -131,6 +137,7 @@ const {
   scheduleTextSync,
   syncListToText,
   removeStudent,
+  addStudents,
   resetWeights,
   handleFileImport,
   stopTextSync

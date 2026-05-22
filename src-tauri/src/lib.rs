@@ -13,7 +13,7 @@ mod windows;
 use std::sync::Mutex;
 
 use admin::{acquire_single_instance_guard, is_process_elevated, request_admin_relaunch};
-use audio::AudioController;
+use audio::{AudioCommand, AudioController};
 use config::load_config_with_signature;
 use state::{AppState, RuntimeState};
 use tauri::Manager;
@@ -76,12 +76,24 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { .. } = event {
-                if window.label() == "floating" {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let label = window.label();
+                if label == "floating" {
                     let app = window.app_handle();
                     if let Some(state) = app.try_state::<AppState>() {
                         persist_floating_position(app, &state);
                     }
+                } else if label == "recruit" {
+                    api.prevent_close();
+                    let app = window.app_handle();
+                    if let Some(state) = app.try_state::<AppState>() {
+                        if let Ok(mut inner) = state.inner.lock() {
+                            inner.floating_hidden_for_pick_count = false;
+                        }
+                        let _ = state.audio.send(AudioCommand::StopBgm);
+                    }
+                    windows::hide_recruit_window(app);
+                    windows::show_floating_window(app);
                 }
             }
         })
@@ -116,7 +128,11 @@ pub fn run() {
             commands::renderer_log,
             commands::get_logs,
             commands::save_student_list_file,
-            commands::pick_student_avatar
+            commands::pick_student_avatar,
+            commands::open_recruit,
+            commands::close_recruit,
+            commands::open_config,
+            commands::confirm_select_student
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
