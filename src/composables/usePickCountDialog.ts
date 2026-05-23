@@ -2,18 +2,13 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
+import type { PickCountDialogConfig } from '@/types'
 import {
   DEFAULT_BACKGROUND_DARKNESS_PERCENT,
   DEFAULT_PICK_COUNT,
   MAX_PICK_COUNT,
   MIN_PICK_COUNT,
 } from '../configDefaults'
-
-type PickCountDialogConfig = {
-  defaultCount?: number
-  defaultPlayMusic?: boolean
-  backgroundDarknessPercent?: number
-}
 
 const MIN_COUNT = MIN_PICK_COUNT
 const MAX_COUNT = MAX_PICK_COUNT
@@ -64,7 +59,7 @@ export function usePickCountDialog() {
   const initConfig = async (configOverride?: PickCountDialogConfig | null) => {
     isInitializing.value = true
     try {
-      applyConfig(configOverride || ((await pickCountApi.getConfig()) as PickCountDialogConfig))
+      applyConfig(configOverride || (await pickCountApi.getConfig()))
     } finally {
       isInitializing.value = false
     }
@@ -190,8 +185,7 @@ export function usePickCountDialog() {
     removeOnOpenListener = pickCountApi.onOpen(async (payload) => {
       openedByEvent = true
       isDialogOpen.value = true
-      const cfg = (payload as { config?: PickCountDialogConfig } | undefined)?.config ?? null
-      await resetDialogStateFromConfig(true, cfg)
+      await resetDialogStateFromConfig(true, payload?.config ?? null)
     })
 
     removeStopListener = pickCountApi.onStopBgm(() => {

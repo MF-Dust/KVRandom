@@ -1,6 +1,5 @@
 import { invoke } from './tauriCore'
-
-export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug'
+import type { LogLevel } from '@/types'
 
 export const logApi = {
   send: (level: LogLevel | string, text: unknown) => {

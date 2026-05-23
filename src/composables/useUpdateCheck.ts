@@ -1,17 +1,9 @@
 import { ref } from 'vue'
 import type { AppApi } from '../api/appApi'
 import type { AddLog } from './useLogStream'
+import type { UpdateResult } from '@/types'
 
 const releasePageUrl = 'https://github.com/MF-Dust/KVRandom/releases/latest'
-
-type UpdateCheckResponse = {
-  status?: string
-  title?: string
-  detail?: string
-  commitUrl?: string
-  releaseUrl?: string
-  debug?: string[]
-}
 
 export function useUpdateCheck(appApi: AppApi, addLog: AddLog) {
   const updateState = ref({
@@ -35,7 +27,7 @@ export function useUpdateCheck(appApi: AppApi, addLog: AddLog) {
     }
 
     try {
-      const result = (await appApi.checkUpdate()) as UpdateCheckResponse
+      const result: UpdateResult = await appApi.checkUpdate()
       if (result && Array.isArray(result.debug)) {
         result.debug.forEach((line: string) => addLog('info', `更新调试: ${line}`))
       }

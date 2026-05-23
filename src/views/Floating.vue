@@ -9,6 +9,7 @@
 <script setup lang="ts">
   import { ref, onMounted, onBeforeUnmount } from 'vue'
   import { floatingButtonApi } from '../api/floatingButtonApi'
+  import type { FloatingButtonConfig, FloatingConfigUpdatedPayload } from '@/types'
   import FloatingButton from '../components/FloatingButton.vue'
 
   const sizePx = ref(50)
@@ -16,17 +17,12 @@
   let removeConfigListener: (() => void) | null = null
   let prewarmTimer: number | null = null
 
-  type FloatingConfig = {
-    sizePercent?: number
-    transparencyPercent?: number
-  }
-
   async function initConfig() {
-    const cfg = (await floatingButtonApi.getConfig()) as FloatingConfig
+    const cfg = await floatingButtonApi.getConfig()
     applyConfig(cfg)
   }
 
-  function applyConfig(cfg: FloatingConfig) {
+  function applyConfig(cfg: FloatingButtonConfig | FloatingConfigUpdatedPayload) {
     sizePx.value = Math.round(50 * ((cfg.sizePercent ?? 100) / 100))
     transparencyPercent.value = cfg.transparencyPercent ?? 20
   }
@@ -42,7 +38,7 @@
       prewarmTimer = null
     }, 800)
     removeConfigListener = floatingButtonApi.onConfigUpdated((cfg) => {
-      applyConfig(cfg as FloatingConfig)
+      applyConfig(cfg)
     })
   })
 

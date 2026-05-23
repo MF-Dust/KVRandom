@@ -1,23 +1,18 @@
 import { ref } from 'vue'
 import type { AppApi } from '../api/appApi'
+import type { LogEntryEventPayload, LogLevel } from '@/types'
 
-export type LogEntry = {
+export interface UiLogEntry {
   id: string
   level: string
   text: string
   time: string
 }
 
-export type AddLog = (level: string, text: string, timeOverride?: string) => void
-
-type BackendLogEntry = {
-  level?: string
-  text?: string
-  time?: string | number
-}
+export type AddLog = (level: LogLevel | string, text: string, timeOverride?: string) => void
 
 export function useLogStream(appApi: AppApi) {
-  const logs = ref<LogEntry[]>([])
+  const logs = ref<UiLogEntry[]>([])
   let logSeed = 0
   let removeLogListener: (() => void) | null = null
 
@@ -35,8 +30,8 @@ export function useLogStream(appApi: AppApi) {
     }
 
     try {
-      const existingLogs = (await appApi.getLogs()) as BackendLogEntry[]
-      existingLogs.forEach((entry) => {
+      const existingLogs = await appApi.getLogs()
+      existingLogs.forEach((entry: LogEntryEventPayload) => {
         const time = entry.time
           ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
           : undefined
@@ -44,8 +39,7 @@ export function useLogStream(appApi: AppApi) {
       })
     } catch (_error) {}
 
-    removeLogListener = appApi.onLogEntry((rawEntry) => {
-      const entry = rawEntry as BackendLogEntry
+    removeLogListener = appApi.onLogEntry((entry) => {
       try {
         const time = entry.time
           ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })

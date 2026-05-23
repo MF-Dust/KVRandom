@@ -1,3 +1,5 @@
+import type { AppConfig } from '@/types'
+
 export const DEFAULT_ADMIN_TASK_NAME = 'KVRandom (Admin)'
 
 export const MIN_PICK_COUNT = 1
@@ -12,7 +14,7 @@ export const DEFAULT_PLAY_GACHA_SOUND = true
 export const DEFAULT_GACHA_SOUND_VOLUME = 0.6
 export const DEFAULT_WEB_CONFIG_PORT = 21219
 
-export const createDefaultConfig = () => ({
+export const createDefaultConfig = (): AppConfig => ({
   studentList: [],
   allowRepeatDraw: true,
   floatingButton: {
@@ -23,6 +25,7 @@ export const createDefaultConfig = () => ({
       x: null,
       y: null,
     },
+    mode: 'full',
   },
   pickCountDialog: {
     defaultPlayMusic: DEFAULT_PLAY_MUSIC,
@@ -40,4 +43,5 @@ export const createDefaultConfig = () => ({
     adminAutoStartPath: '',
     adminAutoStartTaskName: DEFAULT_ADMIN_TASK_NAME,
   },
+  recruitPools: [],
 })

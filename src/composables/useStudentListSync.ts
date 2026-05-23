@@ -1,24 +1,10 @@
 import { ref, type Ref } from 'vue'
 import type { AppApi } from '../api/appApi'
 import type { AddLog } from './useLogStream'
+import type { AppConfig, Student, StudentListParseResult } from '@/types'
 import { studentListToText } from '../studentListText'
 
-type Student = {
-  name: string
-  weight?: number
-  academy?: string
-  club?: string
-  [key: string]: unknown
-}
-
-type ConfigShape = { studentList?: Student[]; [key: string]: unknown }
-
-type ParseStudentListResult = {
-  studentList?: Student[]
-  normalizedText?: string
-}
-
-export function useStudentListSync(appApi: AppApi, config: Ref<ConfigShape>, addLog: AddLog) {
+export function useStudentListSync(appApi: AppApi, config: Ref<AppConfig>, addLog: AddLog) {
   const rawListText = ref('')
   let textSyncTimer: number | null = null
   let textSyncRunId = 0
@@ -34,10 +20,10 @@ export function useStudentListSync(appApi: AppApi, config: Ref<ConfigShape>, add
       return
     }
     const runId = ++textSyncRunId
-    const result = (await appApi.parseStudentListText(
+    const result: StudentListParseResult = await appApi.parseStudentListText(
       rawText,
-      (config.value.studentList || []) as unknown as Record<string, unknown>[]
-    )) as unknown as ParseStudentListResult
+      config.value.studentList || []
+    )
     if (runId !== textSyncRunId) {
       return
     }
@@ -105,9 +91,7 @@ export function useStudentListSync(appApi: AppApi, config: Ref<ConfigShape>, add
 
   const handleFileImport = async () => {
     try {
-      const result = (await appApi.importStudentListFromFile(
-        (config.value.studentList || []) as unknown as Record<string, unknown>[]
-      )) as unknown as ParseStudentListResult | null
+      const result = await appApi.importStudentListFromFile(config.value.studentList || [])
       if (!result) return
       config.value.studentList = result.studentList || []
       rawListText.value = result.normalizedText || ''

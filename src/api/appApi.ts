@@ -1,28 +1,29 @@
 import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
-
-// Placeholder types until src/types/ is introduced in step 3.
-// These keep noImplicitAny silent without claiming precise shapes prematurely.
-type AppConfigShape = Record<string, unknown>
-type StudentShape = Record<string, unknown>
-type AppInfo = Record<string, unknown>
-type UpdateInfo = Record<string, unknown>
-type LogEntry = Record<string, unknown>
+import type {
+  AppConfig,
+  AppInfo,
+  ApiResult,
+  LogEntryEventPayload,
+  Student,
+  StudentListParseResult,
+  UpdateResult,
+} from '@/types'
 
 export const appApi = {
-  getConfig: () => invoke<AppConfigShape>('get_config'),
-  parseStudentListText: (rawText: string, existingStudents: StudentShape[]) =>
-    invoke<StudentShape[]>('parse_student_list_text', { rawText, existingStudents }),
-  importStudentListFromFile: (existingStudents: StudentShape[]) =>
-    invoke<StudentShape[] | null>('import_student_list_from_file', { existingStudents }),
-  saveConfig: (config: AppConfigShape) => invoke<void>('save_app_config', { config }),
+  getConfig: () => invoke<AppConfig>('get_config'),
+  parseStudentListText: (rawText: string, existingStudents: Student[]) =>
+    invoke<StudentListParseResult>('parse_student_list_text', { rawText, existingStudents }),
+  importStudentListFromFile: (existingStudents: Student[]) =>
+    invoke<StudentListParseResult | null>('import_student_list_from_file', { existingStudents }),
+  saveConfig: (config: AppConfig) => invoke<void>('save_app_config', { config }),
   getAppInfo: () => invoke<AppInfo>('get_app_info'),
-  checkUpdate: () => invoke<UpdateInfo>('check_update'),
-  requestAdminElevation: () => invoke<unknown>('request_admin_elevation'),
+  checkUpdate: () => invoke<UpdateResult>('check_update'),
+  requestAdminElevation: () => invoke<ApiResult>('request_admin_elevation'),
   createAdminStartupTask: (exePath: string, taskName: string) =>
-    invoke<unknown>('create_admin_startup_task', { exePath, taskName }),
-  getLogs: () => invoke<LogEntry[]>('get_logs'),
-  onLogEntry: (callback: EventCallback<LogEntry>): Unlisten =>
-    listenCompat<LogEntry>('log-entry', callback),
+    invoke<ApiResult>('create_admin_startup_task', { exePath, taskName }),
+  getLogs: () => invoke<LogEntryEventPayload[]>('get_logs'),
+  onLogEntry: (callback: EventCallback<LogEntryEventPayload>): Unlisten =>
+    listenCompat<LogEntryEventPayload>('log-entry', callback),
 }
 
 export type AppApi = typeof appApi

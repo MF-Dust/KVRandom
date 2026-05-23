@@ -575,13 +575,10 @@
 
     // Load config & student list
     try {
-      const config = (await appApi.getConfig()) as {
-        studentList?: unknown[]
-        recruitPools?: unknown[]
-      } | null
+      const config = await appApi.getConfig()
       if (config) {
-        students.value = (config.studentList || []) as unknown[]
-        pools.value = (config.recruitPools || []) as unknown[]
+        students.value = config.studentList || []
+        pools.value = config.recruitPools || []
       }
     } catch (err) {
       console.error('Failed to load configuration:', err)
@@ -591,8 +588,7 @@
       showResultOverlay.value = true
     })
 
-    pickResultApi.onReset((rawPayload) => {
-      const payload = rawPayload as { reason?: string } | null
+    pickResultApi.onReset((payload) => {
       if (payload?.reason === 'close') {
         showResultOverlay.value = false
       }

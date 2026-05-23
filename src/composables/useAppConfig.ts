@@ -1,23 +1,11 @@
 import { ref, type Ref } from 'vue'
 import type { AppApi } from '../api/appApi'
 import type { AddLog } from './useLogStream'
+import type { AppConfig, AppInfo, ApiResult } from '@/types'
 import { DEFAULT_ADMIN_TASK_NAME, createDefaultConfig } from '../configDefaults'
 import { studentListToText } from '../studentListText'
 
-type AppConfig = ReturnType<typeof createDefaultConfig>
 type SyncTextToList = (options?: { updateText?: boolean }) => Promise<void>
-
-type AppInfoResponse = {
-  isDebugMode?: boolean
-  isAdmin?: boolean
-  version?: string
-  exePath?: string
-}
-
-type AdminElevationResponse = {
-  ok?: boolean
-  message?: string
-}
 
 export function useAppConfig(appApi: AppApi, addLog: AddLog) {
   const config = ref<AppConfig>(createDefaultConfig())
@@ -35,7 +23,7 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
 
   const fetchConfig = async (rawListText?: Ref<string> | null) => {
     try {
-      config.value = (await appApi.getConfig()) as AppConfig
+      config.value = await appApi.getConfig()
       if (rawListText) {
         rawListText.value = studentListToText(config.value.studentList || [])
       }
@@ -50,7 +38,7 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
 
   const fetchAppInfo = async () => {
     try {
-      const response = (await appApi.getAppInfo()) as AppInfoResponse
+      const response: AppInfo = await appApi.getAppInfo()
       isDebugMode.value = Boolean(response && response.isDebugMode)
       isAdmin.value = Boolean(response && response.isAdmin)
       appVersion.value = response && response.version ? response.version : '0.0.0'
@@ -67,7 +55,7 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
   const saveConfig = async (syncTextToList: SyncTextToList) => {
     try {
       await syncTextToList({ updateText: true })
-      await appApi.saveConfig(config.value as Record<string, unknown>)
+      await appApi.saveConfig(config.value)
       addLog('success', '配置保存成功！已经生效啦～')
       window.alert('配置保存成功！已经生效啦～')
     } catch (error) {
@@ -79,7 +67,7 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
 
   const requestAdminElevation = async () => {
     try {
-      const response = (await appApi.requestAdminElevation()) as AdminElevationResponse
+      const response: ApiResult = await appApi.requestAdminElevation()
       addLog(response.ok ? 'info' : 'error', response.message || '已发送管理员权限请求！')
       window.alert(response.message || '已发送管理员权限请求！')
     } catch (error) {
@@ -103,10 +91,10 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
         window.alert('老师先填一下可执行文件的路径哦～')
         return
       }
-      const response = (await appApi.createAdminStartupTask(
+      const response: ApiResult = await appApi.createAdminStartupTask(
         payload.exePath,
         payload.taskName
-      )) as AdminElevationResponse
+      )
       addLog(response.ok ? 'success' : 'error', response.message || '开机任务已经创建/更新啦～')
       window.alert(response.message || '开机任务已经创建/更新啦～')
     } catch (error) {
