@@ -1,8 +1,7 @@
-use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter};
+use tauri::AppHandle;
 
 use crate::admin::SingleInstanceGuard;
 use crate::audio::AudioController;
@@ -11,8 +10,6 @@ use crate::config::{
 };
 use crate::models::PickedStudent;
 use crate::picker::WeightedPool;
-
-const LOG_BUFFER_LIMIT: usize = 600;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -105,23 +102,15 @@ pub(crate) fn refresh_config(
 }
 
 pub(crate) fn push_log(
-    app: &AppHandle,
-    state: &tauri::State<'_, AppState>,
+    _app: &AppHandle,
+    _state: &tauri::State<'_, AppState>,
     level: &str,
     text: &str,
 ) {
-    let now = Utc::now();
-    let entry = LogEntry {
-        id: format!("{}-{}", now.timestamp_millis(), rand::random::<u64>()),
-        level: level.to_string(),
-        text: text.to_string(),
-        time: now.to_rfc3339(),
-    };
-    if let Ok(mut guard) = state.inner.lock() {
-        guard.logs.push_back(entry.clone());
-        while guard.logs.len() > LOG_BUFFER_LIMIT {
-            guard.logs.pop_front();
-        }
+    match level {
+        "error" => tracing::error!(app_level = level, "{text}"),
+        "warn" | "warning" => tracing::warn!(app_level = level, "{text}"),
+        "debug" | "trace" => tracing::debug!(app_level = level, "{text}"),
+        _ => tracing::info!(app_level = level, "{text}"),
     }
-    let _ = app.emit("log-entry", entry);
 }

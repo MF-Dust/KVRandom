@@ -3,6 +3,7 @@ mod audio;
 mod commands;
 mod config;
 mod error;
+mod logging;
 mod models;
 mod picker;
 mod state;
@@ -16,10 +17,23 @@ use std::sync::Mutex;
 use admin::{acquire_single_instance_guard, is_process_elevated, request_admin_relaunch};
 use audio::{AudioCommand, AudioController};
 use config::load_config_with_signature;
+use logging::BufferLayer;
 use state::{AppState, RuntimeState};
 use tauri::Manager;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use tray::setup_tray;
 use windows::{create_floating_window, persist_floating_position};
+
+fn init_logging(app_handle: tauri::AppHandle) {
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let result = tracing_subscriber::registry()
+        .with(env_filter)
+        .with(BufferLayer::new(app_handle))
+        .try_init();
+    if let Err(err) = result {
+        eprintln!("Failed to initialize tracing subscriber: {err}");
+    }
+}
 
 pub fn run() {
     let single_instance_guard = match acquire_single_instance_guard() {
@@ -71,6 +85,8 @@ pub fn run() {
                 audio: AudioController::new(&app_handle),
                 _single_instance_guard: single_instance_guard,
             });
+
+            init_logging(app_handle.clone());
 
             setup_tray(&app_handle).map_err(anyhow::Error::msg)?;
             create_floating_window(&app_handle, &initial_config).map_err(anyhow::Error::msg)?;
