@@ -1,18 +1,53 @@
 <script setup lang="ts">
 import { usePickResultDialog } from '../composables/usePickResultDialog'
 
+const props = defineProps({
+  isRecruitMode: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['draw-again'])
+
 const {
   results,
   animationKey,
   instructionText,
   revealStarted,
+  canClose,
   isClosing,
   topRow,
   bottomRow,
   isTwoRows,
+  closeResult,
   handleStageClick,
   handleKeydown
 } = usePickResultDialog()
+
+const onStageClick = (e: MouseEvent) => {
+  if (props.isRecruitMode) return
+  handleStageClick()
+}
+
+const handleConfirm = () => {
+  if (!canClose.value || isClosing.value) return
+  closeResult()
+}
+
+const handleDrawAgain = () => {
+  if (!canClose.value || isClosing.value) return
+  closeResult()
+  emit('draw-again')
+}
+
+const onKeydown = (e: KeyboardEvent) => {
+  if (props.isRecruitMode && (e.key === 'Enter' || e.key === 'Escape')) {
+    handleConfirm()
+  } else {
+    handleKeydown(e)
+  }
+}
 </script>
 
 <template>
@@ -20,9 +55,9 @@ const {
     class="result-stage"
     :class="{ 'is-closing': isClosing }"
     tabindex="0"
-    @click="handleStageClick"
+    @click="onStageClick"
     @contextmenu.prevent
-    @keydown="handleKeydown"
+    @keydown="onKeydown"
   >
     <div v-if="results.length" class="quick-result">
 
@@ -57,8 +92,21 @@ const {
         </div>
       </div>
     </div>
-    <p v-if="results.length" class="result-hint">{{ instructionText }}</p>
-    <p v-else class="result-empty">还没有点名结果呢～</p>
+    
+    <div v-if="isRecruitMode && canClose" class="recruit-actions">
+      <button class="ba-action-btn ba-btn-confirm" @click.stop="handleConfirm">
+        <div class="btn-content">
+          <span class="btn-text">确认</span>
+        </div>
+      </button>
+      <button v-if="results.length === 10" class="ba-action-btn ba-btn-again" @click.stop="handleDrawAgain">
+        <div class="btn-content">
+          <span class="btn-text">再次抽取</span>
+        </div>
+      </button>
+    </div>
+    <p v-else-if="results.length && canClose && !isRecruitMode" class="result-hint">{{ instructionText }}</p>
+    <p v-else-if="!results.length" class="result-empty">还没有点名结果呢～</p>
   </div>
 </template>
 
@@ -203,5 +251,80 @@ const {
   100% {
     opacity: 0;
   }
+}
+
+.recruit-actions {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+  animation: actions-fade-in 0.3s ease forwards;
+}
+
+.ba-action-btn {
+  position: relative;
+  min-width: 180px;
+  height: 60px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: skewX(-12deg);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: filter 0.2s, transform 0.1s;
+}
+
+.ba-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+.ba-action-btn .btn-content {
+  transform: skewX(12deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ba-action-btn .btn-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e334a;
+  letter-spacing: 4px;
+  margin-left: 4px;
+}
+
+.ba-action-btn .btn-sub {
+  font-size: 14px;
+  color: #fff;
+  background: #344866;
+  padding: 0px 8px;
+  border-radius: 4px;
+  margin-top: -2px;
+  font-weight: 700;
+}
+
+.ba-btn-confirm {
+  background: linear-gradient(180deg, #7ae2ff 0%, #4dbbff 100%);
+}
+
+.ba-btn-again {
+  background: linear-gradient(180deg, #ffe066 0%, #ffc033 100%);
+}
+
+.ba-action-btn:active {
+  transform: skewX(-12deg) scale(0.96);
+  filter: brightness(0.9);
+}
+
+@keyframes actions-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

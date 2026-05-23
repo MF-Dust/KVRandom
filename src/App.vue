@@ -23,6 +23,20 @@ watch(
 </script>
 
 <style>
+@font-face {
+  font-family: 'Resource Han Rounded';
+  src: url('/font/ResourceHanRoundedSC-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Resource Han Rounded';
+  src: url('/font/ResourceHanRoundedSC-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -34,7 +48,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  font-family: "Resource Han Rounded", "方正兰亭圆_GBK", "FZLanTingYuan-R-GBK", "Microsoft YaHei UI", "PingFang SC", sans-serif;
 }
 
 html:not(.is-config-page),

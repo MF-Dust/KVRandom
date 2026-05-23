@@ -182,10 +182,12 @@ export function usePickResultDialog() {
     animationKey,
     instructionText,
     revealStarted,
+    canClose,
     isClosing,
     topRow,
     bottomRow,
     isTwoRows,
+    closeResult,
     handleStageClick,
     handleKeydown
   }

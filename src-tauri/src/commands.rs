@@ -470,7 +470,7 @@ pub(crate) async fn get_pick_results(app: AppHandle) -> Result<Vec<PickedStudent
 pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         let state = app.state::<AppState>();
-        let (token, source, play_bgm) = {
+        let (token, source, _play_bgm) = {
             let mut guard = state
                 .inner
                 .lock()

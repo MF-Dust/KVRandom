@@ -345,7 +345,7 @@
 
     <!-- Recruit Result Overlay -->
     <div class="recruit-result-overlay" v-show="showResultOverlay">
-      <PickResult />
+      <PickResult :isRecruitMode="true" @draw-again="handleGacha(10)" />
     </div>
   </div>
 </template>
