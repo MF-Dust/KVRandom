@@ -6,15 +6,15 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { floatingButtonApi } from '../api/floatingButtonApi'
 import FloatingButton from '../components/FloatingButton.vue'
 
 const sizePx = ref(50)
 const transparencyPercent = ref(20)
-let removeConfigListener = null
-let prewarmTimer = null
+let removeConfigListener: any = null
+let prewarmTimer: any = null
 
 async function initConfig() {
   const cfg = await floatingButtonApi.getConfig()

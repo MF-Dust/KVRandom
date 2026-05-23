@@ -42,14 +42,26 @@
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { PropType } from 'vue'
+
+type ConfigTab = {
+  key: string
+  label: string
+}
+
+type ConfigTabGroup = {
+  title: string
+  tabs: ConfigTab[]
+}
+
 defineProps({
   activeTab: {
     type: String,
     required: true
   },
   tabGroups: {
-    type: Array,
+    type: Array as PropType<ConfigTabGroup[]>,
     required: true
   }
 })

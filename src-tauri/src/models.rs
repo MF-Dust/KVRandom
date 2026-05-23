@@ -6,6 +6,7 @@ use crate::config::{PickCountDialogConfig, PickResultDialogConfig};
 #[serde(rename_all = "camelCase")]
 pub(crate) struct PickedStudent {
     pub(crate) name: String,
+    pub(crate) rarity: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) avatar: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

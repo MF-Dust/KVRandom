@@ -2,10 +2,9 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { pickResultApi } from '../api/pickResultApi'
 
-const pityCounter = ref(0)
 
 export function usePickResultDialog() {
-  const results = ref([])
+  const results = ref<any[]>([])
   const animationKey = ref(0)
   const revealStarted = ref(false)
   const canClose = ref(false)
@@ -16,17 +15,17 @@ export function usePickResultDialog() {
   const resultMode = ref('quick')
   const instructionText = computed(() => resultMode.value === 'full' ? '点一下回到快速模式～' : '点一下就关掉哦～')
 
-  let revealTimer = null
-  let closeTimer = null
-  let closeFadeTimer = null
-  let removeOpenListener = null
-  let removeResetListener = null
+  let revealTimer: number | null = null
+  let closeTimer: number | null = null
+  let closeFadeTimer: number | null = null
+  let removeOpenListener: (() => void) | null = null
+  let removeResetListener: (() => void) | null = null
 
   const topRow = computed(() => results.value.slice(0, 5))
   const bottomRow = computed(() => results.value.slice(5))
   const isTwoRows = computed(() => results.value.length > 5)
 
-  const normalizeResults = (payload) => {
+  const normalizeResults = (payload: any) => {
     const list = Array.isArray(payload?.results) ? payload.results : payload
     if (!Array.isArray(list)) return []
     return list
@@ -35,22 +34,7 @@ export function usePickResultDialog() {
         const name = typeof item === 'string' ? item.trim() : String(item.name || '').trim()
         if (!name) return null
 
-        pityCounter.value++
-        const isPityDraw = pityCounter.value % 10 === 0
-
-        const rand = Math.random()
-        let rarity = 'blue'
-        if (rand > 0.97) {
-          rarity = 'pink'
-        } else if (rand > 0.785) {
-          rarity = 'gold'
-        }
-
-        // 10th draw guarantee (pity): must be gold or pink
-        if (isPityDraw && rarity === 'blue') {
-          // 5% chance to "upgrade" pity to pink, otherwise gold
-          rarity = Math.random() > 0.95 ? 'pink' : 'gold'
-        }
+        const rarity = typeof item === 'object' && item.rarity ? item.rarity : 'blue'
 
         return { name, rarity }
       })
@@ -163,7 +147,7 @@ export function usePickResultDialog() {
     }
   }
 
-  const loadSoundConfig = async (configOverride) => {
+  const loadSoundConfig = async (configOverride?: any) => {
     applySoundConfig(configOverride || await pickResultApi.getConfig())
   }
 

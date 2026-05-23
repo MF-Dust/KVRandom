@@ -37,7 +37,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { NButton, NInput, NTag } from 'naive-ui'
 
 defineProps({

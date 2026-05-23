@@ -7,15 +7,15 @@ import './style.css'
 
 installTauriCompatApis()
 
-const logToMain = (level, text) => {
+const logToMain = (level: string, text: string) => {
   if (window.logApi && typeof window.logApi.send === 'function') {
     window.logApi.send(level, text)
   }
 }
 
-;['warn', 'error'].forEach((method) => {
+;(['warn', 'error'] as const).forEach((method) => {
   const original = console[method].bind(console)
-  console[method] = (...args) => {
+  console[method] = (...args: any[]) => {
     const text = args.map(arg => {
       if (typeof arg === 'string') return arg
       try {

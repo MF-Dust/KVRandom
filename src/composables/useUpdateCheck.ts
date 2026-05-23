@@ -48,7 +48,7 @@ export function useUpdateCheck(appApi, addLog) {
       }
     } catch (error) {
       console.error('检查更新失败:', error)
-      const message = error && error.message ? String(error.message) : ''
+      const message = error instanceof Error ? error.message : ''
       addLog('error', `检查更新失败${message ? `: ${message}` : ''}`)
       updateState.value = {
         loading: false,

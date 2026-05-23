@@ -99,7 +99,7 @@
   </n-config-provider>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { NConfigProvider } from 'naive-ui'
 import ConfigTabs from '../components/config/ConfigTabs.vue'

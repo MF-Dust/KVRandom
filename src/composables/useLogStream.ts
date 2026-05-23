@@ -1,9 +1,9 @@
 import { ref } from 'vue'
 
 export function useLogStream(appApi) {
-  const logs = ref([])
+  const logs = ref<any[]>([])
   let logSeed = 0
-  let removeLogListener = null
+  let removeLogListener: (() => void) | null = null
 
   const addLog = (level, text, timeOverride) => {
     const time = timeOverride || new Date().toLocaleTimeString('zh-CN', { hour12: false })

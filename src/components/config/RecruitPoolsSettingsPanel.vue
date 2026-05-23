@@ -137,7 +137,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { NButton, NCollapse, NCollapseItem, NInput, NSelect, NTag } from 'naive-ui'
 
 const props = defineProps({

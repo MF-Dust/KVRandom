@@ -11,7 +11,9 @@ use crate::config::{
     MAX_PICK_COUNT, MIN_PICK_COUNT,
 };
 use crate::models::{ApiResult, AppInfo, PickedStudent, UpdateResult};
-use crate::picker::{build_weighted_pool, pick_students_with_repeat, pick_students_without_repeat};
+use crate::picker::{
+    assign_rarity, build_weighted_pool, pick_students_with_repeat, pick_students_without_repeat,
+};
 use crate::state::{push_log, refresh_config, AppState, DragSession, LogEntry};
 use crate::update::check_update_from_main;
 use crate::utils::clamp_i32;
@@ -230,13 +232,20 @@ pub(crate) async fn confirm_pick_count(
                 if guard.weighted_pool_cache.is_none() {
                     guard.weighted_pool_cache = Some(build_weighted_pool(&guard.config));
                 }
-                pick_students_with_repeat(
+                let mut pity = guard.pity_counter;
+                let picked = pick_students_with_repeat(
                     guard.weighted_pool_cache.as_ref().unwrap(),
                     selected_count,
                     &guard.config.student_list,
-                )
+                    &mut pity,
+                );
+                guard.pity_counter = pity;
+                picked
             } else {
-                pick_students_without_repeat(&guard.config, selected_count)
+                let mut pity = guard.pity_counter;
+                let picked = pick_students_without_repeat(&guard.config, selected_count, &mut pity);
+                guard.pity_counter = pity;
+                picked
             }
         };
         if !picked_students.is_empty() {
@@ -291,10 +300,19 @@ pub(crate) async fn confirm_select_student(
         }
 
         let picked_student = {
+            let mut guard = state
+                .inner
+                .lock()
+                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            let mut pity = guard.pity_counter;
+            let rarity = assign_rarity(&mut pity);
+            guard.pity_counter = pity;
+
             let name = student_name.trim();
             let student = config.student_list.iter().find(|s| s.name.trim() == name);
             PickedStudent {
                 name: name.to_string(),
+                rarity,
                 avatar: student.and_then(|s| s.avatar.clone()),
                 academy: student.and_then(|s| s.academy.clone()),
                 club: student.and_then(|s| s.club.clone()),
@@ -407,7 +425,7 @@ pub(crate) async fn get_pick_results(app: AppHandle) -> Result<Vec<PickedStudent
 pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
         let state = app.state::<AppState>();
-        let (token, source) = {
+        let (token, source, play_bgm) = {
             let mut guard = state
                 .inner
                 .lock()
@@ -416,7 +434,7 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
             guard.current_pick_results.clear();
             guard.floating_hidden_for_pick_count = false;
             let src = guard.draw_trigger_source.take();
-            (guard.pick_result_token, src)
+            (guard.pick_result_token, src, guard.config.pick_count_dialog.default_play_music)
         };
         reset_and_hide_pick_result_window(&app, token, "close");
         stop_pick_count_bgm(&app);
@@ -426,7 +444,9 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
                 if let Some(window) = app.get_webview_window("recruit") {
                     let _ = window.show();
                     let _ = window.set_focus();
-                    let _ = state.audio.send(AudioCommand::PlayBgm);
+                    if play_bgm {
+                        let _ = state.audio.send(AudioCommand::PlayBgm);
+                    }
                     {
                         let mut guard = state
                             .inner
@@ -456,7 +476,9 @@ pub(crate) async fn open_recruit(app: AppHandle) -> Result<(), String> {
             apply_floating_window_config(&window, &config);
         }
         crate::windows::open_recruit_window(&app, &config)?;
-        let _ = state.audio.send(AudioCommand::PlayBgm);
+        if config.pick_count_dialog.default_play_music {
+            let _ = state.audio.send(AudioCommand::PlayBgm);
+        }
         state
             .inner
             .lock()

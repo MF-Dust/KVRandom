@@ -77,7 +77,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { NInputNumber, NSlider, NSwitch } from 'naive-ui'
 import { MAX_PICK_COUNT, MIN_PICK_COUNT } from '../../configDefaults'
 

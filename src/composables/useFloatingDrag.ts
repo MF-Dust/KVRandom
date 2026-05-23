@@ -110,7 +110,7 @@ export function useFloatingDrag(emit) {
     if (activePointerId.value !== event.pointerId) return
     if (!pointerDown.value) return
 
-    let finishDrag = null
+    let finishDrag: Promise<void> | null = null
     if (isDragging.value) {
       cancelScheduledMove()
       const finalDx = pendingDx.value

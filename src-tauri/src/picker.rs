@@ -23,10 +23,33 @@ fn valid_student_entries(students: &[Student]) -> impl Iterator<Item = (String, 
     })
 }
 
-fn enrich_picked_student(name: &str, students: &[Student]) -> PickedStudent {
+pub(crate) fn assign_rarity(pity_counter: &mut u32) -> String {
+    *pity_counter += 1;
+    let is_pity_draw = *pity_counter % 10 == 0;
+
+    let mut rng = rand::thread_rng();
+    let rand_val: f64 = rng.gen();
+
+    let mut rarity = "blue";
+    if rand_val > 0.97 {
+        rarity = "pink";
+    } else if rand_val > 0.785 {
+        rarity = "gold";
+    }
+
+    if is_pity_draw && rarity == "blue" {
+        let upgrade_rand: f64 = rng.gen();
+        rarity = if upgrade_rand > 0.95 { "pink" } else { "gold" };
+    }
+
+    rarity.to_string()
+}
+
+fn enrich_picked_student(name: &str, students: &[Student], rarity: String) -> PickedStudent {
     let student = students.iter().find(|s| s.name.trim() == name);
     PickedStudent {
         name: name.to_string(),
+        rarity,
         avatar: student.and_then(|s| s.avatar.clone()),
         academy: student.and_then(|s| s.academy.clone()),
         club: student.and_then(|s| s.club.clone()),
@@ -48,6 +71,7 @@ pub(crate) fn pick_students_with_repeat(
     weighted_pool: &WeightedPool,
     count: i32,
     students: &[Student],
+    pity_counter: &mut u32,
 ) -> Vec<PickedStudent> {
     if weighted_pool.entries.is_empty() || count <= 0 {
         return Vec::new();
@@ -71,13 +95,18 @@ pub(crate) fn pick_students_with_repeat(
         }
         let index = pick_index.unwrap_or_else(|| rng.gen_range(0..weighted_pool.entries.len()));
         let name = weighted_pool.entries[index].0.clone();
-        picked.push(enrich_picked_student(&name, students));
+        let rarity = assign_rarity(pity_counter);
+        picked.push(enrich_picked_student(&name, students, rarity));
     }
 
     picked
 }
 
-pub(crate) fn pick_students_without_repeat(config: &AppConfig, count: i32) -> Vec<PickedStudent> {
+pub(crate) fn pick_students_without_repeat(
+    config: &AppConfig,
+    count: i32,
+    pity_counter: &mut u32,
+) -> Vec<PickedStudent> {
     let pool = valid_student_entries(&config.student_list).collect::<Vec<_>>();
 
     if pool.is_empty() || count <= 0 {
@@ -99,7 +128,8 @@ pub(crate) fn pick_students_without_repeat(config: &AppConfig, count: i32) -> Ve
     positive_pool.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
 
     for (name, _) in positive_pool.into_iter().take(target_count) {
-        picked.push(enrich_picked_student(&name, &config.student_list));
+        let rarity = assign_rarity(pity_counter);
+        picked.push(enrich_picked_student(&name, &config.student_list, rarity));
     }
 
     if picked.len() < target_count {
@@ -110,7 +140,8 @@ pub(crate) fn pick_students_without_repeat(config: &AppConfig, count: i32) -> Ve
             .collect::<Vec<_>>();
         zero_pool.shuffle(&mut rng);
         for name in zero_pool.into_iter().take(target_count - picked.len()) {
-            picked.push(enrich_picked_student(&name, &config.student_list));
+            let rarity = assign_rarity(pity_counter);
+            picked.push(enrich_picked_student(&name, &config.student_list, rarity));
         }
     }
 

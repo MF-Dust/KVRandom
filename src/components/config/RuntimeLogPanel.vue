@@ -33,13 +33,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { PropType } from 'vue'
 import { NTag } from 'naive-ui'
+
+type RuntimeLogItem = {
+  id: number | string
+  level: string
+  time: string
+  text: string
+}
 
 defineProps({
   logs: {
-    type: Array,
+    type: Array as PropType<RuntimeLogItem[]>,
     required: true
   },
   isDebugMode: {

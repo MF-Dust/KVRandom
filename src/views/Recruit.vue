@@ -334,15 +334,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { appApi, recruitApi } from '../tauriApi'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
 
-const pools = ref([])
+const pools = ref<any[]>([])
 const activePoolIndex = ref(0)
-const students = ref([])
+const students = ref<any[]>([])
 
 // Interactive Currencies persisted locally
 const currencies = ref({
@@ -358,7 +358,7 @@ const showReplenishDialog = ref(false)
 const replenishTarget = ref('')
 const showDetailsModal = ref(false)
 const showSelectionModal = ref(false)
-const selectedStudent = ref(null)
+const selectedStudent = ref<any>(null)
 
 const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
 

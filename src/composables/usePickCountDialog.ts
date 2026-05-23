@@ -28,8 +28,8 @@ export function usePickCountDialog() {
   const isDialogOpen = ref(false)
   const isInitializing = ref(false)
 
-  let removeOnOpenListener = null
-  let removeStopListener = null
+  let removeOnOpenListener: (() => void) | null = null
+  let removeStopListener: (() => void) | null = null
 
   const canDecrease = computed(() => count.value > MIN_COUNT)
   const canIncrease = computed(() => count.value < MAX_COUNT)
@@ -55,7 +55,7 @@ export function usePickCountDialog() {
     )
   }
 
-  const initConfig = async (configOverride) => {
+  const initConfig = async (configOverride?: any) => {
     isInitializing.value = true
     try {
       applyConfig(configOverride || await pickCountApi.getConfig())
@@ -115,7 +115,7 @@ export function usePickCountDialog() {
     }
   }
 
-  const resetDialogStateFromConfig = async (shouldPlayBgm, configOverride) => {
+  const resetDialogStateFromConfig = async (shouldPlayBgm: boolean, configOverride?: any) => {
     isLeaving.value = false
     stopAudio()
     await initConfig(configOverride)

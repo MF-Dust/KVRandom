@@ -78,7 +78,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { NInputNumber, NSlider, NSwitch, NRadioGroup, NRadioButton } from 'naive-ui'
 
 defineProps({

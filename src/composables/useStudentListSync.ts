@@ -3,7 +3,7 @@ import { studentListToText } from '../studentListText'
 
 export function useStudentListSync(appApi, config, addLog) {
   const rawListText = ref('')
-  let textSyncTimer = null
+  let textSyncTimer: number | null = null
   let textSyncRunId = 0
   let lastSyncedText = ''
 

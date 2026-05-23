@@ -122,7 +122,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { NButton, NSlider, NSwitch, NTag, NInput, NModal } from 'naive-ui'
 
@@ -145,7 +145,7 @@ const handleBatchAdd = () => {
     return
   }
 
-  const addedStudents = []
+  const addedStudents: any[] = []
   const lines = text.split('\n')
   for (const line of lines) {
     const trimmed = line.trim()

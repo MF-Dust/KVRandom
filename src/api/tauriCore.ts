@@ -4,7 +4,7 @@ import { listen } from '@tauri-apps/api/event'
 export { invoke }
 
 export const listenCompat = (eventName, callback) => {
-  let unlisten = null
+  let unlisten: any = null
   let disposed = false
 
   listen(eventName, (event) => {

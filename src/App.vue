@@ -2,7 +2,7 @@
   <router-view />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { watch } from 'vue'
 

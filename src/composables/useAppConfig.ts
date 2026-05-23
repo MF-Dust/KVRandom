@@ -67,7 +67,7 @@ export function useAppConfig(appApi, addLog) {
       window.alert(response.message || '已发送管理员权限请求！')
     } catch (error) {
       console.error('申请管理员权限失败:', error)
-      const message = error?.message || '申请管理员权限失败啦...'
+      const message = error instanceof Error ? error.message : '申请管理员权限失败啦...'
       addLog('error', message)
       window.alert(`${message}，请查看日志。`)
     }
