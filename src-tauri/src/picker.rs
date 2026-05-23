@@ -147,3 +147,112 @@ pub(crate) fn pick_students_without_repeat(
 
     picked
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::AppConfig;
+
+    fn make_config(students: Vec<(&str, f64)>) -> AppConfig {
+        AppConfig {
+            student_list: students
+                .into_iter()
+                .map(|(name, weight)| Student {
+                    name: name.to_string(),
+                    weight,
+                    avatar: None,
+                    academy: None,
+                    club: None,
+                })
+                .collect(),
+            ..AppConfig::default()
+        }
+    }
+
+    #[test]
+    fn build_weighted_pool_skips_empty_names_and_clamps_negative_weight() {
+        let cfg = make_config(vec![("阿罗娜", 1.0), ("", 5.0), ("普拉娜", -3.0)]);
+        let pool = build_weighted_pool(&cfg);
+
+        assert_eq!(pool.entries.len(), 2);
+        assert!(pool.entries.iter().any(|(name, _)| name == "阿罗娜"));
+        assert!(pool
+            .entries
+            .iter()
+            .any(|(name, weight)| name == "普拉娜" && *weight == 0.0));
+        assert!(pool.total_weight > 0.0);
+    }
+
+    #[test]
+    fn pick_with_repeat_returns_empty_when_pool_or_count_invalid() {
+        let cfg = make_config(vec![("阿罗娜", 1.0)]);
+        let pool = build_weighted_pool(&cfg);
+        let empty_pool = build_weighted_pool(&make_config(vec![]));
+        let mut pity = 0;
+
+        assert!(pick_students_with_repeat(&pool, 0, &cfg.student_list, &mut pity).is_empty());
+        assert!(pick_students_with_repeat(&pool, -3, &cfg.student_list, &mut pity).is_empty());
+        assert!(pick_students_with_repeat(&empty_pool, 5, &cfg.student_list, &mut pity).is_empty());
+    }
+
+    #[test]
+    fn pick_with_repeat_only_returns_students_from_config() {
+        let cfg = make_config(vec![("阿罗娜", 1.0), ("普拉娜", 2.0), ("白子", 3.0)]);
+        let pool = build_weighted_pool(&cfg);
+        let mut pity = 0;
+        let picked = pick_students_with_repeat(&pool, 50, &cfg.student_list, &mut pity);
+
+        assert_eq!(picked.len(), 50);
+        let names: std::collections::HashSet<_> =
+            cfg.student_list.iter().map(|s| s.name.clone()).collect();
+        for student in &picked {
+            assert!(
+                names.contains(&student.name),
+                "意外的学生: {}",
+                student.name
+            );
+            assert!(["blue", "gold", "pink"].contains(&student.rarity.as_str()));
+        }
+    }
+
+    #[test]
+    fn pick_without_repeat_yields_unique_names_up_to_pool_size() {
+        let cfg = make_config(vec![
+            ("阿罗娜", 1.0),
+            ("普拉娜", 2.0),
+            ("白子", 3.0),
+            ("日富美", 0.0),
+        ]);
+        let mut pity = 0;
+        let picked = pick_students_without_repeat(&cfg, 4, &mut pity);
+
+        let names: Vec<_> = picked.iter().map(|p| p.name.clone()).collect();
+        let unique: std::collections::HashSet<_> = names.iter().cloned().collect();
+        assert_eq!(picked.len(), 4);
+        assert_eq!(unique.len(), 4);
+    }
+
+    #[test]
+    fn pick_without_repeat_returns_empty_for_empty_pool_or_zero_count() {
+        let empty_cfg = make_config(vec![]);
+        let mut pity = 0;
+        assert!(pick_students_without_repeat(&empty_cfg, 5, &mut pity).is_empty());
+
+        let cfg = make_config(vec![("阿罗娜", 1.0)]);
+        assert!(pick_students_without_repeat(&cfg, 0, &mut pity).is_empty());
+    }
+
+    #[test]
+    fn assign_rarity_pity_promotes_every_tenth_draw() {
+        let mut pity = 0;
+        for _ in 0..9 {
+            assign_rarity(&mut pity);
+        }
+        let tenth = assign_rarity(&mut pity);
+        assert!(
+            tenth == "gold" || tenth == "pink",
+            "保底应升级，实际: {tenth}"
+        );
+        assert_eq!(pity, 10);
+    }
+}
