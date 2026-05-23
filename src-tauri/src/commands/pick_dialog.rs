@@ -1,6 +1,7 @@
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::config::{PickCountDialogConfig, MAX_PICK_COUNT, MIN_PICK_COUNT};
+use crate::error::{AppError, AppResult};
 use crate::models::{PickResultOpenPayload, PickResultResetPayload, PickedStudent};
 use crate::picker::{
     assign_rarity, build_weighted_pool, pick_students_with_repeat, pick_students_without_repeat,
@@ -12,20 +13,23 @@ use crate::windows::{
     open_pick_count_window, open_pick_result_window, stop_pick_count_bgm,
 };
 
+fn state_locked() -> AppError {
+    AppError::State("阿罗娜状态卡住了...请重试～".to_string())
+}
+
 #[tauri::command]
-pub(crate) async fn get_pick_count_config(app: AppHandle) -> Result<PickCountDialogConfig, String> {
-    tauri::async_runtime::spawn_blocking(move || {
+pub(crate) async fn get_pick_count_config(app: AppHandle) -> AppResult<PickCountDialogConfig> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<PickCountDialogConfig> {
         let state = app.state::<AppState>();
         let config = refresh_config(&app, &state)?;
         Ok(config.pick_count_dialog)
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
 
 #[tauri::command]
-pub(crate) async fn open_pick_count(app: AppHandle) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
+pub(crate) async fn open_pick_count(app: AppHandle) -> AppResult<()> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         let config = refresh_config(&app, &state)?;
         if let Some(window) = app.get_webview_window("floating") {
@@ -35,31 +39,29 @@ pub(crate) async fn open_pick_count(app: AppHandle) -> Result<(), String> {
         state
             .inner
             .lock()
-            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?
+            .map_err(|_| state_locked())?
             .floating_hidden_for_pick_count = true;
         hide_floating_window(&app);
         Ok(())
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
 
 #[tauri::command]
-pub(crate) async fn cancel_pick_count(app: AppHandle) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
+pub(crate) async fn cancel_pick_count(app: AppHandle) -> AppResult<()> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         hide_pick_count_window(&app);
         stop_pick_count_bgm(&app);
         state
             .inner
             .lock()
-            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?
+            .map_err(|_| state_locked())?
             .floating_hidden_for_pick_count = false;
         crate::windows::show_floating_window(&app);
         Ok(())
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
 
 #[tauri::command]
@@ -68,8 +70,8 @@ pub(crate) async fn confirm_pick_count(
     count: i32,
     play_music: bool,
     source: Option<String>,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
+) -> AppResult<()> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         let selected_count = clamp_i32(count, MIN_PICK_COUNT, MAX_PICK_COUNT, MIN_PICK_COUNT);
         let config = refresh_config(&app, &state)?;
@@ -83,10 +85,7 @@ pub(crate) async fn confirm_pick_count(
             apply_floating_window_config(&window, &config);
         }
         let picked_students = {
-            let mut guard = state
-                .inner
-                .lock()
-                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
             if guard.config.allow_repeat_draw {
                 if guard.weighted_pool_cache.is_none() {
                     guard.weighted_pool_cache = Some(build_weighted_pool(&guard.config));
@@ -123,10 +122,7 @@ pub(crate) async fn confirm_pick_count(
         }
 
         let (token, config) = {
-            let mut guard = state
-                .inner
-                .lock()
-                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
             guard.floating_hidden_for_pick_count = true;
             guard.current_pick_results = picked_students.clone();
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
@@ -157,11 +153,11 @@ pub(crate) async fn confirm_pick_count(
             }
             Ok(())
         } else {
-            open_pick_result_window(&app, &state, picked_students)
+            open_pick_result_window(&app, &state, picked_students)?;
+            Ok(())
         }
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
 
 #[tauri::command]
@@ -169,8 +165,8 @@ pub(crate) async fn confirm_select_student(
     app: AppHandle,
     student_name: String,
     source: Option<String>,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
+) -> AppResult<()> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         let config = refresh_config(&app, &state)?;
         push_log(
@@ -184,10 +180,7 @@ pub(crate) async fn confirm_select_student(
         }
 
         let picked_student = {
-            let mut guard = state
-                .inner
-                .lock()
-                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
             let mut pity = guard.pity_counter;
             let rarity = assign_rarity(&mut pity);
             guard.pity_counter = pity;
@@ -210,10 +203,7 @@ pub(crate) async fn confirm_select_student(
         }
 
         let (token, config) = {
-            let mut guard = state
-                .inner
-                .lock()
-                .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?;
+            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
             guard.floating_hidden_for_pick_count = true;
             guard.current_pick_results = vec![picked_student.clone()];
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
@@ -245,9 +235,9 @@ pub(crate) async fn confirm_select_student(
             }
             Ok(())
         } else {
-            open_pick_result_window(&app, &state, picked_students)
+            open_pick_result_window(&app, &state, picked_students)?;
+            Ok(())
         }
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }

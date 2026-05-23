@@ -2100,6 +2100,7 @@ dependencies = [
  "serde_yaml",
  "tauri",
  "tauri-build",
+ "thiserror 1.0.69",
  "windows 0.61.3",
 ]
 

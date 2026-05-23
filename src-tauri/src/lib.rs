@@ -2,6 +2,7 @@ mod admin;
 mod audio;
 mod commands;
 mod config;
+mod error;
 mod models;
 mod picker;
 mod state;

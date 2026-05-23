@@ -1,15 +1,12 @@
 use std::hash::{Hash, Hasher};
 use tauri::{AppHandle, Manager};
 
+use crate::error::AppResult;
 use crate::state::{push_log, AppState, LogEntry};
 
 #[tauri::command]
-pub(crate) async fn renderer_log(
-    app: AppHandle,
-    level: String,
-    text: String,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
+pub(crate) async fn renderer_log(app: AppHandle, level: String, text: String) -> AppResult<()> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         let level = if level.trim().is_empty() {
             "info"
@@ -36,24 +33,22 @@ pub(crate) async fn renderer_log(
         push_log(&app, &state, level, &text);
         Ok(())
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
 
 #[tauri::command]
-pub(crate) async fn get_logs(app: AppHandle) -> Result<Vec<LogEntry>, String> {
-    tauri::async_runtime::spawn_blocking(move || {
+pub(crate) async fn get_logs(app: AppHandle) -> AppResult<Vec<LogEntry>> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<Vec<LogEntry>> {
         let state = app.state::<AppState>();
         let logs = state
             .inner
             .lock()
-            .map_err(|_| "阿罗娜状态卡住了...请重试～".to_string())?
+            .map_err(|_| crate::error::AppError::State("阿罗娜状态卡住了...请重试～".to_string()))?
             .logs
             .iter()
             .cloned()
             .collect();
         Ok(logs)
     })
-    .await
-    .map_err(|e| e.to_string())?
+    .await?
 }
