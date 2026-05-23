@@ -495,6 +495,7 @@
   import { audioApi } from '../api/audioApi'
   import { pickCountApi } from '../api/pickCountApi'
   import { pickResultApi } from '../api/pickResultApi'
+  import { useRecruitFlow } from '../composables/useRecruitFlow'
   import type { RecruitPool, Student } from '@/types'
   import PickResult from './PickResult.vue'
 
@@ -522,25 +523,7 @@
   const showResultOverlay = ref(false)
 
   // Video Playback Logic
-  const isPlayingVideo = ref(false)
-  let pendingRecruitAction: (() => Promise<void>) | null = null
-
-  const playVideoAndExecute = (action: () => Promise<void>) => {
-    pendingRecruitAction = action
-    isPlayingVideo.value = true
-  }
-
-  const handleVideoEnd = async () => {
-    isPlayingVideo.value = false
-    if (pendingRecruitAction) {
-      await pendingRecruitAction()
-      pendingRecruitAction = null
-    }
-  }
-
-  const skipVideo = () => {
-    handleVideoEnd()
-  }
+  const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
 
   const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
 
