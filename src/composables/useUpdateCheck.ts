@@ -9,7 +9,7 @@ export function useUpdateCheck(appApi, addLog) {
     title: '还没检查过更新呢～',
     detail: '',
     commitUrl: '',
-    releaseUrl: ''
+    releaseUrl: '',
   })
 
   const checkUpdate = async () => {
@@ -20,7 +20,7 @@ export function useUpdateCheck(appApi, addLog) {
       title: '正在检查更新...',
       detail: '',
       commitUrl: '',
-      releaseUrl: ''
+      releaseUrl: '',
     }
 
     try {
@@ -35,7 +35,7 @@ export function useUpdateCheck(appApi, addLog) {
         title: result.title || '检查更新失败啦...',
         detail: result.detail || '老师检查一下网络，或者等会儿再试～',
         commitUrl: result.commitUrl || '',
-        releaseUrl: result.releaseUrl || releasePageUrl
+        releaseUrl: result.releaseUrl || releasePageUrl,
       }
       if (result.status === 'update') {
         addLog('success', '发现新版本啦！')
@@ -56,13 +56,13 @@ export function useUpdateCheck(appApi, addLog) {
         title: '检查更新失败啦...',
         detail: '老师检查一下网络，或者等会儿再试～',
         commitUrl: '',
-        releaseUrl: releasePageUrl
+        releaseUrl: releasePageUrl,
       }
     }
   }
 
   return {
     updateState,
-    checkUpdate
+    checkUpdate,
   }
 }

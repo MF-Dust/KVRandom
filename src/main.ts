@@ -16,26 +16,30 @@ const logToMain = (level: string, text: string) => {
 ;(['warn', 'error'] as const).forEach((method) => {
   const original = console[method].bind(console)
   console[method] = (...args: any[]) => {
-    const text = args.map(arg => {
-      if (typeof arg === 'string') return arg
-      try {
-        return JSON.stringify(arg)
-      } catch (_error) {
-        return String(arg)
-      }
-    }).join(' ').slice(0, 800)
+    const text = args
+      .map((arg) => {
+        if (typeof arg === 'string') return arg
+        try {
+          return JSON.stringify(arg)
+        } catch (_error) {
+          return String(arg)
+        }
+      })
+      .join(' ')
+      .slice(0, 800)
     logToMain(method, text)
     original(...args)
   }
 })
 
 // If accessed outside the Tauri shell during frontend preview, redirect straight to config.
-const isElectron = window.floatingButtonApi !== undefined
-  || window.pickCountApi !== undefined
-  || window.pickResultApi !== undefined
-  || window.__TAURI_INTERNALS__ !== undefined;
+const isElectron =
+  window.floatingButtonApi !== undefined ||
+  window.pickCountApi !== undefined ||
+  window.pickResultApi !== undefined ||
+  window.__TAURI_INTERNALS__ !== undefined
 if (!isElectron && window.location.hash === '') {
-  router.push('/config');
+  router.push('/config')
 }
 
 createApp(App).use(router).mount('#app')

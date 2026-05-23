@@ -6,7 +6,7 @@ import {
   DEFAULT_BACKGROUND_DARKNESS_PERCENT,
   DEFAULT_PICK_COUNT,
   MAX_PICK_COUNT,
-  MIN_PICK_COUNT
+  MIN_PICK_COUNT,
 } from '../configDefaults'
 
 const MIN_COUNT = MIN_PICK_COUNT
@@ -39,7 +39,7 @@ export function usePickCountDialog() {
     const alpha = darkness / 100
 
     return {
-      backgroundColor: `rgba(0, 0, 0, ${alpha})`
+      backgroundColor: `rgba(0, 0, 0, ${alpha})`,
     }
   })
 
@@ -58,7 +58,7 @@ export function usePickCountDialog() {
   const initConfig = async (configOverride?: any) => {
     isInitializing.value = true
     try {
-      applyConfig(configOverride || await pickCountApi.getConfig())
+      applyConfig(configOverride || (await pickCountApi.getConfig()))
     } finally {
       isInitializing.value = false
     }
@@ -189,7 +189,7 @@ export function usePickCountDialog() {
     })
 
     await initConfig()
-    if (!openedByEvent && await isCurrentWindowVisible()) {
+    if (!openedByEvent && (await isCurrentWindowVisible())) {
       isDialogOpen.value = true
       await resetDialogStateFromConfig(true)
     }
@@ -219,6 +219,6 @@ export function usePickCountDialog() {
     setMinCount,
     setMaxCount,
     handleCancel,
-    handleConfirm
+    handleConfirm,
   }
 }

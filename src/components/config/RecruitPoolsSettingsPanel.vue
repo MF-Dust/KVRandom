@@ -3,19 +3,31 @@
     <div class="ba-card">
       <div class="ba-card-header-row">
         <div class="ba-card-header">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
           <span>招募卡池列表～</span>
         </div>
-        <n-button type="primary" size="small" @click="addPool">
-          添加新卡池！
-        </n-button>
+        <n-button type="primary" size="small" @click="addPool"> 添加新卡池！ </n-button>
       </div>
-      <p class="ba-card-desc">老师可以在这里定制或者新建所有的招募卡池哦。包括卡池名称、背景视频、起止时间等。拉起招募时会根据这里配置的参数动态渲染。</p>
+      <p class="ba-card-desc">
+        老师可以在这里定制或者新建所有的招募卡池哦。包括卡池名称、背景视频、起止时间等。拉起招募时会根据这里配置的参数动态渲染。
+      </p>
     </div>
 
-    <div v-if="!config.recruitPools || config.recruitPools.length === 0" class="ba-card ba-empty-card">
+    <div
+      v-if="!config.recruitPools || config.recruitPools.length === 0"
+      class="ba-card ba-empty-card"
+    >
       <div class="ba-empty-state">
         <img src="/image/Arona_Empty.webp" alt="空" class="ba-empty-img" />
         <p>目前还没有任何卡池配置哦，点击上方按钮来新增一个吧！</p>
@@ -34,10 +46,21 @@
             <div class="ba-pool-header">
               <span class="ba-pool-name">{{ pool.name || '未命名卡池' }}</span>
               <span class="ba-pool-meta">
-                <n-tag :type="pool.gachaType === 'select' ? 'warning' : 'info'" size="small" round :bordered="false">
+                <n-tag
+                  :type="pool.gachaType === 'select' ? 'warning' : 'info'"
+                  size="small"
+                  round
+                  :bordered="false"
+                >
                   {{ pool.gachaType === 'select' ? '自选券卡池' : '常规招募' }}
                 </n-tag>
-                <n-tag :type="getTabTypeColor(pool.tabType)" size="small" round :bordered="false" style="margin-left: 6px;">
+                <n-tag
+                  :type="getTabTypeColor(pool.tabType)"
+                  size="small"
+                  round
+                  :bordered="false"
+                  style="margin-left: 6px"
+                >
                   {{ pool.tabType }}
                 </n-tag>
               </span>
@@ -45,7 +68,7 @@
           </template>
 
           <template #header-extra>
-            <n-button text type="error" @click.stop="deletePool(index)" style="margin-right: 12px;">
+            <n-button text type="error" style="margin-right: 12px" @click.stop="deletePool(index)">
               删除
             </n-button>
           </template>
@@ -54,7 +77,11 @@
             <div class="ba-form-grid-2">
               <div class="ba-form-item">
                 <label class="ba-label">卡池 ID (唯一标识)</label>
-                <n-input v-model:value="pool.id" placeholder="例如: pool_new" :disabled="index === 0 && pool.id === 'pool_select'" />
+                <n-input
+                  v-model:value="pool.id"
+                  placeholder="例如: pool_new"
+                  :disabled="index === 0 && pool.id === 'pool_select'"
+                />
               </div>
               <div class="ba-form-item">
                 <label class="ba-label">卡池主名称</label>
@@ -69,10 +96,7 @@
               </div>
               <div class="ba-form-item">
                 <label class="ba-label">页签分类样式</label>
-                <n-select
-                  v-model:value="pool.tabType"
-                  :options="tabTypeOptions"
-                />
+                <n-select v-model:value="pool.tabType" :options="tabTypeOptions" />
               </div>
               <div class="ba-form-item">
                 <label class="ba-label">页签缩略图 (可选)</label>
@@ -93,7 +117,12 @@
 
             <div class="ba-form-item">
               <label class="ba-label">描述文字</label>
-              <n-input v-model:value="pool.description" type="textarea" :autosize="{ minRows: 2 }" placeholder="卡池介绍说明..." />
+              <n-input
+                v-model:value="pool.description"
+                type="textarea"
+                :autosize="{ minRows: 2 }"
+                placeholder="卡池介绍说明..."
+              />
             </div>
 
             <div class="ba-form-grid-2">
@@ -107,26 +136,39 @@
               </div>
             </div>
 
-            <div class="ba-form-grid-3" style="grid-template-columns: 1fr 2fr 2fr;">
+            <div class="ba-form-grid-3" style="grid-template-columns: 1fr 2fr 2fr">
               <div class="ba-form-item">
                 <label class="ba-label">招募类型</label>
-                <n-select
-                  v-model:value="pool.gachaType"
-                  :options="gachaTypeOptions"
-                />
+                <n-select v-model:value="pool.gachaType" :options="gachaTypeOptions" />
               </div>
               <div class="ba-form-item">
                 <label class="ba-label">按钮 1 设置 (文字 | 消耗)</label>
                 <div class="ba-btn-setup-row">
-                  <n-input v-model:value="pool.buttonText1" placeholder="按钮文字" style="width: 50%;" />
-                  <n-input v-model:value="pool.buttonCost1" placeholder="消耗描述" style="width: 50%;" />
+                  <n-input
+                    v-model:value="pool.buttonText1"
+                    placeholder="按钮文字"
+                    style="width: 50%"
+                  />
+                  <n-input
+                    v-model:value="pool.buttonCost1"
+                    placeholder="消耗描述"
+                    style="width: 50%"
+                  />
                 </div>
               </div>
               <div class="ba-form-item">
                 <label class="ba-label">按钮 2 设置 (文字 | 消耗)</label>
                 <div class="ba-btn-setup-row">
-                  <n-input v-model:value="pool.buttonText2" placeholder="按钮文字" style="width: 50%;" />
-                  <n-input v-model:value="pool.buttonCost2" placeholder="消耗描述" style="width: 50%;" />
+                  <n-input
+                    v-model:value="pool.buttonText2"
+                    placeholder="按钮文字"
+                    style="width: 50%"
+                  />
+                  <n-input
+                    v-model:value="pool.buttonCost2"
+                    placeholder="消耗描述"
+                    style="width: 50%"
+                  />
                 </div>
               </div>
             </div>
@@ -138,203 +180,203 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NCollapse, NCollapseItem, NInput, NSelect, NTag } from 'naive-ui'
+  import { NButton, NCollapse, NCollapseItem, NInput, NSelect, NTag } from 'naive-ui'
 
-const props = defineProps({
-  config: {
-    type: Object,
-    required: true
-  }
-})
-
-const tabTypeOptions = [
-  { label: '★3生徒セレクト (自选券金)', value: 'select' },
-  { label: 'やってこ Your take on! (蓝)', value: 'pickup_blue' },
-  { label: '卷いてこ My take on! (粉)', value: 'pickup_pink' },
-  { label: '夢を守りしはるはなの (红)', value: 'pickup_red' },
-  { label: '通常勧誘 (普通绿)', value: 'gacha' }
-]
-
-const gachaTypeOptions = [
-  { label: '常规抽选 (gacha)', value: 'gacha' },
-  { label: '自选招募 (select)', value: 'select' }
-]
-
-const getTabTypeColor = (type) => {
-  if (type === 'select') return 'warning'
-  if (type === 'pickup_blue') return 'info'
-  if (type === 'pickup_pink') return 'success'
-  if (type === 'pickup_red') return 'error'
-  return 'default'
-}
-
-const addPool = () => {
-  if (!props.config.recruitPools) {
-    props.config.recruitPools = []
-  }
-  const newId = `pool_${Date.now()}`
-  props.config.recruitPools.push({
-    id: newId,
-    name: '新增限时招募',
-    tabName: '新勧誘開催中!',
-    tabType: 'pickup_blue',
-    tabAvatar: '',
-    bgVideo: '',
-    bgImage: '',
-    startTime: '2026/05/20 11:00',
-    endTime: '2026/06/20 10:59',
-    gachaType: 'gacha',
-    description: '【限时招募】特定成员的招募概率提升！',
-    buttonText1: '招募1次',
-    buttonText2: '招募10次',
-    buttonCost1: '青辉石 x 120',
-    buttonCost2: '青辉石 x 1200'
+  const props = defineProps({
+    config: {
+      type: Object,
+      required: true,
+    },
   })
-}
 
-const deletePool = (index) => {
-  if (props.config.recruitPools[index].id === 'pool_select') {
-    // Keep at least one select pool if they want, or warn, but let's allow deleting any except maybe default if needed.
-    // Actually, just delete it.
+  const tabTypeOptions = [
+    { label: '★3生徒セレクト (自选券金)', value: 'select' },
+    { label: 'やってこ Your take on! (蓝)', value: 'pickup_blue' },
+    { label: '卷いてこ My take on! (粉)', value: 'pickup_pink' },
+    { label: '夢を守りしはるはなの (红)', value: 'pickup_red' },
+    { label: '通常勧誘 (普通绿)', value: 'gacha' },
+  ]
+
+  const gachaTypeOptions = [
+    { label: '常规抽选 (gacha)', value: 'gacha' },
+    { label: '自选招募 (select)', value: 'select' },
+  ]
+
+  const getTabTypeColor = (type) => {
+    if (type === 'select') return 'warning'
+    if (type === 'pickup_blue') return 'info'
+    if (type === 'pickup_pink') return 'success'
+    if (type === 'pickup_red') return 'error'
+    return 'default'
   }
-  props.config.recruitPools.splice(index, 1)
-}
+
+  const addPool = () => {
+    if (!props.config.recruitPools) {
+      props.config.recruitPools = []
+    }
+    const newId = `pool_${Date.now()}`
+    props.config.recruitPools.push({
+      id: newId,
+      name: '新增限时招募',
+      tabName: '新勧誘開催中!',
+      tabType: 'pickup_blue',
+      tabAvatar: '',
+      bgVideo: '',
+      bgImage: '',
+      startTime: '2026/05/20 11:00',
+      endTime: '2026/06/20 10:59',
+      gachaType: 'gacha',
+      description: '【限时招募】特定成员的招募概率提升！',
+      buttonText1: '招募1次',
+      buttonText2: '招募10次',
+      buttonCost1: '青辉石 x 120',
+      buttonCost2: '青辉石 x 1200',
+    })
+  }
+
+  const deletePool = (index) => {
+    if (props.config.recruitPools[index].id === 'pool_select') {
+      // Keep at least one select pool if they want, or warn, but let's allow deleting any except maybe default if needed.
+      // Actually, just delete it.
+    }
+    props.config.recruitPools.splice(index, 1)
+  }
 </script>
 
 <style scoped>
-.ba-card-group {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+  .ba-card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.ba-card {
-  background: #ffffff;
-  border: 1px solid rgba(18, 138, 250, 0.10);
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+  .ba-card {
+    background: #ffffff;
+    border: 1px solid rgba(18, 138, 250, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 
-.ba-card-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .ba-card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.ba-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #128afa;
-  font-weight: 700;
-  font-size: 15px;
-}
+  .ba-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #128afa;
+    font-weight: 700;
+    font-size: 15px;
+  }
 
-.ba-card-desc {
-  margin: 0;
-  color: #5a7394;
-  font-size: 13px;
-  line-height: 1.65;
-}
+  .ba-card-desc {
+    margin: 0;
+    color: #5a7394;
+    font-size: 13px;
+    line-height: 1.65;
+  }
 
-.ba-empty-card {
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
+  .ba-empty-card {
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+  }
 
-.ba-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: #8ca3bf;
-  font-size: 14px;
-}
+  .ba-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #8ca3bf;
+    font-size: 14px;
+  }
 
-.ba-empty-img {
-  width: 120px;
-  height: auto;
-  opacity: 0.7;
-}
+  .ba-empty-img {
+    width: 120px;
+    height: auto;
+    opacity: 0.7;
+  }
 
-.ba-pools-list {
-  background: #ffffff;
-  border: 1px solid rgba(18, 138, 250, 0.10);
-  border-radius: 12px;
-  padding: 16px;
-}
+  .ba-pools-list {
+    background: #ffffff;
+    border: 1px solid rgba(18, 138, 250, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+  }
 
-.ba-pool-collapse-item {
-  border-bottom: 1px solid #f0f4f8;
-  padding: 8px 0;
-}
+  .ba-pool-collapse-item {
+    border-bottom: 1px solid #f0f4f8;
+    padding: 8px 0;
+  }
 
-.ba-pool-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ba-pool-name {
-  font-weight: 700;
-  color: #1a3a5c;
-  font-size: 14px;
-}
-
-.ba-pool-meta {
-  display: flex;
-  align-items: center;
-}
-
-.ba-pool-form {
-  padding: 14px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: #fafcff;
-  border-radius: 8px;
-  border: 1px dashed rgba(18, 138, 250, 0.15);
-  margin-top: 8px;
-}
-
-.ba-form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.ba-form-grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-}
-
-.ba-form-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.ba-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1a3a5c;
-}
-
-.ba-btn-setup-row {
-  display: flex;
-  gap: 8px;
-}
-
-@media (max-width: 768px) {
-  .ba-form-grid-2,
-  .ba-form-grid-3 {
-    grid-template-columns: 1fr;
+  .ba-pool-header {
+    display: flex;
+    align-items: center;
     gap: 12px;
   }
-}
+
+  .ba-pool-name {
+    font-weight: 700;
+    color: #1a3a5c;
+    font-size: 14px;
+  }
+
+  .ba-pool-meta {
+    display: flex;
+    align-items: center;
+  }
+
+  .ba-pool-form {
+    padding: 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #fafcff;
+    border-radius: 8px;
+    border: 1px dashed rgba(18, 138, 250, 0.15);
+    margin-top: 8px;
+  }
+
+  .ba-form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ba-form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .ba-form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ba-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a3a5c;
+  }
+
+  .ba-btn-setup-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .ba-form-grid-2,
+    .ba-form-grid-3 {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
 </style>

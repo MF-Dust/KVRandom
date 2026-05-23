@@ -21,23 +21,23 @@ export const createDefaultConfig = () => ({
     alwaysOnTop: true,
     position: {
       x: null,
-      y: null
-    }
+      y: null,
+    },
   },
   pickCountDialog: {
     defaultPlayMusic: DEFAULT_PLAY_MUSIC,
     backgroundDarknessPercent: DEFAULT_BACKGROUND_DARKNESS_PERCENT,
-    defaultCount: DEFAULT_PICK_COUNT
+    defaultCount: DEFAULT_PICK_COUNT,
   },
   pickResultDialog: {
     defaultPlayGachaSound: DEFAULT_PLAY_GACHA_SOUND,
-    gachaSoundVolume: DEFAULT_GACHA_SOUND_VOLUME
+    gachaSoundVolume: DEFAULT_GACHA_SOUND_VOLUME,
   },
   webConfig: {
     port: DEFAULT_WEB_CONFIG_PORT,
     adminTopmostEnabled: false,
     adminAutoStartEnabled: false,
     adminAutoStartPath: '',
-    adminAutoStartTaskName: DEFAULT_ADMIN_TASK_NAME
-  }
+    adminAutoStartTaskName: DEFAULT_ADMIN_TASK_NAME,
+  },
 })

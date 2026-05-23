@@ -5,5 +5,5 @@ export const pickResultApi = {
   getConfig: () => invoke<any>('get_pick_result_config'),
   close: () => invoke('close_pick_result'),
   onOpen: (callback: (payload: any) => void) => listenCompat('pick-result-open', callback),
-  onReset: (callback: (payload: any) => void) => listenCompat('pick-result-reset', callback)
+  onReset: (callback: (payload: any) => void) => listenCompat('pick-result-reset', callback),
 }

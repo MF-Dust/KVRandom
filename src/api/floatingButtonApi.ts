@@ -8,5 +8,5 @@ export const floatingButtonApi = {
   endDrag: () => invoke('floating_button_drag_end'),
   prewarmAuxWindows: () => invoke('prewarm_aux_windows'),
   setIgnoreMouseEvents: (ignore) => invoke('floating_button_set_ignore_mouse', { ignore }),
-  onConfigUpdated: (callback) => listenCompat('floating-config-updated', callback)
+  onConfigUpdated: (callback) => listenCompat('floating-config-updated', callback),
 }

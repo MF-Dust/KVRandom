@@ -2,7 +2,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { pickResultApi } from '../api/pickResultApi'
 
-
 export function usePickResultDialog() {
   const results = ref<any[]>([])
   const animationKey = ref(0)
@@ -13,7 +12,9 @@ export function usePickResultDialog() {
   const playGachaSound = ref(true)
   const gachaSoundVolume = ref(0.6)
   const resultMode = ref('quick')
-  const instructionText = computed(() => resultMode.value === 'full' ? '点一下回到快速模式～' : '点一下就关掉哦～')
+  const instructionText = computed(() =>
+    resultMode.value === 'full' ? '点一下回到快速模式～' : '点一下就关掉哦～'
+  )
 
   let revealTimer: number | null = null
   let closeTimer: number | null = null
@@ -95,7 +96,7 @@ export function usePickResultDialog() {
 
     resultMode.value = 'quick'
 
-    const totalDelayMs = (Math.max(results.value.length - 1, 0) * 120) + 600
+    const totalDelayMs = Math.max(results.value.length - 1, 0) * 120 + 600
     revealTimer = setTimeout(() => {
       revealStarted.value = true
     }, totalDelayMs)
@@ -148,7 +149,7 @@ export function usePickResultDialog() {
   }
 
   const loadSoundConfig = async (configOverride?: any) => {
-    applySoundConfig(configOverride || await pickResultApi.getConfig())
+    applySoundConfig(configOverride || (await pickResultApi.getConfig()))
   }
 
   onMounted(async () => {
@@ -189,6 +190,6 @@ export function usePickResultDialog() {
     isTwoRows,
     closeResult,
     handleStageClick,
-    handleKeydown
+    handleKeydown,
   }
 }

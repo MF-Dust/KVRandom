@@ -78,7 +78,9 @@ export function useAppConfig(appApi, addLog) {
       const fallbackPath = defaultExePath.value || ''
       const payload = {
         exePath: String(config.value.webConfig.adminAutoStartPath || fallbackPath).trim(),
-        taskName: String(config.value.webConfig.adminAutoStartTaskName || DEFAULT_ADMIN_TASK_NAME).trim()
+        taskName: String(
+          config.value.webConfig.adminAutoStartTaskName || DEFAULT_ADMIN_TASK_NAME
+        ).trim(),
       }
       if (!payload.exePath) {
         window.alert('老师先填一下可执行文件的路径哦～')
@@ -104,6 +106,6 @@ export function useAppConfig(appApi, addLog) {
     fetchAppInfo,
     saveConfig,
     requestAdminElevation,
-    createAdminStartupTask
+    createAdminStartupTask,
   }
 }

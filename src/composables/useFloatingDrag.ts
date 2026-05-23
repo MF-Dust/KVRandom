@@ -41,7 +41,7 @@ export function useFloatingDrag(emit) {
     const screenY = Number(event.screenY)
     return {
       x: Number.isFinite(screenX) ? screenX : fallbackX,
-      y: Number.isFinite(screenY) ? screenY : fallbackY
+      y: Number.isFinite(screenY) ? screenY : fallbackY,
     }
   }
 
@@ -151,6 +151,6 @@ export function useFloatingDrag(emit) {
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
-    handlePointerCancel
+    handlePointerCancel,
   }
 }

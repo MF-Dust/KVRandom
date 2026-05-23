@@ -5,5 +5,5 @@ export const logApi = {
     const safeText = String(text || '').slice(0, 800)
     if (!safeText) return
     invoke('renderer_log', { level, text: safeText }).catch(() => {})
-  }
+  },
 }

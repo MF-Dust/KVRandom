@@ -61,7 +61,7 @@ export function useStudentListSync(appApi, config, addLog) {
   const addStudents = (newStudents) => {
     const currentList = [...(config.value.studentList || [])]
     for (const student of newStudents) {
-      const existingIndex = currentList.findIndex(s => s.name === student.name)
+      const existingIndex = currentList.findIndex((s) => s.name === student.name)
       if (existingIndex > -1) {
         if (student.academy !== undefined) {
           currentList[existingIndex].academy = student.academy
@@ -78,7 +78,9 @@ export function useStudentListSync(appApi, config, addLog) {
   }
 
   const resetWeights = () => {
-    config.value.studentList.forEach(s => { s.weight = 1.0 })
+    config.value.studentList.forEach((s) => {
+      s.weight = 1.0
+    })
   }
 
   const handleFileImport = async () => {
@@ -111,6 +113,6 @@ export function useStudentListSync(appApi, config, addLog) {
     addStudents,
     resetWeights,
     handleFileImport,
-    stopTextSync
+    stopTextSync,
   }
 }

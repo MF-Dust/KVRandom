@@ -5,12 +5,12 @@ const routes = [
   { path: '/pick-count', component: () => import('../views/PickCount.vue') },
   { path: '/pick-result', component: () => import('../views/PickResult.vue') },
   { path: '/config', component: () => import('../views/WebConfig.vue') },
-  { path: '/recruit', component: () => import('../views/Recruit.vue') }
+  { path: '/recruit', component: () => import('../views/Recruit.vue') },
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes,
 })
 
 export default router

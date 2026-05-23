@@ -49,6 +49,6 @@ export function useLogStream(appApi) {
     logs,
     addLog,
     startLogStream,
-    stopLogStream
+    stopLogStream,
   }
 }

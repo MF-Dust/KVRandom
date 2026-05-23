@@ -2,19 +2,38 @@
   <div class="ba-card-group">
     <div class="ba-card">
       <div class="ba-card-header">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <circle cx="12" cy="12" r="3"/>
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="12" cy="12" r="3" />
         </svg>
         <span>按钮的样子～</span>
       </div>
 
       <div class="ba-form-item">
         <label class="ba-label">点击交互模式</label>
-        <p class="ba-sublabel">选择点击悬浮按钮时的动作～极简模式只开启点名，完整模式会打开招募界面！</p>
-        <n-radio-group v-model:value="config.floatingButton.mode" name="floating-button-mode" style="width: 100%;">
-          <n-radio-button value="full" style="width: 50%; text-align: center;">完整模式 (招募)</n-radio-button>
-          <n-radio-button value="simple" style="width: 50%; text-align: center;">极简模式 (点名)</n-radio-button>
+        <p class="ba-sublabel">
+          选择点击悬浮按钮时的动作～极简模式只开启点名，完整模式会打开招募界面！
+        </p>
+        <n-radio-group
+          v-model:value="config.floatingButton.mode"
+          name="floating-button-mode"
+          style="width: 100%"
+        >
+          <n-radio-button value="full" style="width: 50%; text-align: center"
+            >完整模式 (招募)</n-radio-button
+          >
+          <n-radio-button value="simple" style="width: 50%; text-align: center"
+            >极简模式 (点名)</n-radio-button
+          >
         </n-radio-group>
       </div>
 
@@ -26,7 +45,7 @@
           :min="0"
           :max="1000"
           placeholder="100"
-          style="width: 100%;"
+          style="width: 100%"
         />
       </div>
 
@@ -50,8 +69,18 @@
 
     <div class="ba-card">
       <div class="ba-card-header">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
         </svg>
         <span>按钮位置～</span>
       </div>
@@ -62,7 +91,7 @@
           <n-input-number
             v-model:value="config.floatingButton.position.x"
             placeholder="自动"
-            style="width: 100%;"
+            style="width: 100%"
           />
         </div>
         <div class="ba-form-item">
@@ -70,7 +99,7 @@
           <n-input-number
             v-model:value="config.floatingButton.position.y"
             placeholder="自动"
-            style="width: 100%;"
+            style="width: 100%"
           />
         </div>
       </div>
@@ -79,95 +108,97 @@
 </template>
 
 <script setup lang="ts">
-import { NInputNumber, NSlider, NSwitch, NRadioGroup, NRadioButton } from 'naive-ui'
+  import { NInputNumber, NSlider, NSwitch, NRadioGroup, NRadioButton } from 'naive-ui'
 
-defineProps({
-  config: {
-    type: Object,
-    required: true
-  }
-})
+  defineProps({
+    config: {
+      type: Object,
+      required: true,
+    },
+  })
 </script>
 
 <style scoped>
-.ba-card-group {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+  .ba-card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.ba-card {
-  background: #ffffff;
-  border: 1px solid rgba(18, 138, 250, 0.10);
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: box-shadow 0.25s, transform 0.25s;
-}
+  .ba-card {
+    background: #ffffff;
+    border: 1px solid rgba(18, 138, 250, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition:
+      box-shadow 0.25s,
+      transform 0.25s;
+  }
 
-.ba-card:hover {
-  box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
-  transform: translateY(-1px);
-}
+  .ba-card:hover {
+    box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
+    transform: translateY(-1px);
+  }
 
-.ba-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #128afa;
-  font-weight: 700;
-  font-size: 15px;
-}
+  .ba-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #128afa;
+    font-weight: 700;
+    font-size: 15px;
+  }
 
-.ba-card-desc {
-  margin: 0;
-  color: #5a7394;
-  font-size: 13px;
-  line-height: 1.65;
-}
+  .ba-card-desc {
+    margin: 0;
+    color: #5a7394;
+    font-size: 13px;
+    line-height: 1.65;
+  }
 
-.ba-form-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+  .ba-form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-.ba-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a3a5c;
-}
+  .ba-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a3a5c;
+  }
 
-.ba-sublabel {
-  margin: 0;
-  font-size: 12px;
-  color: #8ca3bf;
-}
+  .ba-sublabel {
+    margin: 0;
+    font-size: 12px;
+    color: #8ca3bf;
+  }
 
-.ba-slider-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: #128afa;
-  text-align: right;
-  margin-top: -4px;
-}
+  .ba-slider-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #128afa;
+    text-align: right;
+    margin-top: -4px;
+  }
 
-.ba-toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .ba-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-.ba-toggle-label {
-  font-size: 14px;
-  color: #1a3a5c;
-}
+  .ba-toggle-label {
+    font-size: 14px;
+    color: #1a3a5c;
+  }
 
-.ba-position-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+  .ba-position-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
 </style>
