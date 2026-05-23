@@ -31,9 +31,9 @@ export function usePickResultDialog() {
     resultMode.value === 'full' ? '点一下回到快速模式～' : '点一下就关掉哦～'
   )
 
-  let revealTimer: number | null = null
-  let closeTimer: number | null = null
-  let closeFadeTimer: number | null = null
+  let revealTimer: ReturnType<typeof setTimeout> | null = null
+  let closeTimer: ReturnType<typeof setTimeout> | null = null
+  let closeFadeTimer: ReturnType<typeof setTimeout> | null = null
   let removeOpenListener: (() => void) | null = null
   let removeResetListener: (() => void) | null = null
 
