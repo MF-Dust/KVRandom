@@ -15,7 +15,7 @@ const logToMain = (level: string, text: string) => {
 
 ;(['warn', 'error'] as const).forEach((method) => {
   const original = console[method].bind(console)
-  console[method] = (...args: any[]) => {
+  console[method] = (...args: unknown[]) => {
     const text = args
       .map((arg) => {
         if (typeof arg === 'string') return arg

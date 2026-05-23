@@ -25,7 +25,7 @@
     handleKeydown,
   } = usePickResultDialog()
 
-  const onStageClick = (e: MouseEvent) => {
+  const onStageClick = (_e: MouseEvent) => {
     if (props.isRecruitMode) return
     handleStageClick()
   }

@@ -495,11 +495,12 @@
   import { audioApi } from '../api/audioApi'
   import { pickCountApi } from '../api/pickCountApi'
   import { pickResultApi } from '../api/pickResultApi'
+  import type { RecruitPool, Student } from '@/types'
   import PickResult from './PickResult.vue'
 
-  const pools = ref<any[]>([])
+  const pools = ref<RecruitPool[]>([])
   const activePoolIndex = ref(0)
-  const students = ref<any[]>([])
+  const students = ref<Student[]>([])
 
   // Interactive Currencies persisted locally
   const currencies = ref({
@@ -515,7 +516,7 @@
   const replenishTarget = ref('')
   const showDetailsModal = ref(false)
   const showSelectionModal = ref(false)
-  const selectedStudent = ref<any>(null)
+  const selectedStudent = ref<Student | null>(null)
 
   // Recruit Result Display
   const showResultOverlay = ref(false)
@@ -600,29 +601,17 @@
     localStorage.setItem('ba_recruit_currencies', JSON.stringify(currencies.value))
   }
 
-  const formatNumber = (num: number) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  }
-
-  const getTabTypeColor = (type: string) => {
-    if (type === 'select') return 'warning'
-    if (type === 'pickup_blue') return 'info'
-    if (type === 'pickup_pink') return 'success'
-    if (type === 'pickup_red') return 'error'
-    return 'default'
-  }
-
   const switchPool = async (idx: number) => {
     activePoolIndex.value = idx
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
   }
 
   const handleExit = async () => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
     try {
       await recruitApi.closeRecruit()
     } catch (e) {
@@ -643,7 +632,7 @@
   const openReplenish = async (target: string) => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
     replenishTarget.value = target
     showReplenishDialog.value = true
   }
@@ -651,7 +640,7 @@
   const closeReplenishDialog = async () => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
     showReplenishDialog.value = false
     replenishTarget.value = ''
   }
@@ -659,7 +648,7 @@
   const confirmReplenish = async () => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
 
     if (replenishTarget.value === 'pyroxene') {
       currencies.value.pyroxene += 1200
@@ -689,7 +678,7 @@
   const showRatesModal = async () => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
     showDetailsModal.value = true
   }
 
@@ -702,7 +691,7 @@
   const handleGacha = async (count: number) => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
 
     if (students.value.length === 0) {
       alert('老师，名单中还没有任何成员哦！先去设置面板「导入名单」吧～')
@@ -749,7 +738,7 @@
   const openSelectionModal = async () => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
 
     if (currencies.value.selectionTicket < 1) {
       alert('老师，您手头上没有自选券了哦，点击左侧按钮可以购买一张自选券～')
@@ -765,10 +754,10 @@
     showSelectionModal.value = true
   }
 
-  const selectStudent = async (student: unknown) => {
+  const selectStudent = async (student: Student) => {
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
     selectedStudent.value = student
   }
 
@@ -777,16 +766,17 @@
 
     try {
       await audioApi.playClickSound()
-    } catch (e) {}
+    } catch {}
 
     // Selection tickets are an entry condition only; select recruitment is intentionally no-consume.
     saveCurrencies()
 
     showSelectionModal.value = false
 
+    const studentName = selectedStudent.value.name
     playVideoAndExecute(async () => {
       try {
-        await recruitApi.confirmSelectStudent(selectedStudent.value.name, 'recruit')
+        await recruitApi.confirmSelectStudent(studentName, 'recruit')
       } catch (err) {
         console.error('Failed to recruit selected student:', err)
       }

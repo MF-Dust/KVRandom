@@ -155,7 +155,6 @@
     rawListText,
     syncTextToList,
     scheduleTextSync,
-    syncListToText,
     removeStudent,
     addStudents,
     resetWeights,

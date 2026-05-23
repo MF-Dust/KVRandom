@@ -157,6 +157,7 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { NButton, NSlider, NSwitch, NTag, NInput, NModal } from 'naive-ui'
+  import type { Student } from '@/types'
 
   defineProps({
     config: {
@@ -177,7 +178,7 @@
       return
     }
 
-    const addedStudents: any[] = []
+    const addedStudents: Student[] = []
     const lines = text.split('\n')
     for (const line of lines) {
       const trimmed = line.trim()
