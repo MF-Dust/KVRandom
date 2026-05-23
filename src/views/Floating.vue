@@ -13,17 +13,22 @@
 
   const sizePx = ref(50)
   const transparencyPercent = ref(20)
-  let removeConfigListener: any = null
-  let prewarmTimer: any = null
+  let removeConfigListener: (() => void) | null = null
+  let prewarmTimer: number | null = null
+
+  type FloatingConfig = {
+    sizePercent?: number
+    transparencyPercent?: number
+  }
 
   async function initConfig() {
-    const cfg = await floatingButtonApi.getConfig()
+    const cfg = (await floatingButtonApi.getConfig()) as FloatingConfig
     applyConfig(cfg)
   }
 
-  function applyConfig(cfg) {
-    sizePx.value = Math.round(50 * (cfg.sizePercent / 100))
-    transparencyPercent.value = cfg.transparencyPercent
+  function applyConfig(cfg: FloatingConfig) {
+    sizePx.value = Math.round(50 * ((cfg.sizePercent ?? 100) / 100))
+    transparencyPercent.value = cfg.transparencyPercent ?? 20
   }
 
   function handleFloatingButtonClick() {
@@ -37,7 +42,7 @@
       prewarmTimer = null
     }, 800)
     removeConfigListener = floatingButtonApi.onConfigUpdated((cfg) => {
-      applyConfig(cfg)
+      applyConfig(cfg as FloatingConfig)
     })
   })
 

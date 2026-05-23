@@ -575,10 +575,13 @@
 
     // Load config & student list
     try {
-      const config = await appApi.getConfig()
+      const config = (await appApi.getConfig()) as {
+        studentList?: unknown[]
+        recruitPools?: unknown[]
+      } | null
       if (config) {
-        students.value = config.studentList || []
-        pools.value = config.recruitPools || []
+        students.value = (config.studentList || []) as unknown[]
+        pools.value = (config.recruitPools || []) as unknown[]
       }
     } catch (err) {
       console.error('Failed to load configuration:', err)
@@ -588,7 +591,8 @@
       showResultOverlay.value = true
     })
 
-    pickResultApi.onReset((payload) => {
+    pickResultApi.onReset((rawPayload) => {
+      const payload = rawPayload as { reason?: string } | null
       if (payload?.reason === 'close') {
         showResultOverlay.value = false
       }
@@ -600,11 +604,11 @@
     localStorage.setItem('ba_recruit_currencies', JSON.stringify(currencies.value))
   }
 
-  const formatNumber = (num) => {
+  const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
 
-  const getTabTypeColor = (type) => {
+  const getTabTypeColor = (type: string) => {
     if (type === 'select') return 'warning'
     if (type === 'pickup_blue') return 'info'
     if (type === 'pickup_pink') return 'success'
@@ -612,7 +616,7 @@
     return 'default'
   }
 
-  const switchPool = async (idx) => {
+  const switchPool = async (idx: number) => {
     activePoolIndex.value = idx
     try {
       await audioApi.playClickSound()
@@ -640,7 +644,7 @@
   }
 
   // Replenishment actions
-  const openReplenish = async (target) => {
+  const openReplenish = async (target: string) => {
     try {
       await audioApi.playClickSound()
     } catch (e) {}
@@ -693,13 +697,13 @@
     showDetailsModal.value = true
   }
 
-  const calculateProb = (weight) => {
+  const calculateProb = (weight: number) => {
     if (totalWeight.value <= 0) return '0.00'
     return ((weight / totalWeight.value) * 100).toFixed(2)
   }
 
   // Regular Gacha (Draw 1 or 10)
-  const handleGacha = async (count) => {
+  const handleGacha = async (count: number) => {
     try {
       await audioApi.playClickSound()
     } catch (e) {}
@@ -765,7 +769,7 @@
     showSelectionModal.value = true
   }
 
-  const selectStudent = async (student) => {
+  const selectStudent = async (student: unknown) => {
     try {
       await audioApi.playClickSound()
     } catch (e) {}

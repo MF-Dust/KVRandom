@@ -1,12 +1,16 @@
-import { invoke, listenCompat } from './tauriCore'
+import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
 
 export const floatingButtonApi = {
-  getConfig: () => invoke('get_floating_button_config'),
-  onClick: () => invoke('floating_button_clicked'),
-  startDrag: () => invoke('floating_button_drag_start'),
-  moveDrag: (dx, dy) => invoke('floating_button_drag_move', { dx, dy }),
-  endDrag: () => invoke('floating_button_drag_end'),
-  prewarmAuxWindows: () => invoke('prewarm_aux_windows'),
-  setIgnoreMouseEvents: (ignore) => invoke('floating_button_set_ignore_mouse', { ignore }),
-  onConfigUpdated: (callback) => listenCompat('floating-config-updated', callback),
+  getConfig: () => invoke<unknown>('get_floating_button_config'),
+  onClick: () => invoke<void>('floating_button_clicked'),
+  startDrag: () => invoke<void>('floating_button_drag_start'),
+  moveDrag: (dx: number, dy: number) => invoke<void>('floating_button_drag_move', { dx, dy }),
+  endDrag: () => invoke<void>('floating_button_drag_end'),
+  prewarmAuxWindows: () => invoke<void>('prewarm_aux_windows'),
+  setIgnoreMouseEvents: (ignore: boolean) =>
+    invoke<void>('floating_button_set_ignore_mouse', { ignore }),
+  onConfigUpdated: (callback: EventCallback<unknown>): Unlisten =>
+    listenCompat('floating-config-updated', callback),
 }
+
+export type FloatingButtonApi = typeof floatingButtonApi

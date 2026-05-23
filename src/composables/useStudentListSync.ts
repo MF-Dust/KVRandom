@@ -1,7 +1,24 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
+import type { AppApi } from '../api/appApi'
+import type { AddLog } from './useLogStream'
 import { studentListToText } from '../studentListText'
 
-export function useStudentListSync(appApi, config, addLog) {
+type Student = {
+  name: string
+  weight?: number
+  academy?: string
+  club?: string
+  [key: string]: unknown
+}
+
+type ConfigShape = { studentList?: Student[]; [key: string]: unknown }
+
+type ParseStudentListResult = {
+  studentList?: Student[]
+  normalizedText?: string
+}
+
+export function useStudentListSync(appApi: AppApi, config: Ref<ConfigShape>, addLog: AddLog) {
   const rawListText = ref('')
   let textSyncTimer: number | null = null
   let textSyncRunId = 0
@@ -17,7 +34,10 @@ export function useStudentListSync(appApi, config, addLog) {
       return
     }
     const runId = ++textSyncRunId
-    const result = await appApi.parseStudentListText(rawText, config.value.studentList || [])
+    const result = (await appApi.parseStudentListText(
+      rawText,
+      (config.value.studentList || []) as unknown as Record<string, unknown>[]
+    )) as unknown as ParseStudentListResult
     if (runId !== textSyncRunId) {
       return
     }
@@ -53,13 +73,13 @@ export function useStudentListSync(appApi, config, addLog) {
     lastSyncedText = rawListText.value
   }
 
-  const removeStudent = (index) => {
-    config.value.studentList.splice(index, 1)
+  const removeStudent = (index: number) => {
+    config.value.studentList?.splice(index, 1)
     syncListToText()
   }
 
-  const addStudents = (newStudents) => {
-    const currentList = [...(config.value.studentList || [])]
+  const addStudents = (newStudents: Student[]) => {
+    const currentList: Student[] = [...(config.value.studentList || [])]
     for (const student of newStudents) {
       const existingIndex = currentList.findIndex((s) => s.name === student.name)
       if (existingIndex > -1) {
@@ -78,19 +98,21 @@ export function useStudentListSync(appApi, config, addLog) {
   }
 
   const resetWeights = () => {
-    config.value.studentList.forEach((s) => {
+    config.value.studentList?.forEach((s: Student) => {
       s.weight = 1.0
     })
   }
 
   const handleFileImport = async () => {
     try {
-      const result = await appApi.importStudentListFromFile(config.value.studentList || [])
+      const result = (await appApi.importStudentListFromFile(
+        (config.value.studentList || []) as unknown as Record<string, unknown>[]
+      )) as unknown as ParseStudentListResult | null
       if (!result) return
-      config.value.studentList = result.studentList
-      rawListText.value = result.normalizedText
+      config.value.studentList = result.studentList || []
+      rawListText.value = result.normalizedText || ''
       lastSyncedText = rawListText.value
-      addLog('info', `已经导入 ${result.studentList.length} 名学生啦～`)
+      addLog('info', `已经导入 ${result.studentList?.length || 0} 名学生啦～`)
     } catch (error) {
       console.error('导入名单失败:', error)
       addLog('error', '导入名单失败...老师检查一下文件内容～')

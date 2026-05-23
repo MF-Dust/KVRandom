@@ -65,7 +65,7 @@ const tabs = tabGroups.flatMap((group) => group.tabs)
 export function useConfigTabs() {
   const activeTab = ref('list')
 
-  const switchTab = (tab) => {
+  const switchTab = (tab: string) => {
     activeTab.value = tab
   }
 

@@ -9,11 +9,17 @@ import {
   MIN_PICK_COUNT,
 } from '../configDefaults'
 
+type PickCountDialogConfig = {
+  defaultCount?: number
+  defaultPlayMusic?: boolean
+  backgroundDarknessPercent?: number
+}
+
 const MIN_COUNT = MIN_PICK_COUNT
 const MAX_COUNT = MAX_PICK_COUNT
 const EXIT_ANIMATION_MS = 400
 
-function clampInt(value, min, max, fallback) {
+function clampInt(value: unknown, min: number, max: number, fallback: number) {
   const n = Number(value)
   if (!Number.isFinite(n)) return fallback
   const rounded = Math.round(n)
@@ -43,7 +49,7 @@ export function usePickCountDialog() {
     }
   })
 
-  const applyConfig = (cfg) => {
+  const applyConfig = (cfg: PickCountDialogConfig | null | undefined) => {
     if (!cfg) return
     count.value = clampInt(cfg.defaultCount, MIN_COUNT, MAX_COUNT, DEFAULT_PICK_COUNT)
     playMusic.value = Boolean(cfg.defaultPlayMusic)
@@ -55,10 +61,10 @@ export function usePickCountDialog() {
     )
   }
 
-  const initConfig = async (configOverride?: any) => {
+  const initConfig = async (configOverride?: PickCountDialogConfig | null) => {
     isInitializing.value = true
     try {
-      applyConfig(configOverride || (await pickCountApi.getConfig()))
+      applyConfig(configOverride || ((await pickCountApi.getConfig()) as PickCountDialogConfig))
     } finally {
       isInitializing.value = false
     }
@@ -115,7 +121,10 @@ export function usePickCountDialog() {
     }
   }
 
-  const resetDialogStateFromConfig = async (shouldPlayBgm: boolean, configOverride?: any) => {
+  const resetDialogStateFromConfig = async (
+    shouldPlayBgm: boolean,
+    configOverride?: PickCountDialogConfig | null
+  ) => {
     isLeaving.value = false
     stopAudio()
     await initConfig(configOverride)
@@ -129,7 +138,7 @@ export function usePickCountDialog() {
     }
   }
 
-  const beginExit = (action) => {
+  const beginExit = (action: 'cancel' | 'confirm') => {
     if (isLeaving.value) {
       return
     }
@@ -181,7 +190,8 @@ export function usePickCountDialog() {
     removeOnOpenListener = pickCountApi.onOpen(async (payload) => {
       openedByEvent = true
       isDialogOpen.value = true
-      await resetDialogStateFromConfig(true, payload?.config)
+      const cfg = (payload as { config?: PickCountDialogConfig } | undefined)?.config ?? null
+      await resetDialogStateFromConfig(true, cfg)
     })
 
     removeStopListener = pickCountApi.onStopBgm(() => {

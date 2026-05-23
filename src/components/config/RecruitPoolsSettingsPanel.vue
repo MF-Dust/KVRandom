@@ -202,7 +202,7 @@
     { label: '自选招募 (select)', value: 'select' },
   ]
 
-  const getTabTypeColor = (type) => {
+  const getTabTypeColor = (type: string) => {
     if (type === 'select') return 'warning'
     if (type === 'pickup_blue') return 'info'
     if (type === 'pickup_pink') return 'success'
@@ -234,12 +234,13 @@
     })
   }
 
-  const deletePool = (index) => {
-    if (props.config.recruitPools[index].id === 'pool_select') {
+  const deletePool = (index: number | string) => {
+    const idx = Number(index)
+    if (props.config.recruitPools[idx].id === 'pool_select') {
       // Keep at least one select pool if they want, or warn, but let's allow deleting any except maybe default if needed.
       // Actually, just delete it.
     }
-    props.config.recruitPools.splice(index, 1)
+    props.config.recruitPools.splice(idx, 1)
   }
 </script>
 

@@ -3,11 +3,17 @@ import { listen } from '@tauri-apps/api/event'
 
 export { invoke }
 
-export const listenCompat = (eventName, callback) => {
-  let unlisten: any = null
+export type Unlisten = () => void
+export type EventCallback<T> = (payload: T) => void
+
+export const listenCompat = <T = unknown>(
+  eventName: string,
+  callback: EventCallback<T>
+): Unlisten => {
+  let unlisten: Unlisten | null = null
   let disposed = false
 
-  listen(eventName, (event) => {
+  listen<T>(eventName, (event) => {
     callback(event.payload)
   })
     .then((fn) => {

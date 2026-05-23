@@ -2,8 +2,33 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { pickResultApi } from '../api/pickResultApi'
 
+type PickResultItem = {
+  name: string
+  rarity: string
+}
+
+type PickResultPayload = {
+  results?: unknown[]
+  config?: PickResultSoundConfig
+  token?: number
+}
+
+type PickResultSoundConfig = {
+  defaultPlayGachaSound?: boolean
+  gachaSoundVolume?: number
+}
+
+type RawResult =
+  | string
+  | {
+      name?: unknown
+      rarity?: string
+    }
+  | null
+  | undefined
+
 export function usePickResultDialog() {
-  const results = ref<any[]>([])
+  const results = ref<PickResultItem[]>([])
   const animationKey = ref(0)
   const revealStarted = ref(false)
   const canClose = ref(false)
@@ -26,20 +51,29 @@ export function usePickResultDialog() {
   const bottomRow = computed(() => results.value.slice(5))
   const isTwoRows = computed(() => results.value.length > 5)
 
-  const normalizeResults = (payload: any) => {
-    const list = Array.isArray(payload?.results) ? payload.results : payload
+  const normalizeResults = (payload: PickResultPayload | unknown[] | null): PickResultItem[] => {
+    const list = Array.isArray((payload as PickResultPayload)?.results)
+      ? (payload as PickResultPayload).results
+      : (payload as unknown[])
     if (!Array.isArray(list)) return []
     return list
-      .map((item) => {
+      .map((rawItem): PickResultItem | null => {
+        const item = rawItem as RawResult
         if (!item) return null
-        const name = typeof item === 'string' ? item.trim() : String(item.name || '').trim()
+        const name =
+          typeof item === 'string'
+            ? item.trim()
+            : String((item as { name?: unknown }).name || '').trim()
         if (!name) return null
 
-        const rarity = typeof item === 'object' && item.rarity ? item.rarity : 'blue'
+        const rarity =
+          typeof item === 'object' && item && 'rarity' in item && item.rarity
+            ? String(item.rarity)
+            : 'blue'
 
         return { name, rarity }
       })
-      .filter((item) => item)
+      .filter((item): item is PickResultItem => item !== null)
   }
 
   const stopGachaLoadingSound = () => {
@@ -74,17 +108,17 @@ export function usePickResultDialog() {
     }
   }
 
-  const applySoundConfig = (cfg) => {
+  const applySoundConfig = (cfg: PickResultSoundConfig | null | undefined) => {
     if (!cfg) return
     playGachaSound.value = Boolean(cfg.defaultPlayGachaSound)
     gachaSoundVolume.value = Number(cfg.gachaSoundVolume)
   }
 
-  const applyResults = (payload) => {
+  const applyResults = (payload: PickResultPayload | { results: unknown[] }) => {
     resetResultState({ stopSound: false })
-    applySoundConfig(payload?.config)
-    results.value = normalizeResults(payload)
-    const token = Number(payload?.token)
+    applySoundConfig((payload as PickResultPayload)?.config)
+    results.value = normalizeResults(payload as PickResultPayload)
+    const token = Number((payload as PickResultPayload)?.token)
     if (Number.isFinite(token)) {
       lastToken.value = token
     }
@@ -111,7 +145,8 @@ export function usePickResultDialog() {
     }
   }
 
-  const handleReset = (payload) => {
+  const handleReset = (rawPayload: unknown) => {
+    const payload = rawPayload as { token?: number; reason?: string } | null
     const token = Number(payload?.token)
     const reason = payload?.reason
     if (Number.isFinite(token)) {
@@ -142,14 +177,14 @@ export function usePickResultDialog() {
     closeResult()
   }
 
-  const handleKeydown = (event) => {
+  const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && canClose.value && !isClosing.value) {
       closeResult()
     }
   }
 
-  const loadSoundConfig = async (configOverride?: any) => {
-    applySoundConfig(configOverride || (await pickResultApi.getConfig()))
+  const loadSoundConfig = async (configOverride?: PickResultSoundConfig | null) => {
+    applySoundConfig(configOverride || ((await pickResultApi.getConfig()) as PickResultSoundConfig))
   }
 
   onMounted(async () => {
@@ -158,7 +193,8 @@ export function usePickResultDialog() {
     const initial = await pickResultApi.getResults()
     applyResults({ results: initial })
 
-    removeOpenListener = pickResultApi.onOpen(async (payload) => {
+    removeOpenListener = pickResultApi.onOpen(async (rawPayload) => {
+      const payload = rawPayload as PickResultPayload
       await loadSoundConfig(payload?.config)
       applyResults(payload)
     })

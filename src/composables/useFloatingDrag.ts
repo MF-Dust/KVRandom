@@ -4,18 +4,21 @@ import { floatingButtonApi } from '../api/floatingButtonApi'
 
 const DRAG_THRESHOLD_PX = 3
 
-export function useFloatingDrag(emit) {
+type FloatingEmit = (event: 'click') => void
+type DragTask = () => Promise<unknown> | unknown
+
+export function useFloatingDrag(emit: FloatingEmit) {
   const pointerDown = ref(false)
-  const activePointerId = ref(null)
+  const activePointerId = ref<number | null>(null)
   const isDragging = ref(false)
   const startGlobalX = ref(0)
   const startGlobalY = ref(0)
   const pendingDx = ref(0)
   const pendingDy = ref(0)
   const rafId = ref(0)
-  let dragCommandQueue = Promise.resolve()
+  let dragCommandQueue: Promise<unknown> = Promise.resolve()
 
-  const enqueueDragCommand = (task) => {
+  const enqueueDragCommand = (task: DragTask) => {
     dragCommandQueue = dragCommandQueue
       .catch(() => {})
       .then(task)
@@ -29,7 +32,7 @@ export function useFloatingDrag(emit) {
     audioApi.playClickSound().catch(() => {})
   }
 
-  const getGlobalPoint = (event) => {
+  const getGlobalPoint = (event: PointerEvent) => {
     const fallbackX = window.screenX + event.clientX
     const fallbackY = window.screenY + event.clientY
 
@@ -68,7 +71,7 @@ export function useFloatingDrag(emit) {
     }
   }
 
-  const handlePointerDown = (event) => {
+  const handlePointerDown = (event: PointerEvent) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return
     pointerDown.value = true
     activePointerId.value = event.pointerId
@@ -80,12 +83,13 @@ export function useFloatingDrag(emit) {
     pendingDy.value = 0
     dragCommandQueue = Promise.resolve()
     cancelScheduledMove()
-    if (event.currentTarget && event.currentTarget.setPointerCapture) {
-      event.currentTarget.setPointerCapture(event.pointerId)
+    const target = event.currentTarget as Element | null
+    if (target && 'setPointerCapture' in target) {
+      target.setPointerCapture(event.pointerId)
     }
   }
 
-  const handlePointerMove = (event) => {
+  const handlePointerMove = (event: PointerEvent) => {
     if (activePointerId.value !== event.pointerId) return
     if (!pointerDown.value) return
 
@@ -106,11 +110,11 @@ export function useFloatingDrag(emit) {
     }
   }
 
-  const handlePointerUp = async (event) => {
+  const handlePointerUp = async (event: PointerEvent) => {
     if (activePointerId.value !== event.pointerId) return
     if (!pointerDown.value) return
 
-    let finishDrag: Promise<void> | null = null
+    let finishDrag: Promise<unknown> | null = null
     if (isDragging.value) {
       cancelScheduledMove()
       const finalDx = pendingDx.value
@@ -127,15 +131,16 @@ export function useFloatingDrag(emit) {
     pointerDown.value = false
     activePointerId.value = null
     isDragging.value = false
-    if (event.currentTarget && event.currentTarget.releasePointerCapture) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
+    const target = event.currentTarget as Element | null
+    if (target && 'releasePointerCapture' in target) {
+      target.releasePointerCapture(event.pointerId)
     }
     if (finishDrag) {
       await finishDrag
     }
   }
 
-  const handlePointerCancel = (event) => {
+  const handlePointerCancel = (event: PointerEvent) => {
     if (activePointerId.value !== null && activePointerId.value !== event.pointerId) return
     if (isDragging.value) {
       cancelScheduledMove()

@@ -1,9 +1,11 @@
 import { invoke } from './tauriCore'
 
 export const recruitApi = {
-  openRecruit: () => invoke('open_recruit'),
-  closeRecruit: () => invoke('close_recruit'),
-  openConfig: () => invoke('open_config'),
+  openRecruit: () => invoke<void>('open_recruit'),
+  closeRecruit: () => invoke<void>('close_recruit'),
+  openConfig: () => invoke<void>('open_config'),
   confirmSelectStudent: (studentName: string, source: string | null = null) =>
-    invoke('confirm_select_student', { studentName, source }),
+    invoke<void>('confirm_select_student', { studentName, source }),
 }
+
+export type RecruitApi = typeof recruitApi

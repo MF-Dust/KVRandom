@@ -1,11 +1,27 @@
 import { ref } from 'vue'
+import type { AppApi } from '../api/appApi'
 
-export function useLogStream(appApi) {
-  const logs = ref<any[]>([])
+export type LogEntry = {
+  id: string
+  level: string
+  text: string
+  time: string
+}
+
+export type AddLog = (level: string, text: string, timeOverride?: string) => void
+
+type BackendLogEntry = {
+  level?: string
+  text?: string
+  time?: string | number
+}
+
+export function useLogStream(appApi: AppApi) {
+  const logs = ref<LogEntry[]>([])
   let logSeed = 0
   let removeLogListener: (() => void) | null = null
 
-  const addLog = (level, text, timeOverride) => {
+  const addLog: AddLog = (level, text, timeOverride) => {
     const time = timeOverride || new Date().toLocaleTimeString('zh-CN', { hour12: false })
     logs.value.push({ id: `${Date.now()}-${logSeed++}`, level, text, time })
     if (logs.value.length > 200) {
@@ -19,7 +35,7 @@ export function useLogStream(appApi) {
     }
 
     try {
-      const existingLogs = await appApi.getLogs()
+      const existingLogs = (await appApi.getLogs()) as BackendLogEntry[]
       existingLogs.forEach((entry) => {
         const time = entry.time
           ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
@@ -28,7 +44,8 @@ export function useLogStream(appApi) {
       })
     } catch (_error) {}
 
-    removeLogListener = appApi.onLogEntry((entry) => {
+    removeLogListener = appApi.onLogEntry((rawEntry) => {
+      const entry = rawEntry as BackendLogEntry
       try {
         const time = entry.time
           ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
