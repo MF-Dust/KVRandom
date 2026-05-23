@@ -331,6 +331,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Video Overlay -->
+    <div class="video-overlay" v-if="isPlayingVideo" @click="skipVideo">
+      <video
+        class="gacha-video"
+        src="/video/vid.mp4"
+        autoplay
+        @ended="handleVideoEnd"
+      ></video>
+      <div class="skip-hint">点击跳过 / Click to skip</div>
+    </div>
+
+    <!-- Recruit Result Overlay -->
+    <div class="recruit-result-overlay" v-show="showResultOverlay">
+      <PickResult />
+    </div>
   </div>
 </template>
 
@@ -339,6 +355,8 @@ import { ref, computed, onMounted } from 'vue'
 import { appApi, recruitApi } from '../tauriApi'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
+import { pickResultApi } from '../api/pickResultApi'
+import PickResult from './PickResult.vue'
 
 const pools = ref<any[]>([])
 const activePoolIndex = ref(0)
@@ -359,6 +377,30 @@ const replenishTarget = ref('')
 const showDetailsModal = ref(false)
 const showSelectionModal = ref(false)
 const selectedStudent = ref<any>(null)
+
+// Recruit Result Display
+const showResultOverlay = ref(false)
+
+// Video Playback Logic
+const isPlayingVideo = ref(false)
+let pendingRecruitAction: (() => Promise<void>) | null = null
+
+const playVideoAndExecute = (action: () => Promise<void>) => {
+  pendingRecruitAction = action
+  isPlayingVideo.value = true
+}
+
+const handleVideoEnd = async () => {
+  isPlayingVideo.value = false
+  if (pendingRecruitAction) {
+    await pendingRecruitAction()
+    pendingRecruitAction = null
+  }
+}
+
+const skipVideo = () => {
+  handleVideoEnd()
+}
 
 const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
 
@@ -403,6 +445,15 @@ onMounted(async () => {
     console.error('Failed to load configuration:', err)
   }
 
+  pickResultApi.onOpen(() => {
+    showResultOverlay.value = true
+  })
+
+  pickResultApi.onReset((payload) => {
+    if (payload?.reason === 'close') {
+      showResultOverlay.value = false
+    }
+  })
 })
 
 // Methods
@@ -545,12 +596,14 @@ const handleGacha = async (count) => {
 
   saveCurrencies()
 
-  try {
-    // Confirm pick count, hide recruit window, track draw source as 'recruit'
-    await pickCountApi.confirm(count, false, 'recruit')
-  } catch (err) {
-    console.error('Failed to trigger recruit draw:', err)
-  }
+  playVideoAndExecute(async () => {
+    try {
+      // Confirm pick count, hide recruit window, track draw source as 'recruit'
+      await pickCountApi.confirm(count, false, 'recruit')
+    } catch (err) {
+      console.error('Failed to trigger recruit draw:', err)
+    }
+  })
 }
 
 // Selection ticket recruitment
@@ -592,11 +645,13 @@ const confirmStudentSelection = async () => {
 
   showSelectionModal.value = false
 
-  try {
-    await recruitApi.confirmSelectStudent(selectedStudent.value.name, 'recruit')
-  } catch (err) {
-    console.error('Failed to recruit selected student:', err)
-  }
+  playVideoAndExecute(async () => {
+    try {
+      await recruitApi.confirmSelectStudent(selectedStudent.value.name, 'recruit')
+    } catch (err) {
+      console.error('Failed to recruit selected student:', err)
+    }
+  })
 }
 </script>
 
@@ -1601,5 +1656,49 @@ const confirmStudentSelection = async () => {
   width: 16px;
   height: 16px;
   object-fit: contain;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.gacha-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.skip-hint {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.recruit-result-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  background-image: url('/image/background.png');
+  background-size: cover;
+  background-position: center;
 }
 </style>

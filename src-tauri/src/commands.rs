@@ -1,6 +1,6 @@
 use std::fs;
 use std::hash::{Hash, Hasher};
-use tauri::{AppHandle, Manager, PhysicalPosition, Position, WebviewWindow};
+use tauri::{AppHandle, Manager, PhysicalPosition, Position, WebviewWindow, Emitter};
 
 use crate::admin::{create_admin_startup_task_impl, is_process_elevated, request_admin_relaunch};
 use crate::audio::AudioCommand;
@@ -10,7 +10,7 @@ use crate::config::{
     PickResultDialogConfig, Student, StudentListParseResult, ADMIN_TASK_DEFAULT_NAME,
     MAX_PICK_COUNT, MIN_PICK_COUNT,
 };
-use crate::models::{ApiResult, AppInfo, PickedStudent, UpdateResult};
+use crate::models::{ApiResult, AppInfo, PickedStudent, UpdateResult, PickResultOpenPayload, PickResultResetPayload};
 use crate::picker::{
     assign_rarity, build_weighted_pool, pick_students_with_repeat, pick_students_without_repeat,
 };
@@ -258,12 +258,12 @@ pub(crate) async fn confirm_pick_count(
         }
 
         hide_pick_count_window(&app);
-        crate::windows::hide_recruit_window(&app);
-        if source.as_deref() == Some("recruit") {
-            let _ = state.audio.send(AudioCommand::StopBgm);
+        let is_recruit = source.as_deref() == Some("recruit");
+        if !is_recruit {
+            crate::windows::hide_recruit_window(&app);
         }
 
-        {
+        let (token, config) = {
             let mut guard = state
                 .inner
                 .lock()
@@ -272,9 +272,31 @@ pub(crate) async fn confirm_pick_count(
             guard.current_pick_results = picked_students.clone();
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
             guard.draw_trigger_source = source;
-        }
+            (guard.pick_result_token, guard.config.pick_result_dialog.clone())
+        };
 
-        open_pick_result_window(&app, &state, picked_students)
+        if is_recruit {
+            if let Some(window) = app.get_webview_window("recruit") {
+                let _ = window.emit(
+                    "pick-result-reset",
+                    PickResultResetPayload {
+                        token,
+                        reason: "before-open".to_string(),
+                    },
+                );
+                let _ = window.emit(
+                    "pick-result-open",
+                    PickResultOpenPayload {
+                        token,
+                        results: picked_students,
+                        config,
+                    },
+                );
+            }
+            Ok(())
+        } else {
+            open_pick_result_window(&app, &state, picked_students)
+        }
     })
     .await
     .map_err(|e| e.to_string())?
@@ -320,12 +342,12 @@ pub(crate) async fn confirm_select_student(
         };
 
         hide_pick_count_window(&app);
-        crate::windows::hide_recruit_window(&app);
-        if source.as_deref() == Some("recruit") {
-            let _ = state.audio.send(AudioCommand::StopBgm);
+        let is_recruit = source.as_deref() == Some("recruit");
+        if !is_recruit {
+            crate::windows::hide_recruit_window(&app);
         }
 
-        {
+        let (token, config) = {
             let mut guard = state
                 .inner
                 .lock()
@@ -334,9 +356,32 @@ pub(crate) async fn confirm_select_student(
             guard.current_pick_results = vec![picked_student.clone()];
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
             guard.draw_trigger_source = source;
-        }
+            (guard.pick_result_token, guard.config.pick_result_dialog.clone())
+        };
 
-        open_pick_result_window(&app, &state, vec![picked_student])
+        let picked_students = vec![picked_student];
+        if is_recruit {
+            if let Some(window) = app.get_webview_window("recruit") {
+                let _ = window.emit(
+                    "pick-result-reset",
+                    PickResultResetPayload {
+                        token,
+                        reason: "before-open".to_string(),
+                    },
+                );
+                let _ = window.emit(
+                    "pick-result-open",
+                    PickResultOpenPayload {
+                        token,
+                        results: picked_students,
+                        config,
+                    },
+                );
+            }
+            Ok(())
+        } else {
+            open_pick_result_window(&app, &state, picked_students)
+        }
     })
     .await
     .map_err(|e| e.to_string())?
@@ -442,11 +487,7 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> Result<(), String> {
         if let Some(src) = source {
             if src == "recruit" {
                 if let Some(window) = app.get_webview_window("recruit") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                    if play_bgm {
-                        let _ = state.audio.send(AudioCommand::PlayBgm);
-                    }
+                    let _ = window.emit("pick-result-reset", PickResultResetPayload { token, reason: "close".to_string() });
                     {
                         let mut guard = state
                             .inner
