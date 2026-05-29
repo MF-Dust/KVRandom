@@ -107,8 +107,7 @@
 <style scoped>
   .ba-log-panel {
     border-top: 1px solid rgba(18, 138, 250, 0.12);
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.86);
     flex-shrink: 0;
   }
 

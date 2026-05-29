@@ -321,9 +321,7 @@
   .ba-sidebar {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.9);
     border-right: 1px solid rgba(18, 138, 250, 0.08);
     padding: 20px 12px;
     gap: 4px;
@@ -395,7 +393,9 @@
     cursor: pointer;
     font-family: inherit;
     box-shadow: 0 4px 14px rgba(243, 185, 0, 0.25);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      transform 0.18s ease,
+      background 0.18s ease;
     position: relative;
     overflow: hidden;
   }
@@ -415,7 +415,6 @@
   }
 
   .ba-save-btn:hover {
-    box-shadow: 0 6px 20px rgba(243, 185, 0, 0.35);
     transform: translateY(-1px);
   }
 
@@ -441,8 +440,7 @@
   .ba-content-header {
     padding: 22px 28px 16px;
     border-bottom: 1px solid rgba(18, 138, 250, 0.06);
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.72);
     flex-shrink: 0;
   }
 

@@ -165,7 +165,9 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      background 0.18s ease,
+      color 0.18s ease;
     position: relative;
     text-align: left;
     white-space: nowrap;

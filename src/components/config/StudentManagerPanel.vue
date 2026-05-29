@@ -361,7 +361,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition:
+      background 0.16s ease,
+      color 0.16s ease;
   }
 
   .ba-del-btn:hover {

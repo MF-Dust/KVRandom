@@ -3,10 +3,7 @@ use tauri::{AppHandle, Manager, PhysicalPosition, Position, WebviewWindow};
 use crate::config::FloatingButtonConfig;
 use crate::error::{AppError, AppResult};
 use crate::state::{refresh_config, AppState, DragSession};
-use crate::windows::{
-    apply_floating_window_config, create_pick_count_window, create_pick_result_window,
-    persist_floating_position,
-};
+use crate::windows::{apply_floating_window_config, persist_floating_position};
 
 #[tauri::command]
 pub(crate) async fn get_floating_button_config(app: AppHandle) -> AppResult<FloatingButtonConfig> {
@@ -112,16 +109,6 @@ pub(crate) async fn floating_button_set_ignore_mouse(
 ) -> AppResult<()> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         window.set_ignore_cursor_events(false)?;
-        Ok(())
-    })
-    .await?
-}
-
-#[tauri::command]
-pub(crate) async fn prewarm_aux_windows(app: AppHandle) -> AppResult<()> {
-    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
-        create_pick_count_window(&app)?;
-        create_pick_result_window(&app)?;
         Ok(())
     })
     .await?

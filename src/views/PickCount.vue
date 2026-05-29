@@ -103,7 +103,7 @@
     background: #eff6ff;
     border: 1px solid rgba(255, 255, 255, 0.76);
     box-shadow:
-      0 24px 68px rgba(3, 17, 44, 0.42),
+      0 14px 34px rgba(3, 17, 44, 0.28),
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
     opacity: 0;
     transform: translateY(18px);
@@ -150,16 +150,12 @@
     font-weight: 700;
     color: #0b2a55;
     background: #e3e9f3;
-    box-shadow: 0 10px 16px rgba(19, 35, 62, 0.2);
-    transition:
-      transform 120ms ease,
-      filter 120ms ease,
-      box-shadow 120ms ease;
+    box-shadow: 0 5px 10px rgba(19, 35, 62, 0.14);
+    transition: transform 120ms ease;
   }
 
   .pick-range-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    filter: brightness(1.05);
   }
 
   .pick-range-btn:active:not(:disabled) {
@@ -192,17 +188,12 @@
     justify-content: center;
     color: #101a8c;
     background: #cfd7e4;
-    box-shadow: 0 14px 28px rgba(10, 30, 68, 0.38);
-    transition:
-      transform 120ms ease,
-      filter 120ms ease,
-      box-shadow 120ms ease;
+    box-shadow: 0 8px 16px rgba(10, 30, 68, 0.28);
+    transition: transform 120ms ease;
   }
 
   .pick-circle-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    filter: brightness(1.08);
-    box-shadow: 0 18px 30px rgba(9, 27, 58, 0.42);
   }
 
   .pick-circle-btn:active:not(:disabled) {
@@ -228,7 +219,7 @@
     font-size: 44px;
     font-weight: 700;
     letter-spacing: 2px;
-    box-shadow: inset 0 1px 10px rgba(115, 180, 255, 0.32);
+    box-shadow: inset 0 1px 5px rgba(115, 180, 255, 0.22);
   }
 
   .pick-actions {
@@ -246,15 +237,11 @@
     font-size: 19px;
     font-weight: 700;
     letter-spacing: 1px;
-    transition:
-      transform 120ms ease,
-      filter 120ms ease,
-      box-shadow 120ms ease;
+    transition: transform 120ms ease;
   }
 
   .pick-action-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    filter: brightness(1.04);
   }
 
   .pick-action-btn:active:not(:disabled) {
@@ -264,20 +251,19 @@
   .pick-action-btn:disabled {
     cursor: not-allowed;
     opacity: 0.7;
-    filter: grayscale(0.15);
     box-shadow: none;
   }
 
   .pick-action-cancel {
     color: #152131;
     background: #fdfeff;
-    box-shadow: 0 10px 18px rgba(22, 31, 50, 0.2);
+    box-shadow: 0 5px 10px rgba(22, 31, 50, 0.14);
   }
 
   .pick-action-confirm {
     color: #3a2800;
     background: #fffb13e2;
-    box-shadow: 0 10px 18px rgba(92, 68, 0, 0.28);
+    box-shadow: 0 5px 10px rgba(92, 68, 0, 0.18);
   }
 
   .pick-music-row {

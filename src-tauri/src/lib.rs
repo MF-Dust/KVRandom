@@ -121,7 +121,6 @@ pub fn run() {
             commands::floating::floating_button_drag_move,
             commands::floating::floating_button_drag_end,
             commands::floating::floating_button_set_ignore_mouse,
-            commands::floating::prewarm_aux_windows,
             commands::pick_dialog::get_pick_count_config,
             commands::pick_dialog::open_pick_count,
             commands::pick_dialog::cancel_pick_count,

@@ -7,7 +7,6 @@ export const floatingButtonApi = {
   startDrag: () => invoke<void>('floating_button_drag_start'),
   moveDrag: (dx: number, dy: number) => invoke<void>('floating_button_drag_move', { dx, dy }),
   endDrag: () => invoke<void>('floating_button_drag_end'),
-  prewarmAuxWindows: () => invoke<void>('prewarm_aux_windows'),
   setIgnoreMouseEvents: (ignore: boolean) =>
     invoke<void>('floating_button_set_ignore_mouse', { ignore }),
   onConfigUpdated: (callback: EventCallback<FloatingConfigUpdatedPayload>): Unlisten =>

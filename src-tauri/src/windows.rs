@@ -16,6 +16,7 @@ const EVENT_PICK_COUNT_OPEN: &str = "pick-count-open";
 const EVENT_PICK_COUNT_STOP_BGM: &str = "pick-count-stop-bgm";
 const EVENT_PICK_RESULT_OPEN: &str = "pick-result-open";
 const EVENT_PICK_RESULT_RESET: &str = "pick-result-reset";
+const EVENT_RECRUIT_WINDOW_VISIBLE: &str = "recruit-window-visible";
 fn route_url(route: &str) -> WebviewUrl {
     if route.is_empty() {
         WebviewUrl::App("index.html".into())
@@ -166,7 +167,7 @@ pub(crate) fn open_pick_count_window(
 
 pub(crate) fn hide_pick_count_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("pick_count") {
-        let _ = window.hide();
+        let _ = window.close();
     }
 }
 
@@ -185,7 +186,7 @@ pub(crate) fn reset_and_hide_pick_result_window(app: &AppHandle, token: u64, rea
                 reason: reason.to_string(),
             },
         );
-        let _ = window.hide();
+        let _ = window.close();
     }
 }
 
@@ -280,12 +281,14 @@ pub(crate) fn create_recruit_window(app: &AppHandle) -> Result<WebviewWindow, St
 pub(crate) fn open_recruit_window(app: &AppHandle, _config: &AppConfig) -> Result<(), String> {
     let window = create_recruit_window(app)?;
     let _ = window.show();
+    let _ = window.emit(EVENT_RECRUIT_WINDOW_VISIBLE, true);
     let _ = window.set_focus();
     Ok(())
 }
 
 pub(crate) fn hide_recruit_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("recruit") {
+        let _ = window.emit(EVENT_RECRUIT_WINDOW_VISIBLE, false);
         let _ = window.hide();
     }
 }

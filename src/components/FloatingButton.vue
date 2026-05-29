@@ -68,15 +68,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #66ccfff0, rgba(64, 145, 240, 0.95));
-    transition:
-      transform 300ms ease,
-      box-shadow 300ms ease;
+    background: linear-gradient(145deg, #66ccff, #4091f0);
+    transition: transform 180ms ease;
   }
 
   .floating-button:hover {
     transform: translateY(-1px);
-    box-shadow: 1px 10px 5px rgba(0, 0, 0, 0.1);
   }
 
   .floating-button:active {

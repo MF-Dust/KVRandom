@@ -171,12 +171,15 @@
         <div class="stage-bg-container">
           <video
             v-if="currentPool?.bgVideo"
+            ref="stageBgVideoRef"
             :key="currentPool.id + '-video'"
             class="stage-bg-video"
-            autoplay
+            :autoplay="shouldPlayStageMedia"
             loop
             muted
             playsinline
+            preload="metadata"
+            @loadedmetadata="syncStageMediaPlayback"
           >
             <source :src="currentPool.bgVideo" />
           </video>
@@ -291,10 +294,7 @@
                       <img
                         src="/image/select_ticket.png"
                         alt="Buy Ticket"
-                        style="
-                          transform: rotate(-5deg);
-                          filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
-                        "
+                        style="transform: rotate(-5deg)"
                       />
                     </div>
                     <div class="gacha-right-content">
@@ -478,7 +478,14 @@
 
     <!-- Video Overlay -->
     <div v-if="isPlayingVideo" class="video-overlay" @click="skipVideo">
-      <video class="gacha-video" src="/video/vid.mp4" autoplay @ended="handleVideoEnd"></video>
+      <video
+        class="gacha-video"
+        src="/video/vid.mp4"
+        autoplay
+        playsinline
+        preload="metadata"
+        @ended="handleVideoEnd"
+      ></video>
       <div class="skip-hint">点击跳过 / Click to skip</div>
     </div>
 
@@ -490,7 +497,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
   import { appApi, recruitApi } from '../tauriApi'
   import { audioApi } from '../api/audioApi'
   import { pickCountApi } from '../api/pickCountApi'
@@ -518,6 +525,10 @@
   const showDetailsModal = ref(false)
   const showSelectionModal = ref(false)
   const selectedStudent = ref<Student | null>(null)
+  const stageBgVideoRef = ref<HTMLVideoElement | null>(null)
+  const pageVisible = ref(document.visibilityState === 'visible')
+  const recruitWindowVisible = ref(true)
+  let removeRecruitVisibleListener: (() => void) | null = null
 
   // Recruit Result Display
   const showResultOverlay = ref(false)
@@ -526,6 +537,17 @@
   const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
 
   const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
+  const shouldPlayStageMedia = computed(
+    () =>
+      Boolean(currentPool.value?.bgVideo) &&
+      !showReplenishDialog.value &&
+      !showDetailsModal.value &&
+      !showSelectionModal.value &&
+      !isPlayingVideo.value &&
+      !showResultOverlay.value &&
+      recruitWindowVisible.value &&
+      pageVisible.value
+  )
 
   // Sum of weights for rates calc
   const totalWeight = computed(() => {
@@ -577,7 +599,48 @@
         showResultOverlay.value = false
       }
     })
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    removeRecruitVisibleListener = recruitApi.onWindowVisible((visible) => {
+      recruitWindowVisible.value = visible
+      if (visible) {
+        syncStageMediaPlayback()
+      } else {
+        pauseStageVideo()
+      }
+    })
   })
+
+  onBeforeUnmount(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    if (typeof removeRecruitVisibleListener === 'function') {
+      removeRecruitVisibleListener()
+      removeRecruitVisibleListener = null
+    }
+    pauseStageVideo()
+  })
+
+  const pauseStageVideo = () => {
+    stageBgVideoRef.value?.pause()
+  }
+
+  const syncStageMediaPlayback = async () => {
+    await nextTick()
+    const video = stageBgVideoRef.value
+    if (!video) return
+    if (shouldPlayStageMedia.value) {
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }
+
+  const handleVisibilityChange = () => {
+    pageVisible.value = document.visibilityState === 'visible'
+    syncStageMediaPlayback()
+  }
+
+  watch([currentPool, shouldPlayStageMedia], syncStageMediaPlayback, { flush: 'post' })
 
   // Methods
   const saveCurrencies = () => {
@@ -595,6 +658,7 @@
     try {
       await audioApi.playClickSound()
     } catch {}
+    pauseStageVideo()
     try {
       await recruitApi.closeRecruit()
     } catch (e) {
@@ -813,7 +877,6 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 10;
-    backdrop-filter: blur(5px);
   }
 
   .header-left {
@@ -1197,7 +1260,7 @@
     display: flex;
     flex-direction: column;
     font-family: inherit;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.16s ease;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
     transform: skewX(-15deg);
     border-radius: 4px;
@@ -1411,8 +1474,7 @@
   .ba-modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.62);
     z-index: 100;
     display: flex;
     align-items: center;
@@ -1641,7 +1703,10 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition:
+      border-color 0.16s ease,
+      background 0.16s ease,
+      transform 0.16s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
   }
 
@@ -1750,16 +1815,7 @@
       rgba(255, 255, 255, 0.15) 40px,
       rgba(255, 255, 255, 0.15) 80px
     );
-    animation: move-stripes 20s linear infinite;
-  }
-
-  @keyframes move-stripes {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(80px, 80px);
-    }
+    transform: translate(24px, 24px);
   }
 
   .ba-bg-shards {
@@ -1772,7 +1828,6 @@
     background: rgba(255, 255, 255, 0.25);
     border-radius: 4px;
     transform: rotate(45deg);
-    animation: float-shard 8s ease-in-out infinite;
   }
 
   .ba-shard-1 {
@@ -1804,33 +1859,11 @@
     animation-delay: 1s;
   }
 
-  @keyframes float-shard {
-    0%,
-    100% {
-      transform: translateY(0) rotate(45deg) scale(1);
-      opacity: 0.25;
-    }
-    50% {
-      transform: translateY(-20px) rotate(60deg) scale(1.1);
-      opacity: 0.5;
-    }
-  }
-
   .ba-bg-rays {
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at 100% 0%, rgba(18, 138, 250, 0.15) 0%, transparent 60%);
-    animation: pulse-rays 6s ease-in-out infinite;
-  }
-
-  @keyframes pulse-rays {
-    0%,
-    100% {
-      opacity: 0.6;
-    }
-    50% {
-      opacity: 1;
-    }
+    opacity: 0.8;
   }
 
   .currency-icon-img {

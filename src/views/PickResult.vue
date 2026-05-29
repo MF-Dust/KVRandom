@@ -168,16 +168,15 @@
     width: clamp(120px, 16vw, 200px);
     aspect-ratio: 4 / 3;
     opacity: 0;
-    transform: scale(2.5) rotate(15deg);
-    animation: letter-fly-in 0.6s ease-out forwards;
-    animation-delay: calc(var(--index) * 0.12s);
+    transform: scale(1.55) rotate(12deg);
+    animation: letter-fly-in 0.42s ease-out forwards;
+    animation-delay: calc(var(--index) * 0.08s);
   }
 
   .letter-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
   }
 
   .name-card {
@@ -193,7 +192,7 @@
     font-size: clamp(16px, 2.1vw, 26px);
     font-weight: 700;
     color: #1c2741;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     opacity: 0;
     transform: translateY(12px) scale(0.96);
     animation: none;
@@ -203,27 +202,27 @@
   .letter-card.is-blue .name-card {
     border-color: #76c7ff;
     box-shadow:
-      0 0 12px 2px rgba(118, 199, 255, 0.5),
-      0 10px 26px rgba(0, 0, 0, 0.25);
+      0 0 0 2px rgba(118, 199, 255, 0.45),
+      0 6px 16px rgba(0, 0, 0, 0.2);
   }
 
   .letter-card.is-gold .name-card {
     border-color: #ffd84d;
     box-shadow:
-      0 0 12px 2px rgba(255, 216, 77, 0.5),
-      0 10px 26px rgba(0, 0, 0, 0.25);
+      0 0 0 2px rgba(255, 216, 77, 0.45),
+      0 6px 16px rgba(0, 0, 0, 0.2);
   }
 
   .letter-card.is-pink .name-card {
     border-color: #ff7ee2;
     box-shadow:
-      0 0 12px 2px rgba(255, 126, 226, 0.5),
-      0 10px 26px rgba(0, 0, 0, 0.25);
+      0 0 0 2px rgba(255, 126, 226, 0.45),
+      0 6px 16px rgba(0, 0, 0, 0.2);
   }
 
   .name-card.is-reveal {
-    animation: name-reveal 0.45s ease-out forwards;
-    animation-delay: calc(var(--reveal-index) * 0.12s + 0.1s);
+    animation: name-reveal 0.32s ease-out forwards;
+    animation-delay: calc(var(--reveal-index) * 0.08s + 0.08s);
   }
 
   .result-hint {
@@ -243,11 +242,11 @@
   @keyframes letter-fly-in {
     0% {
       opacity: 0;
-      transform: scale(2.5) rotate(15deg) translateY(-24px);
+      transform: scale(1.55) rotate(12deg) translateY(-16px);
     }
     100% {
       opacity: 1;
-      transform: scale(1) rotate(15deg) translateY(0);
+      transform: scale(1) rotate(12deg) translateY(0);
     }
   }
 
@@ -343,7 +342,6 @@
 
   .ba-action-btn:active {
     transform: skewX(-12deg) scale(0.96);
-    filter: brightness(0.9);
   }
 
   @keyframes actions-fade-in {

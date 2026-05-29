@@ -122,12 +122,12 @@ export function usePickResultDialog() {
 
     resultMode.value = 'quick'
 
-    const totalDelayMs = Math.max(results.value.length - 1, 0) * 120 + 600
+    const totalDelayMs = Math.max(results.value.length - 1, 0) * 80 + 420
     revealTimer = setTimeout(() => {
       revealStarted.value = true
     }, totalDelayMs)
 
-    const totalDurationMs = totalDelayMs + 450
+    const totalDurationMs = totalDelayMs + 320
     closeTimer = setTimeout(() => {
       canClose.value = true
     }, totalDurationMs)
