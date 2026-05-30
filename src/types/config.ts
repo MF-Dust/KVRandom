@@ -18,17 +18,77 @@ export interface FloatingButtonConfig {
   alwaysOnTop: boolean
   position: FloatingPosition
   mode: FloatingButtonMode
+  iconPath: string
+  background: string
+  borderRadiusPercent: number
+  clickSoundEnabled: boolean
+  clickSoundPath: string
+  clickSoundVolume: number
+  dragThresholdPx: number
 }
 
 export interface PickCountDialogConfig {
   defaultPlayMusic: boolean
   backgroundDarknessPercent: number
   defaultCount: number
+  titleText: string
+  minButtonText: string
+  maxButtonText: string
+  cancelButtonText: string
+  confirmButtonText: string
+  musicLabelText: string
+  rangeHintText: string
+  panelBackground: string
+  bgmVolume: number
+  bgmPaths: string[]
+  allowMusicToggle: boolean
+  exitAnimationMs: number
 }
 
 export interface PickResultDialogConfig {
   defaultPlayGachaSound: boolean
   gachaSoundVolume: number
+  gachaSoundPath: string
+  backgroundDarknessPercent: number
+  blueEnvelopeImage: string
+  goldEnvelopeImage: string
+  pinkEnvelopeImage: string
+  cardSizePercent: number
+  flyIntervalMs: number
+  revealDelayMs: number
+  closeFadeMs: number
+  closeHintText: string
+  emptyText: string
+  confirmButtonText: string
+  drawAgainButtonText: string
+}
+
+export interface AppearanceConfig {
+  themeColor: string
+  accentColor: string
+  pageBackground: string
+  cardRadiusPx: number
+  compactMode: boolean
+}
+
+export interface RecruitConfig {
+  titleText: string
+  showCurrencyBar: boolean
+  defaultVideoPath: string
+  skipHintText: string
+  showResultOverlay: boolean
+  selectableMembersText: string
+  ratesTitleText: string
+  selectionTitleText: string
+  replenishTitleText: string
+  replenishConfirmText: string
+  replenishCancelText: string
+  apDisplay: string
+  creditDisplay: string
+  pyroxeneDisplay: string
+  recruitTicket10Display: string
+  recruitTicket1Display: string
+  selectTicketDisplay: string
 }
 
 export interface WebConfig {
@@ -66,6 +126,8 @@ export interface AppConfig {
   floatingButton: FloatingButtonConfig
   pickCountDialog: PickCountDialogConfig
   pickResultDialog: PickResultDialogConfig
+  appearance: AppearanceConfig
+  recruitConfig: RecruitConfig
   webConfig: WebConfig
   recruitPools: RecruitPool[]
 }

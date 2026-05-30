@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { usePickResultDialog } from '../composables/usePickResultDialog'
+  import { resolveAssetUrl } from '../utils/assets'
 
   const props = defineProps({
     isRecruitMode: {
@@ -14,6 +15,13 @@
     results,
     animationKey,
     instructionText,
+    stageStyle,
+    blueEnvelopeImage,
+    goldEnvelopeImage,
+    pinkEnvelopeImage,
+    emptyText,
+    confirmButtonText,
+    drawAgainButtonText,
     revealStarted,
     canClose,
     isClosing,
@@ -48,12 +56,19 @@
       handleKeydown(e)
     }
   }
+
+  const envelopeImage = (rarity: string) => {
+    if (rarity === 'gold') return resolveAssetUrl(goldEnvelopeImage.value)
+    if (rarity === 'pink') return resolveAssetUrl(pinkEnvelopeImage.value)
+    return resolveAssetUrl(blueEnvelopeImage.value)
+  }
 </script>
 
 <template>
   <div
     class="result-stage"
     :class="{ 'is-closing': isClosing }"
+    :style="stageStyle"
     tabindex="0"
     @click="onStageClick"
     @contextmenu.prevent
@@ -69,7 +84,7 @@
             :class="`is-${item.rarity}`"
             :style="{ '--index': index }"
           >
-            <img class="letter-img" :src="`/image/${item.rarity}.png`" alt="letter" />
+            <img class="letter-img" :src="envelopeImage(item.rarity)" alt="letter" />
             <div
               class="name-card"
               :class="{ 'is-reveal': revealStarted }"
@@ -87,7 +102,7 @@
             :class="`is-${item.rarity}`"
             :style="{ '--index': index + 5 }"
           >
-            <img class="letter-img" :src="`/image/${item.rarity}.png`" alt="letter" />
+            <img class="letter-img" :src="envelopeImage(item.rarity)" alt="letter" />
             <div
               class="name-card"
               :class="{ 'is-reveal': revealStarted }"
@@ -103,7 +118,7 @@
     <div v-if="isRecruitMode && canClose" class="recruit-actions">
       <button class="ba-action-btn ba-btn-confirm" @click.stop="handleConfirm">
         <div class="btn-content">
-          <span class="btn-text">确认</span>
+          <span class="btn-text">{{ confirmButtonText }}</span>
         </div>
       </button>
       <button
@@ -112,14 +127,14 @@
         @click.stop="handleDrawAgain"
       >
         <div class="btn-content">
-          <span class="btn-text">再次抽取</span>
+          <span class="btn-text">{{ drawAgainButtonText }}</span>
         </div>
       </button>
     </div>
     <p v-else-if="results.length && canClose && !isRecruitMode" class="result-hint">
       {{ instructionText }}
     </p>
-    <p v-else-if="!results.length" class="result-empty">还没有点名结果呢～</p>
+    <p v-else-if="!results.length" class="result-empty">{{ emptyText }}</p>
   </div>
 </template>
 
@@ -138,7 +153,7 @@
 
   .result-stage.is-closing {
     pointer-events: none;
-    animation: result-fade-out 220ms ease forwards;
+    animation: result-fade-out var(--result-close-fade, 220ms) ease forwards;
   }
 
   .quick-result {
@@ -165,12 +180,12 @@
 
   .letter-card {
     position: relative;
-    width: clamp(120px, 16vw, 200px);
+    width: calc(clamp(120px, 16vw, 200px) * var(--result-card-scale, 1));
     aspect-ratio: 4 / 3;
     opacity: 0;
     transform: scale(1.55) rotate(12deg);
     animation: letter-fly-in 0.42s ease-out forwards;
-    animation-delay: calc(var(--index) * 0.08s);
+    animation-delay: calc(var(--index) * var(--result-fly-interval, 80ms));
   }
 
   .letter-img {
@@ -222,7 +237,7 @@
 
   .name-card.is-reveal {
     animation: name-reveal 0.32s ease-out forwards;
-    animation-delay: calc(var(--reveal-index) * 0.08s + 0.08s);
+    animation-delay: calc(var(--reveal-index) * var(--result-fly-interval, 80ms) + 0.08s);
   }
 
   .result-hint {

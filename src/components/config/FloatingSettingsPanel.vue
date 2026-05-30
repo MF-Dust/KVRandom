@@ -50,6 +50,30 @@
       </div>
 
       <div class="ba-form-item">
+        <label class="ba-label">按钮图标</label>
+        <div class="ba-input-action-row">
+          <n-input v-model:value="config.floatingButton.iconPath" placeholder="/image/random.svg" />
+          <n-button secondary @click="pickAsset('iconPath', 'image')">选择</n-button>
+        </div>
+      </div>
+
+      <div class="ba-form-item">
+        <label class="ba-label">按钮背景</label>
+        <n-input v-model:value="config.floatingButton.background" placeholder="CSS 颜色或渐变" />
+      </div>
+
+      <div class="ba-form-item">
+        <label class="ba-label">按钮圆角</label>
+        <n-slider
+          v-model:value="config.floatingButton.borderRadiusPercent"
+          :min="0"
+          :max="50"
+          :step="1"
+        />
+        <div class="ba-slider-value">{{ config.floatingButton.borderRadiusPercent }}%</div>
+      </div>
+
+      <div class="ba-form-item">
         <label class="ba-label">透～明～度</label>
         <p class="ba-sublabel">数值越高越透明，0就是完全不透明～</p>
         <n-slider
@@ -64,6 +88,64 @@
       <div class="ba-toggle-row">
         <n-switch v-model:value="config.floatingButton.alwaysOnTop" />
         <span class="ba-toggle-label">永远在最上面！不会被其他窗口挡住哦～</span>
+      </div>
+    </div>
+
+    <div class="ba-card">
+      <div class="ba-card-header">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        </svg>
+        <span>点击反馈～</span>
+      </div>
+
+      <div class="ba-toggle-row">
+        <n-switch v-model:value="config.floatingButton.clickSoundEnabled" />
+        <span class="ba-toggle-label">点击悬浮按钮时播放音效</span>
+      </div>
+
+      <div class="ba-form-item">
+        <label class="ba-label">点击音效路径</label>
+        <div class="ba-input-action-row">
+          <n-input
+            v-model:value="config.floatingButton.clickSoundPath"
+            placeholder="sound/button_click.wav"
+          />
+          <n-button secondary @click="pickAsset('clickSoundPath', 'audio')">选择</n-button>
+        </div>
+      </div>
+
+      <div class="ba-form-item">
+        <label class="ba-label">点击音效音量</label>
+        <n-slider
+          v-model:value="config.floatingButton.clickSoundVolume"
+          :min="0"
+          :max="1"
+          :step="0.05"
+        />
+        <div class="ba-slider-value">
+          {{ (config.floatingButton.clickSoundVolume * 100).toFixed(0) }}%
+        </div>
+      </div>
+
+      <div class="ba-form-item">
+        <label class="ba-label">拖动判定阈值</label>
+        <n-input-number
+          v-model:value="config.floatingButton.dragThresholdPx"
+          :min="0"
+          :max="48"
+          style="width: 100%"
+        />
       </div>
     </div>
 
@@ -108,14 +190,30 @@
 </template>
 
 <script setup lang="ts">
-  import { NInputNumber, NSlider, NSwitch, NRadioGroup, NRadioButton } from 'naive-ui'
+  import {
+    NButton,
+    NInput,
+    NInputNumber,
+    NSlider,
+    NSwitch,
+    NRadioGroup,
+    NRadioButton,
+  } from 'naive-ui'
+  import { appApi } from '../../api/appApi'
 
-  defineProps({
+  const props = defineProps({
     config: {
       type: Object,
       required: true,
     },
   })
+
+  const pickAsset = async (field: 'iconPath' | 'clickSoundPath', kind: 'image' | 'audio') => {
+    const path = await appApi.pickAssetFile(kind)
+    if (path) {
+      props.config.floatingButton[field] = path
+    }
+  }
 </script>
 
 <style scoped>
@@ -200,5 +298,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
+  }
+
+  .ba-input-action-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
   }
 </style>

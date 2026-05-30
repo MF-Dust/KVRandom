@@ -18,12 +18,12 @@
             <polyline points="12 19 5 12 12 5" />
           </svg>
         </button>
-        <span class="header-title">招募成员</span>
+        <span class="header-title">{{ recruitConfig.titleText }}</span>
       </div>
 
       <div class="header-right">
         <!-- AP Currency -->
-        <div class="currency-item ap-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item ap-pill">
           <div class="currency-icon-wrapper">
             <svg class="currency-svg" viewBox="0 0 24 24" width="16" height="16">
               <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#00E676" />
@@ -37,30 +37,36 @@
               />
             </svg>
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.apDisplay
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('ap')">+</button>
         </div>
 
         <!-- Credit Currency -->
-        <div class="currency-item credit-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item credit-pill">
           <div class="currency-icon-wrapper">
             <img src="/image/credit.png" class="currency-icon-img" alt="Credit" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.creditDisplay
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('credit')">+</button>
         </div>
 
         <!-- Pyroxene Currency -->
-        <div class="currency-item pyroxene-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item pyroxene-pill">
           <div class="currency-icon-wrapper">
             <img src="/image/pyroxene.png" class="currency-icon-img" alt="Pyroxene" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.pyroxeneDisplay
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('pyroxene')">+</button>
         </div>
 
         <!-- 10-Draw Recruit Ticket -->
-        <div class="currency-item ticket10-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item ticket10-pill">
           <div class="currency-icon-wrapper">
             <img
               src="/image/recruit_ticket_10.webp"
@@ -68,21 +74,25 @@
               alt="10-Draw Ticket"
             />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.recruitTicket10Display
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('recruitTicket10')">+</button>
         </div>
 
         <!-- 1-Draw Recruit Ticket -->
-        <div class="currency-item ticket1-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item ticket1-pill">
           <div class="currency-icon-wrapper">
             <img src="/image/recruit_ticket_1.webp" class="currency-icon-img" alt="1-Draw Ticket" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.recruitTicket1Display
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('recruitTicket1')">+</button>
         </div>
 
         <!-- Selection Ticket (Optional display if present) -->
-        <div class="currency-item ticket-pill">
+        <div v-if="recruitConfig.showCurrencyBar" class="currency-item ticket-pill">
           <div class="currency-icon-wrapper">
             <img
               src="/image/recruit_ticket_1.webp"
@@ -90,7 +100,9 @@
               alt="Selection Ticket"
             />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">INF</span>
+          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
+            recruitConfig.selectTicketDisplay
+          }}</span>
           <button class="currency-add-btn" @click="openReplenish('ticket')">+</button>
         </div>
 
@@ -146,7 +158,9 @@
           >
             <div
               class="tab-banner-image"
-              :style="pool.tabAvatar ? `background-image: url('${pool.tabAvatar}');` : ''"
+              :style="
+                pool.tabAvatar ? `background-image: url('${resolveAssetUrl(pool.tabAvatar)}');` : ''
+              "
             >
               <div
                 v-if="!pool.tabAvatar"
@@ -162,7 +176,9 @@
         </div>
 
         <!-- Bottom left selectable members button -->
-        <button class="selectable-members-btn" @click="showRatesModal">可选的成员</button>
+        <button class="selectable-members-btn" @click="showRatesModal">
+          {{ recruitConfig.selectableMembersText }}
+        </button>
       </aside>
 
       <!-- Stage Content -->
@@ -181,12 +197,12 @@
             preload="metadata"
             @loadedmetadata="syncStageMediaPlayback"
           >
-            <source :src="currentPool.bgVideo" />
+            <source :src="resolveAssetUrl(currentPool.bgVideo)" />
           </video>
           <div
             v-else-if="currentPool?.bgImage"
             class="stage-bg-image"
-            :style="`background-image: url('${currentPool.bgImage}');`"
+            :style="`background-image: url('${resolveAssetUrl(currentPool.bgImage)}');`"
           ></div>
           <div v-else class="ba-css-bg">
             <div class="ba-bg-grids"></div>
@@ -342,7 +358,7 @@
     <!-- Replenish Dialog -->
     <div v-if="showReplenishDialog" class="ba-modal-overlay">
       <div class="ba-dialog-box animate-pop">
-        <div class="ba-dialog-header">阿罗娜的补给箱～</div>
+        <div class="ba-dialog-header">{{ recruitConfig.replenishTitleText }}</div>
         <div class="ba-dialog-content">
           <p v-if="replenishTarget === 'pyroxene'">
             老师，要阿罗娜为您补充 <span class="highlight">1,200 青辉石</span> 吗？
@@ -367,8 +383,12 @@
           </p>
         </div>
         <div class="ba-dialog-actions">
-          <button class="ba-btn-cancel" @click="closeReplenishDialog">先不要了</button>
-          <button class="ba-btn-confirm" @click="confirmReplenish">确认！</button>
+          <button class="ba-btn-cancel" @click="closeReplenishDialog">
+            {{ recruitConfig.replenishCancelText }}
+          </button>
+          <button class="ba-btn-confirm" @click="confirmReplenish">
+            {{ recruitConfig.replenishConfirmText }}
+          </button>
         </div>
       </div>
     </div>
@@ -377,7 +397,7 @@
     <div v-if="showDetailsModal" class="ba-modal-overlay">
       <div class="ba-list-modal animate-pop">
         <div class="ba-modal-header">
-          <span>招募名单 & 概率概率一览～</span>
+          <span>{{ recruitConfig.ratesTitleText }}</span>
           <button class="ba-modal-close" @click="showDetailsModal = false">
             <svg
               viewBox="0 0 24 24"
@@ -425,7 +445,7 @@
     <div v-if="showSelectionModal" class="ba-modal-overlay">
       <div class="ba-list-modal select-modal animate-pop">
         <div class="ba-modal-header">
-          <span>请选择要招募的学生 (使用 ★3自选券)</span>
+          <span>{{ recruitConfig.selectionTitleText }}</span>
           <button class="ba-modal-close" @click="showSelectionModal = false">
             <svg
               viewBox="0 0 24 24"
@@ -480,17 +500,20 @@
     <div v-if="isPlayingVideo" class="video-overlay" @click="skipVideo">
       <video
         class="gacha-video"
-        src="/video/vid.mp4"
+        :src="resolvedRecruitVideoPath"
         autoplay
         playsinline
         preload="metadata"
         @ended="handleVideoEnd"
       ></video>
-      <div class="skip-hint">点击跳过 / Click to skip</div>
+      <div class="skip-hint">{{ recruitConfig.skipHintText }}</div>
     </div>
 
     <!-- Recruit Result Overlay -->
-    <div v-show="showResultOverlay" class="recruit-result-overlay">
+    <div
+      v-show="showResultOverlay && recruitConfig.showResultOverlay"
+      class="recruit-result-overlay"
+    >
       <PickResult :is-recruit-mode="true" @draw-again="handleGacha(10)" />
     </div>
   </div>
@@ -504,12 +527,15 @@
   import { pickResultApi } from '../api/pickResultApi'
   import { recruitApi } from '../api/recruitApi'
   import { useRecruitFlow } from '../composables/useRecruitFlow'
-  import type { RecruitPool, Student } from '@/types'
+  import { createDefaultConfig } from '../configDefaults'
+  import { resolveAssetUrl } from '../utils/assets'
+  import type { RecruitConfig, RecruitPool, Student } from '@/types'
   import PickResult from './PickResult.vue'
 
   const pools = ref<RecruitPool[]>([])
   const activePoolIndex = ref(0)
   const students = ref<Student[]>([])
+  const recruitConfig = ref<RecruitConfig>(createDefaultConfig().recruitConfig)
 
   // Interactive Currencies persisted locally
   const currencies = ref({
@@ -538,6 +564,9 @@
   const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
 
   const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
+  const resolvedRecruitVideoPath = computed(() =>
+    resolveAssetUrl(recruitConfig.value.defaultVideoPath)
+  )
   const shouldPlayStageMedia = computed(
     () =>
       Boolean(currentPool.value?.bgVideo) &&
@@ -586,6 +615,7 @@
       if (config) {
         students.value = config.studentList || []
         pools.value = config.recruitPools || []
+        recruitConfig.value = config.recruitConfig || createDefaultConfig().recruitConfig
       }
     } catch (err) {
       console.error('Failed to load configuration:', err)

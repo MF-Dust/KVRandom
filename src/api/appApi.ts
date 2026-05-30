@@ -15,6 +15,8 @@ export const appApi = {
     invoke<StudentListParseResult>('parse_student_list_text', { rawText, existingStudents }),
   importStudentListFromFile: (existingStudents: Student[]) =>
     invoke<StudentListParseResult | null>('import_student_list_from_file', { existingStudents }),
+  pickAssetFile: (kind: 'image' | 'audio' | 'video' | 'asset' = 'asset') =>
+    invoke<string | null>('pick_asset_file', { kind }),
   saveConfig: (config: AppConfig) => invoke<void>('save_app_config', { config }),
   getAppInfo: () => invoke<AppInfo>('get_app_info'),
   checkUpdate: () => invoke<UpdateResult>('check_update'),

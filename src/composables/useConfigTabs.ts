@@ -24,6 +24,13 @@ export const tabGroups = [
     title: '界面定制～',
     tabs: [
       {
+        key: 'appearance',
+        label: '整体外观～',
+        title: '整体外观',
+        hint: '设置页主题色、背景和紧凑显示都在这里～',
+        icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><path d="M12 2a10 10 0 0 0 0 20 2 2 0 0 0 2-2 1.8 1.8 0 0 0-1.8-1.8H11a8 8 0 1 1 8-8v1.2a1.8 1.8 0 0 0 1.8 1.8A2 2 0 0 0 22 11.2V10A10 10 0 0 0 12 2z"/></svg>',
+      },
+      {
         key: 'floating',
         label: '悬浮按钮～',
         title: '悬浮按钮',
@@ -32,10 +39,24 @@ export const tabGroups = [
       },
       {
         key: 'pickCount',
-        label: '抽选演出～',
-        title: '抽选演出',
-        hint: '音效和动画的设置都在这里～让抽选的瞬间更有仪式感吧！',
+        label: '点名窗口～',
+        title: '点名窗口',
+        hint: '点名前选择人数的窗口，可以调整文案、BGM、遮罩和动画。',
         icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+      },
+      {
+        key: 'pickResult',
+        label: '结果演出～',
+        title: '结果演出',
+        hint: '结果页的信封、音效、动画速度和提示文案都可以在这里配置。',
+        icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+      },
+      {
+        key: 'recruitGlobal',
+        label: '招募界面～',
+        title: '招募界面',
+        hint: '这里管理招募页的全局标题、视频、顶部资源和弹窗文案。',
+        icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
       },
       {
         key: 'recruitPools',

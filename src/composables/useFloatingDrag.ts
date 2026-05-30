@@ -2,12 +2,16 @@ import { ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { floatingButtonApi } from '../api/floatingButtonApi'
 
-const DRAG_THRESHOLD_PX = 3
-
 type FloatingEmit = (event: 'click') => void
 type DragTask = () => Promise<unknown> | unknown
+type FloatingDragOptions = {
+  clickSoundEnabled?: () => boolean
+  clickSoundPath?: () => string
+  clickSoundVolume?: () => number
+  dragThresholdPx?: () => number
+}
 
-export function useFloatingDrag(emit: FloatingEmit) {
+export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions = {}) {
   const pointerDown = ref(false)
   const activePointerId = ref<number | null>(null)
   const isDragging = ref(false)
@@ -29,7 +33,13 @@ export function useFloatingDrag(emit: FloatingEmit) {
   }
 
   const playClickSound = () => {
-    audioApi.playClickSound().catch(() => {})
+    if (options.clickSoundEnabled?.() === false) return
+    audioApi
+      .playClickSound(
+        options.clickSoundPath?.() || 'sound/button_click.wav',
+        options.clickSoundVolume?.() ?? 1
+      )
+      .catch(() => {})
   }
 
   const getGlobalPoint = (event: PointerEvent) => {
@@ -96,7 +106,8 @@ export function useFloatingDrag(emit: FloatingEmit) {
     const point = getGlobalPoint(event)
     const dx = point.x - startGlobalX.value
     const dy = point.y - startGlobalY.value
-    const movedEnough = Math.abs(dx) >= DRAG_THRESHOLD_PX || Math.abs(dy) >= DRAG_THRESHOLD_PX
+    const threshold = Math.max(0, Number(options.dragThresholdPx?.() ?? 3) || 3)
+    const movedEnough = Math.abs(dx) >= threshold || Math.abs(dy) >= threshold
 
     if (!isDragging.value && movedEnough) {
       isDragging.value = true

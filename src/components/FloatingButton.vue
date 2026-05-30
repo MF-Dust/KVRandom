@@ -11,7 +11,7 @@
       @pointerup="handlePointerUp"
       @pointercancel="handlePointerCancel"
     >
-      <img src="/image/random.svg" alt="阿罗娜的点名按钮" draggable="false" />
+      <img :src="resolvedIconPath" alt="阿罗娜的点名按钮" draggable="false" />
     </button>
   </div>
 </template>
@@ -19,6 +19,7 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { useFloatingDrag } from '../composables/useFloatingDrag'
+  import { resolveAssetUrl } from '../utils/assets'
 
   const props = defineProps({
     sizePx: {
@@ -28,6 +29,34 @@
     transparencyPercent: {
       type: Number,
       required: true,
+    },
+    iconPath: {
+      type: String,
+      default: '/image/random.svg',
+    },
+    background: {
+      type: String,
+      default: 'linear-gradient(145deg, #66ccff, #4091f0)',
+    },
+    borderRadiusPercent: {
+      type: Number,
+      default: 50,
+    },
+    clickSoundEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    clickSoundPath: {
+      type: String,
+      default: 'sound/button_click.wav',
+    },
+    clickSoundVolume: {
+      type: Number,
+      default: 1,
+    },
+    dragThresholdPx: {
+      type: Number,
+      default: 3,
     },
   })
 
@@ -42,11 +71,20 @@
       width: `${props.sizePx}px`,
       height: `${props.sizePx}px`,
       opacity: String(styleOpacity.value),
+      background: props.background,
+      borderRadius: `${props.borderRadiusPercent}%`,
     }
   })
 
+  const resolvedIconPath = computed(() => resolveAssetUrl(props.iconPath) || '/image/random.svg')
+
   const { isDragging, handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel } =
-    useFloatingDrag(emit)
+    useFloatingDrag(emit, {
+      clickSoundEnabled: () => props.clickSoundEnabled,
+      clickSoundPath: () => props.clickSoundPath,
+      clickSoundVolume: () => props.clickSoundVolume,
+      dragThresholdPx: () => props.dragThresholdPx,
+    })
 </script>
 
 <style scoped>
@@ -61,7 +99,7 @@
   .floating-button {
     position: relative;
     border: 0;
-    border-radius: 16px;
+    border-radius: 50%;
     cursor: pointer;
     touch-action: none;
     padding: 10px;

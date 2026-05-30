@@ -68,6 +68,39 @@ pub(crate) async fn import_student_list_from_file(
 }
 
 #[tauri::command]
+pub(crate) async fn pick_asset_file(kind: Option<String>) -> AppResult<Option<String>> {
+    tauri::async_runtime::spawn_blocking(move || -> AppResult<Option<String>> {
+        let mut dialog = rfd::FileDialog::new();
+        match kind.as_deref() {
+            Some("image") => {
+                dialog =
+                    dialog.add_filter("图片文件", &["png", "jpg", "jpeg", "webp", "gif", "svg"]);
+            }
+            Some("audio") => {
+                dialog = dialog.add_filter("音频文件", &["mp3", "wav", "ogg", "flac"]);
+            }
+            Some("video") => {
+                dialog = dialog.add_filter("视频文件", &["mp4", "webm", "mov"]);
+            }
+            _ => {
+                dialog = dialog.add_filter(
+                    "资源文件",
+                    &[
+                        "png", "jpg", "jpeg", "webp", "gif", "svg", "mp3", "wav", "ogg", "mp4",
+                        "webm",
+                    ],
+                );
+            }
+        }
+
+        Ok(dialog
+            .pick_file()
+            .map(|path| path.to_string_lossy().to_string()))
+    })
+    .await?
+}
+
+#[tauri::command]
 pub(crate) async fn save_app_config(
     app: AppHandle,
     config: serde_json::Value,

@@ -2,14 +2,21 @@
   import { usePickCountDialog } from '../composables/usePickCountDialog'
 
   const {
-    MIN_COUNT,
-    MAX_COUNT,
     count,
     playMusic,
     isLeaving,
     canDecrease,
     canIncrease,
     overlayStyle,
+    panelStyle,
+    titleText,
+    minButtonText,
+    maxButtonText,
+    cancelButtonText,
+    confirmButtonText,
+    musicLabelText,
+    rangeHintText,
+    allowMusicToggle,
     increaseCount,
     decreaseCount,
     setMinCount,
@@ -21,8 +28,8 @@
 
 <template>
   <div class="pick-overlay" :class="{ 'is-leaving': isLeaving }" :style="overlayStyle">
-    <div class="pick-panel">
-      <h1 class="pick-title">要点名几个人呢～</h1>
+    <div class="pick-panel" :style="panelStyle">
+      <h1 class="pick-title">{{ titleText }}</h1>
 
       <div class="pick-counter-row">
         <button
@@ -46,13 +53,11 @@
 
       <div class="pick-range-row">
         <button class="pick-range-btn" :disabled="isLeaving || !canDecrease" @click="setMinCount">
-          最少
+          {{ minButtonText }}
         </button>
-        <span class="pick-range-hint"
-          >可选范围 {{ MIN_COUNT }} - {{ MAX_COUNT }}，老师看着办～</span
-        >
+        <span class="pick-range-hint">{{ rangeHintText }}</span>
         <button class="pick-range-btn" :disabled="isLeaving || !canIncrease" @click="setMaxCount">
-          最多
+          {{ maxButtonText }}
         </button>
       </div>
 
@@ -62,20 +67,20 @@
           :disabled="isLeaving"
           @click="handleCancel"
         >
-          先不要了
+          {{ cancelButtonText }}
         </button>
         <button
           class="pick-action-btn pick-action-confirm"
           :disabled="isLeaving"
           @click="handleConfirm"
         >
-          开始点名！
+          {{ confirmButtonText }}
         </button>
       </div>
 
-      <label class="pick-music-row">
+      <label v-if="allowMusicToggle" class="pick-music-row">
         <input v-model="playMusic" class="pick-checkbox" type="checkbox" :disabled="isLeaving" />
-        <span>播放超～喜庆的点名BGM！</span>
+        <span>{{ musicLabelText }}</span>
       </label>
     </div>
   </div>
@@ -93,7 +98,7 @@
   }
 
   .pick-overlay.is-leaving {
-    animation: pick-overlay-fade-out 0.4s ease forwards;
+    animation: pick-overlay-fade-out var(--pick-exit-ms, 400ms) ease forwards;
   }
 
   .pick-panel {
@@ -111,7 +116,7 @@
   }
 
   .pick-overlay.is-leaving .pick-panel {
-    animation: pick-panel-fly-fade-out 0.4s ease-in forwards;
+    animation: pick-panel-fly-fade-out var(--pick-exit-ms, 400ms) ease-in forwards;
   }
 
   .pick-title {

@@ -1,8 +1,9 @@
 use serde_json::Value;
 
 use super::{
-    AppConfig, FloatingButtonConfig, FloatingPosition, PickCountDialogConfig,
-    PickResultDialogConfig, RecruitPool, Student, WebConfig, MAX_PICK_COUNT, MIN_PICK_COUNT,
+    AppConfig, AppearanceConfig, FloatingButtonConfig, FloatingPosition, PickCountDialogConfig,
+    PickResultDialogConfig, RecruitConfig, RecruitPool, Student, WebConfig, MAX_PICK_COUNT,
+    MIN_PICK_COUNT,
 };
 use crate::utils::{clamp_f64, clamp_i32};
 
@@ -54,6 +55,37 @@ fn value_as_string(value: Option<&Value>, fallback: &str) -> String {
         Some(Value::Number(number)) => number.to_string(),
         Some(Value::Bool(value)) => value.to_string(),
         _ => fallback.to_string(),
+    }
+}
+
+fn value_as_trimmed_string(value: Option<&Value>, fallback: &str) -> String {
+    let value = value_as_string(value, fallback);
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        fallback.to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+fn value_as_string_vec(value: Option<&Value>, fallback: &[String]) -> Vec<String> {
+    match value {
+        Some(Value::Array(items)) => {
+            let values = items
+                .iter()
+                .filter_map(|item| match item {
+                    Value::String(text) if !text.trim().is_empty() => Some(text.trim().to_string()),
+                    _ => None,
+                })
+                .collect::<Vec<_>>();
+            if values.is_empty() {
+                fallback.to_vec()
+            } else {
+                values
+            }
+        }
+        Some(Value::String(text)) if !text.trim().is_empty() => vec![text.trim().to_string()],
+        _ => fallback.to_vec(),
     }
 }
 
@@ -120,6 +152,8 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
     let position = get_field(fb, "position").unwrap_or(&Value::Null);
     let pick = get_field(&value, "pickCountDialog").unwrap_or(&Value::Null);
     let pick_result = get_field(&value, "pickResultDialog").unwrap_or(&Value::Null);
+    let appearance = get_field(&value, "appearance").unwrap_or(&Value::Null);
+    let recruit = get_field(&value, "recruitConfig").unwrap_or(&Value::Null);
     let web = get_field(&value, "webConfig").unwrap_or(&Value::Null);
 
     AppConfig {
@@ -164,6 +198,49 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
                     "full".to_string()
                 }
             },
+            icon_path: value_as_trimmed_string(
+                get_field(fb, "iconPath"),
+                &default.floating_button.icon_path,
+            ),
+            background: value_as_trimmed_string(
+                get_field(fb, "background"),
+                &default.floating_button.background,
+            ),
+            border_radius_percent: clamp_f64(
+                value_as_f64(
+                    get_field(fb, "borderRadiusPercent"),
+                    default.floating_button.border_radius_percent,
+                ),
+                0.0,
+                50.0,
+                default.floating_button.border_radius_percent,
+            ),
+            click_sound_enabled: value_as_bool(
+                get_field(fb, "clickSoundEnabled"),
+                default.floating_button.click_sound_enabled,
+            ),
+            click_sound_path: value_as_trimmed_string(
+                get_field(fb, "clickSoundPath"),
+                &default.floating_button.click_sound_path,
+            ),
+            click_sound_volume: clamp_f64(
+                value_as_f64(
+                    get_field(fb, "clickSoundVolume"),
+                    default.floating_button.click_sound_volume,
+                ),
+                0.0,
+                1.0,
+                default.floating_button.click_sound_volume,
+            ),
+            drag_threshold_px: clamp_f64(
+                value_as_f64(
+                    get_field(fb, "dragThresholdPx"),
+                    default.floating_button.drag_threshold_px,
+                ),
+                0.0,
+                48.0,
+                default.floating_button.drag_threshold_px,
+            ),
         },
         pick_count_dialog: PickCountDialogConfig {
             default_play_music: value_as_bool(
@@ -188,6 +265,64 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
                 MAX_PICK_COUNT,
                 default.pick_count_dialog.default_count,
             ),
+            title_text: value_as_trimmed_string(
+                get_field(pick, "titleText"),
+                &default.pick_count_dialog.title_text,
+            ),
+            min_button_text: value_as_trimmed_string(
+                get_field(pick, "minButtonText"),
+                &default.pick_count_dialog.min_button_text,
+            ),
+            max_button_text: value_as_trimmed_string(
+                get_field(pick, "maxButtonText"),
+                &default.pick_count_dialog.max_button_text,
+            ),
+            cancel_button_text: value_as_trimmed_string(
+                get_field(pick, "cancelButtonText"),
+                &default.pick_count_dialog.cancel_button_text,
+            ),
+            confirm_button_text: value_as_trimmed_string(
+                get_field(pick, "confirmButtonText"),
+                &default.pick_count_dialog.confirm_button_text,
+            ),
+            music_label_text: value_as_trimmed_string(
+                get_field(pick, "musicLabelText"),
+                &default.pick_count_dialog.music_label_text,
+            ),
+            range_hint_text: value_as_trimmed_string(
+                get_field(pick, "rangeHintText"),
+                &default.pick_count_dialog.range_hint_text,
+            ),
+            panel_background: value_as_trimmed_string(
+                get_field(pick, "panelBackground"),
+                &default.pick_count_dialog.panel_background,
+            ),
+            bgm_volume: clamp_f64(
+                value_as_f64(
+                    get_field(pick, "bgmVolume"),
+                    default.pick_count_dialog.bgm_volume,
+                ),
+                0.0,
+                1.0,
+                default.pick_count_dialog.bgm_volume,
+            ),
+            bgm_paths: value_as_string_vec(
+                get_field(pick, "bgmPaths"),
+                &default.pick_count_dialog.bgm_paths,
+            ),
+            allow_music_toggle: value_as_bool(
+                get_field(pick, "allowMusicToggle"),
+                default.pick_count_dialog.allow_music_toggle,
+            ),
+            exit_animation_ms: clamp_i32(
+                value_as_i32(
+                    get_field(pick, "exitAnimationMs"),
+                    default.pick_count_dialog.exit_animation_ms,
+                ),
+                0,
+                3000,
+                default.pick_count_dialog.exit_animation_ms,
+            ),
         },
         pick_result_dialog: PickResultDialogConfig {
             default_play_gacha_sound: value_as_bool(
@@ -202,6 +337,180 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
                 0.0,
                 1.0,
                 default.pick_result_dialog.gacha_sound_volume,
+            ),
+            gacha_sound_path: value_as_trimmed_string(
+                get_field(pick_result, "gachaSoundPath"),
+                &default.pick_result_dialog.gacha_sound_path,
+            ),
+            background_darkness_percent: clamp_f64(
+                value_as_f64(
+                    get_field(pick_result, "backgroundDarknessPercent"),
+                    default.pick_result_dialog.background_darkness_percent,
+                ),
+                0.0,
+                100.0,
+                default.pick_result_dialog.background_darkness_percent,
+            ),
+            blue_envelope_image: value_as_trimmed_string(
+                get_field(pick_result, "blueEnvelopeImage"),
+                &default.pick_result_dialog.blue_envelope_image,
+            ),
+            gold_envelope_image: value_as_trimmed_string(
+                get_field(pick_result, "goldEnvelopeImage"),
+                &default.pick_result_dialog.gold_envelope_image,
+            ),
+            pink_envelope_image: value_as_trimmed_string(
+                get_field(pick_result, "pinkEnvelopeImage"),
+                &default.pick_result_dialog.pink_envelope_image,
+            ),
+            card_size_percent: clamp_f64(
+                value_as_f64(
+                    get_field(pick_result, "cardSizePercent"),
+                    default.pick_result_dialog.card_size_percent,
+                ),
+                50.0,
+                200.0,
+                default.pick_result_dialog.card_size_percent,
+            ),
+            fly_interval_ms: clamp_i32(
+                value_as_i32(
+                    get_field(pick_result, "flyIntervalMs"),
+                    default.pick_result_dialog.fly_interval_ms,
+                ),
+                0,
+                1000,
+                default.pick_result_dialog.fly_interval_ms,
+            ),
+            reveal_delay_ms: clamp_i32(
+                value_as_i32(
+                    get_field(pick_result, "revealDelayMs"),
+                    default.pick_result_dialog.reveal_delay_ms,
+                ),
+                0,
+                5000,
+                default.pick_result_dialog.reveal_delay_ms,
+            ),
+            close_fade_ms: clamp_i32(
+                value_as_i32(
+                    get_field(pick_result, "closeFadeMs"),
+                    default.pick_result_dialog.close_fade_ms,
+                ),
+                0,
+                3000,
+                default.pick_result_dialog.close_fade_ms,
+            ),
+            close_hint_text: value_as_trimmed_string(
+                get_field(pick_result, "closeHintText"),
+                &default.pick_result_dialog.close_hint_text,
+            ),
+            empty_text: value_as_trimmed_string(
+                get_field(pick_result, "emptyText"),
+                &default.pick_result_dialog.empty_text,
+            ),
+            confirm_button_text: value_as_trimmed_string(
+                get_field(pick_result, "confirmButtonText"),
+                &default.pick_result_dialog.confirm_button_text,
+            ),
+            draw_again_button_text: value_as_trimmed_string(
+                get_field(pick_result, "drawAgainButtonText"),
+                &default.pick_result_dialog.draw_again_button_text,
+            ),
+        },
+        appearance: AppearanceConfig {
+            theme_color: value_as_trimmed_string(
+                get_field(appearance, "themeColor"),
+                &default.appearance.theme_color,
+            ),
+            accent_color: value_as_trimmed_string(
+                get_field(appearance, "accentColor"),
+                &default.appearance.accent_color,
+            ),
+            page_background: value_as_trimmed_string(
+                get_field(appearance, "pageBackground"),
+                &default.appearance.page_background,
+            ),
+            card_radius_px: clamp_f64(
+                value_as_f64(
+                    get_field(appearance, "cardRadiusPx"),
+                    default.appearance.card_radius_px,
+                ),
+                0.0,
+                28.0,
+                default.appearance.card_radius_px,
+            ),
+            compact_mode: value_as_bool(
+                get_field(appearance, "compactMode"),
+                default.appearance.compact_mode,
+            ),
+        },
+        recruit_config: RecruitConfig {
+            title_text: value_as_trimmed_string(
+                get_field(recruit, "titleText"),
+                &default.recruit_config.title_text,
+            ),
+            show_currency_bar: value_as_bool(
+                get_field(recruit, "showCurrencyBar"),
+                default.recruit_config.show_currency_bar,
+            ),
+            default_video_path: value_as_trimmed_string(
+                get_field(recruit, "defaultVideoPath"),
+                &default.recruit_config.default_video_path,
+            ),
+            skip_hint_text: value_as_trimmed_string(
+                get_field(recruit, "skipHintText"),
+                &default.recruit_config.skip_hint_text,
+            ),
+            show_result_overlay: value_as_bool(
+                get_field(recruit, "showResultOverlay"),
+                default.recruit_config.show_result_overlay,
+            ),
+            selectable_members_text: value_as_trimmed_string(
+                get_field(recruit, "selectableMembersText"),
+                &default.recruit_config.selectable_members_text,
+            ),
+            rates_title_text: value_as_trimmed_string(
+                get_field(recruit, "ratesTitleText"),
+                &default.recruit_config.rates_title_text,
+            ),
+            selection_title_text: value_as_trimmed_string(
+                get_field(recruit, "selectionTitleText"),
+                &default.recruit_config.selection_title_text,
+            ),
+            replenish_title_text: value_as_trimmed_string(
+                get_field(recruit, "replenishTitleText"),
+                &default.recruit_config.replenish_title_text,
+            ),
+            replenish_confirm_text: value_as_trimmed_string(
+                get_field(recruit, "replenishConfirmText"),
+                &default.recruit_config.replenish_confirm_text,
+            ),
+            replenish_cancel_text: value_as_trimmed_string(
+                get_field(recruit, "replenishCancelText"),
+                &default.recruit_config.replenish_cancel_text,
+            ),
+            ap_display: value_as_trimmed_string(
+                get_field(recruit, "apDisplay"),
+                &default.recruit_config.ap_display,
+            ),
+            credit_display: value_as_trimmed_string(
+                get_field(recruit, "creditDisplay"),
+                &default.recruit_config.credit_display,
+            ),
+            pyroxene_display: value_as_trimmed_string(
+                get_field(recruit, "pyroxeneDisplay"),
+                &default.recruit_config.pyroxene_display,
+            ),
+            recruit_ticket10_display: value_as_trimmed_string(
+                get_field(recruit, "recruitTicket10Display"),
+                &default.recruit_config.recruit_ticket10_display,
+            ),
+            recruit_ticket1_display: value_as_trimmed_string(
+                get_field(recruit, "recruitTicket1Display"),
+                &default.recruit_config.recruit_ticket1_display,
+            ),
+            select_ticket_display: value_as_trimmed_string(
+                get_field(recruit, "selectTicketDisplay"),
+                &default.recruit_config.select_ticket_display,
             ),
         },
         web_config: WebConfig {

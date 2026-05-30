@@ -24,6 +24,10 @@ fn asset_candidate_from_base(base: &Path, relative: &str) -> PathBuf {
 
 pub(crate) fn load_asset_bytes(app: &AppHandle, relative_path: &str) -> Vec<u8> {
     let relative = relative_path.trim_start_matches('/');
+    let direct_path = Path::new(relative);
+    if direct_path.is_absolute() {
+        return fs::read(direct_path).unwrap_or_default();
+    }
     let mut candidates = Vec::new();
     if let Ok(current_dir) = std::env::current_dir() {
         candidates.push(asset_candidate_from_base(&current_dir, relative));

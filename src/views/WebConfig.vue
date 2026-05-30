@@ -1,6 +1,10 @@
 <template>
   <n-config-provider :theme-overrides="baTheme">
-    <main class="ba-page">
+    <main
+      class="ba-page"
+      :class="{ 'is-compact': config.appearance.compactMode }"
+      :style="pageStyle"
+    >
       <!-- Cross-hatch background decorations -->
       <div class="ba-bg-grid"></div>
       <div class="ba-bg-circle ba-bg-circle-1"></div>
@@ -87,8 +91,24 @@
               <FloatingSettingsPanel :config="config" />
             </div>
 
+            <div v-else-if="activeTab === 'appearance'" key="appearance" class="ba-tab-content">
+              <AppearanceSettingsPanel :config="config" />
+            </div>
+
             <div v-else-if="activeTab === 'pickCount'" key="pickCount" class="ba-tab-content">
               <PickSettingsPanel :config="config" />
+            </div>
+
+            <div v-else-if="activeTab === 'pickResult'" key="pickResult" class="ba-tab-content">
+              <ResultSettingsPanel :config="config" />
+            </div>
+
+            <div
+              v-else-if="activeTab === 'recruitGlobal'"
+              key="recruitGlobal"
+              class="ba-tab-content"
+            >
+              <RecruitGlobalSettingsPanel :config="config" />
             </div>
 
             <div v-else-if="activeTab === 'recruitPools'" key="recruitPools" class="ba-tab-content">
@@ -122,10 +142,13 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted } from 'vue'
   import { NConfigProvider } from 'naive-ui'
+  import AppearanceSettingsPanel from '../components/config/AppearanceSettingsPanel.vue'
   import ConfigTabs from '../components/config/ConfigTabs.vue'
   import FloatingSettingsPanel from '../components/config/FloatingSettingsPanel.vue'
   import PickSettingsPanel from '../components/config/PickSettingsPanel.vue'
+  import RecruitGlobalSettingsPanel from '../components/config/RecruitGlobalSettingsPanel.vue'
   import RecruitPoolsSettingsPanel from '../components/config/RecruitPoolsSettingsPanel.vue'
+  import ResultSettingsPanel from '../components/config/ResultSettingsPanel.vue'
   import RuntimeLogPanel from '../components/config/RuntimeLogPanel.vue'
   import StudentImportPanel from '../components/config/StudentImportPanel.vue'
   import StudentManagerPanel from '../components/config/StudentManagerPanel.vue'
@@ -171,6 +194,14 @@
   const currentTabHint = computed(
     () => activeTabMeta.value?.hint || '老师，这里可以调整各项设置哦～'
   )
+  const pageStyle = computed(() => ({
+    '--ba-blue': config.value.appearance.themeColor,
+    '--ba-blue-hover': config.value.appearance.themeColor,
+    '--ba-yellow': config.value.appearance.accentColor,
+    '--ba-yellow-strong': config.value.appearance.accentColor,
+    '--ba-card-radius': `${config.value.appearance.cardRadiusPx}px`,
+    background: config.value.appearance.pageBackground,
+  }))
 
   // Blue Archive theme overrides for Naive UI
   const baTheme = {
@@ -276,6 +307,14 @@
     color: var(--ba-ink);
     overflow: hidden;
     background: linear-gradient(160deg, #f0f7ff 0%, #e6f1ff 40%, #f5f9ff 100%);
+  }
+
+  .ba-page.is-compact .ba-content-body {
+    padding: 14px 20px;
+  }
+
+  .ba-page.is-compact .ba-content-header {
+    padding: 16px 22px 12px;
   }
 
   /* ---- Decorative background ---- */

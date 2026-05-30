@@ -148,6 +148,17 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
     let fb = &config.floating_button;
     let pick = &config.pick_count_dialog;
     let pick_result = &config.pick_result_dialog;
+    let appearance = &config.appearance;
+    let recruit = &config.recruit_config;
+    let bgm_paths = if pick.bgm_paths.is_empty() {
+        "  bgmPaths: []".to_string()
+    } else {
+        let mut lines = vec!["  bgmPaths:".to_string()];
+        for path in &pick.bgm_paths {
+            lines.push(format!("    - \"{}\"", escape_yaml_string(path)));
+        }
+        lines.join("\n")
+    };
     let pos_x = fb
         .position
         .x
@@ -167,6 +178,28 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
             escape_yaml_string(&config.font_family)
         ),
         String::new(),
+        "# 全局外观配置～".to_string(),
+        "appearance:".to_string(),
+        "  # 主题色，支持 CSS 颜色～".to_string(),
+        format!(
+            "  themeColor: \"{}\"",
+            escape_yaml_string(&appearance.theme_color)
+        ),
+        "  # 强调色，支持 CSS 颜色～".to_string(),
+        format!(
+            "  accentColor: \"{}\"",
+            escape_yaml_string(&appearance.accent_color)
+        ),
+        "  # 设置页背景，支持 CSS 颜色或渐变～".to_string(),
+        format!(
+            "  pageBackground: \"{}\"",
+            escape_yaml_string(&appearance.page_background)
+        ),
+        "  # 设置页卡片圆角（px），范围0-28～".to_string(),
+        format!("  cardRadiusPx: {}", appearance.card_radius_px),
+        "  # 紧凑模式（true/false）～".to_string(),
+        format!("  compactMode: {}", appearance.compact_mode),
+        String::new(),
         "# 悬浮按钮配置～".to_string(),
         "floatingButton:".to_string(),
         "  # 按钮大小百分比（基准50px×50px），范围0-1000，默认100～".to_string(),
@@ -178,6 +211,23 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         "  # 交互模式（\"simple\"表示点名人数面板，\"full\"表示完整招募界面），默认\"full\"～"
             .to_string(),
         format!("  mode: \"{}\"", fb.mode),
+        "  # 按钮图标路径，支持 /image、image、http(s) 或本地绝对路径～".to_string(),
+        format!("  iconPath: \"{}\"", escape_yaml_string(&fb.icon_path)),
+        "  # 按钮背景，支持 CSS 颜色或渐变～".to_string(),
+        format!("  background: \"{}\"", escape_yaml_string(&fb.background)),
+        "  # 按钮圆角百分比，范围0-50～".to_string(),
+        format!("  borderRadiusPercent: {}", fb.border_radius_percent),
+        "  # 点击悬浮按钮是否播放音效～".to_string(),
+        format!("  clickSoundEnabled: {}", fb.click_sound_enabled),
+        "  # 点击音效路径～".to_string(),
+        format!(
+            "  clickSoundPath: \"{}\"",
+            escape_yaml_string(&fb.click_sound_path)
+        ),
+        "  # 点击音效音量（0.0-1.0）～".to_string(),
+        format!("  clickSoundVolume: {}", fb.click_sound_volume),
+        "  # 拖动判定阈值（px）～".to_string(),
+        format!("  dragThresholdPx: {}", fb.drag_threshold_px),
         "  # 悬浮按钮窗口位置（左上角屏幕坐标），退出时自动保存；null表示使用默认位置～"
             .to_string(),
         "  position:".to_string(),
@@ -195,6 +245,48 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         ),
         "  # 每次默认点名人数，范围1-10的整数，默认1～".to_string(),
         format!("  defaultCount: {}", pick.default_count),
+        "  # 点名窗口标题文案～".to_string(),
+        format!("  titleText: \"{}\"", escape_yaml_string(&pick.title_text)),
+        "  # 快捷按钮文案～".to_string(),
+        format!(
+            "  minButtonText: \"{}\"",
+            escape_yaml_string(&pick.min_button_text)
+        ),
+        format!(
+            "  maxButtonText: \"{}\"",
+            escape_yaml_string(&pick.max_button_text)
+        ),
+        "  # 操作按钮文案～".to_string(),
+        format!(
+            "  cancelButtonText: \"{}\"",
+            escape_yaml_string(&pick.cancel_button_text)
+        ),
+        format!(
+            "  confirmButtonText: \"{}\"",
+            escape_yaml_string(&pick.confirm_button_text)
+        ),
+        "  # BGM 勾选项和范围提示文案，范围提示可使用 {min}/{max}～".to_string(),
+        format!(
+            "  musicLabelText: \"{}\"",
+            escape_yaml_string(&pick.music_label_text)
+        ),
+        format!(
+            "  rangeHintText: \"{}\"",
+            escape_yaml_string(&pick.range_hint_text)
+        ),
+        "  # 面板背景色～".to_string(),
+        format!(
+            "  panelBackground: \"{}\"",
+            escape_yaml_string(&pick.panel_background)
+        ),
+        "  # BGM 音量（0.0-1.0）～".to_string(),
+        format!("  bgmVolume: {}", pick.bgm_volume),
+        "  # BGM 资源列表，会随机播放其中一个～".to_string(),
+        bgm_paths,
+        "  # 是否允许用户在弹窗里切换 BGM～".to_string(),
+        format!("  allowMusicToggle: {}", pick.allow_music_toggle),
+        "  # 关闭动画时长（ms）～".to_string(),
+        format!("  exitAnimationMs: {}", pick.exit_animation_ms),
         String::new(),
         "# 点名结果动画音效配置～".to_string(),
         "pickResultDialog:".to_string(),
@@ -205,6 +297,117 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         ),
         "  # 点名音效音量（0.0-1.0），默认0.6～".to_string(),
         format!("  gachaSoundVolume: {}", pick_result.gacha_sound_volume),
+        "  # 点名音效路径～".to_string(),
+        format!(
+            "  gachaSoundPath: \"{}\"",
+            escape_yaml_string(&pick_result.gacha_sound_path)
+        ),
+        "  # 结果页背景变暗程度，范围0-100～".to_string(),
+        format!(
+            "  backgroundDarknessPercent: {}",
+            pick_result.background_darkness_percent
+        ),
+        "  # 各稀有度信封图片～".to_string(),
+        format!(
+            "  blueEnvelopeImage: \"{}\"",
+            escape_yaml_string(&pick_result.blue_envelope_image)
+        ),
+        format!(
+            "  goldEnvelopeImage: \"{}\"",
+            escape_yaml_string(&pick_result.gold_envelope_image)
+        ),
+        format!(
+            "  pinkEnvelopeImage: \"{}\"",
+            escape_yaml_string(&pick_result.pink_envelope_image)
+        ),
+        "  # 卡片尺寸百分比，范围50-200～".to_string(),
+        format!("  cardSizePercent: {}", pick_result.card_size_percent),
+        "  # 结果动画时序（ms）～".to_string(),
+        format!("  flyIntervalMs: {}", pick_result.fly_interval_ms),
+        format!("  revealDelayMs: {}", pick_result.reveal_delay_ms),
+        format!("  closeFadeMs: {}", pick_result.close_fade_ms),
+        "  # 结果页文案～".to_string(),
+        format!(
+            "  closeHintText: \"{}\"",
+            escape_yaml_string(&pick_result.close_hint_text)
+        ),
+        format!(
+            "  emptyText: \"{}\"",
+            escape_yaml_string(&pick_result.empty_text)
+        ),
+        format!(
+            "  confirmButtonText: \"{}\"",
+            escape_yaml_string(&pick_result.confirm_button_text)
+        ),
+        format!(
+            "  drawAgainButtonText: \"{}\"",
+            escape_yaml_string(&pick_result.draw_again_button_text)
+        ),
+        String::new(),
+        "# 招募界面全局配置～".to_string(),
+        "recruitConfig:".to_string(),
+        format!(
+            "  titleText: \"{}\"",
+            escape_yaml_string(&recruit.title_text)
+        ),
+        format!("  showCurrencyBar: {}", recruit.show_currency_bar),
+        format!(
+            "  defaultVideoPath: \"{}\"",
+            escape_yaml_string(&recruit.default_video_path)
+        ),
+        format!(
+            "  skipHintText: \"{}\"",
+            escape_yaml_string(&recruit.skip_hint_text)
+        ),
+        format!("  showResultOverlay: {}", recruit.show_result_overlay),
+        format!(
+            "  selectableMembersText: \"{}\"",
+            escape_yaml_string(&recruit.selectable_members_text)
+        ),
+        format!(
+            "  ratesTitleText: \"{}\"",
+            escape_yaml_string(&recruit.rates_title_text)
+        ),
+        format!(
+            "  selectionTitleText: \"{}\"",
+            escape_yaml_string(&recruit.selection_title_text)
+        ),
+        format!(
+            "  replenishTitleText: \"{}\"",
+            escape_yaml_string(&recruit.replenish_title_text)
+        ),
+        format!(
+            "  replenishConfirmText: \"{}\"",
+            escape_yaml_string(&recruit.replenish_confirm_text)
+        ),
+        format!(
+            "  replenishCancelText: \"{}\"",
+            escape_yaml_string(&recruit.replenish_cancel_text)
+        ),
+        format!(
+            "  apDisplay: \"{}\"",
+            escape_yaml_string(&recruit.ap_display)
+        ),
+        format!(
+            "  creditDisplay: \"{}\"",
+            escape_yaml_string(&recruit.credit_display)
+        ),
+        format!(
+            "  pyroxeneDisplay: \"{}\"",
+            escape_yaml_string(&recruit.pyroxene_display)
+        ),
+        format!(
+            "  recruitTicket10Display: \"{}\"",
+            escape_yaml_string(&recruit.recruit_ticket10_display)
+        ),
+        format!(
+            "  recruitTicket1Display: \"{}\"",
+            escape_yaml_string(&recruit.recruit_ticket1_display)
+        ),
+        format!(
+            "  selectTicketDisplay: \"{}\"",
+            escape_yaml_string(&recruit.select_ticket_display)
+        ),
         String::new(),
         "# 招募卡池配置～".to_string(),
         "recruitPools:".to_string(),

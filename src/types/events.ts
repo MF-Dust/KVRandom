@@ -31,4 +31,11 @@ export interface FloatingConfigUpdatedPayload {
   transparencyPercent?: number
   alwaysOnTop?: boolean
   mode?: string
+  iconPath?: string
+  background?: string
+  borderRadiusPercent?: number
+  clickSoundEnabled?: boolean
+  clickSoundPath?: string
+  clickSoundVolume?: number
+  dragThresholdPx?: number
 }

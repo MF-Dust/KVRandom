@@ -6,10 +6,10 @@ use tauri::AppHandle;
 
 use crate::utils::load_asset_bytes;
 pub(crate) enum AudioCommand {
-    PlayClick,
-    PlayBgm,
+    PlayClick { path: String, volume: f32 },
+    PlayBgm { paths: Vec<String>, volume: f32 },
     StopBgm,
-    PlayGacha(f32),
+    PlayGacha { path: String, volume: f32 },
     StopGacha,
 }
 
@@ -44,36 +44,57 @@ fn run_audio_thread(rx: mpsc::Receiver<AudioCommand>, app: AppHandle) {
 
     while let Ok(command) = rx.recv() {
         match command {
-            AudioCommand::PlayClick => {
-                let bytes = cached_asset_bytes(&app, &mut click_bytes, "sound/button_click.wav");
-                play_audio_once(&handle, bytes, 1.0);
+            AudioCommand::PlayClick { path, volume } => {
+                let owned_bytes;
+                let bytes = if path == "sound/button_click.wav" {
+                    cached_asset_bytes(&app, &mut click_bytes, &path)
+                } else {
+                    owned_bytes = load_asset_bytes(&app, &path);
+                    &owned_bytes
+                };
+                play_audio_once(&handle, bytes, volume);
             }
-            AudioCommand::PlayBgm => {
+            AudioCommand::PlayBgm { paths, volume } => {
                 if let Some(sink) = bgm_sink.take() {
                     sink.stop();
                 }
-                let use_ost338 = rand::thread_rng().gen_bool(0.5);
-                let bytes = if use_ost338 {
-                    cached_asset_bytes(
+                let path = if paths.is_empty() {
+                    "sound/bgm.mp3".to_string()
+                } else {
+                    let index = rand::thread_rng().gen_range(0..paths.len());
+                    paths[index].clone()
+                };
+                let owned_bytes;
+                let bytes = match path.as_str() {
+                    "sound/Yuudachi - Blue Archive OST 338.mp3" => cached_asset_bytes(
                         &app,
                         &mut ost338_bytes,
                         "sound/Yuudachi - Blue Archive OST 338.mp3",
-                    )
-                } else {
-                    cached_asset_bytes(&app, &mut bgm_bytes, "sound/bgm.mp3")
+                    ),
+                    "sound/bgm.mp3" => cached_asset_bytes(&app, &mut bgm_bytes, "sound/bgm.mp3"),
+                    _ => {
+                        owned_bytes = load_asset_bytes(&app, &path);
+                        &owned_bytes
+                    }
                 };
-                bgm_sink = play_audio_loop(&handle, bytes, 0.3);
+                bgm_sink = play_audio_loop(&handle, bytes, volume);
             }
             AudioCommand::StopBgm => {
                 if let Some(sink) = bgm_sink.take() {
                     sink.stop();
                 }
             }
-            AudioCommand::PlayGacha(volume) => {
+            AudioCommand::PlayGacha { path, volume } => {
                 if let Some(sink) = gacha_sink.take() {
                     sink.stop();
                 }
-                let bytes = cached_asset_bytes(&app, &mut gacha_bytes, "sound/gacha_loading.ogg");
+                let owned_bytes;
+                let bytes = if path == "sound/gacha_loading.ogg" {
+                    cached_asset_bytes(&app, &mut gacha_bytes, &path)
+                } else {
+                    owned_bytes = load_asset_bytes(&app, &path);
+                    &owned_bytes
+                };
                 gacha_sink = play_audio_sink(&handle, bytes, volume);
             }
             AudioCommand::StopGacha => {

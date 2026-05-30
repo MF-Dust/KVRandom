@@ -94,7 +94,10 @@ pub(crate) async fn open_recruit(app: AppHandle) -> AppResult<()> {
         }
         crate::windows::open_recruit_window(&app, &config)?;
         if config.pick_count_dialog.default_play_music {
-            let _ = state.audio.send(AudioCommand::PlayBgm);
+            let _ = state.audio.send(AudioCommand::PlayBgm {
+                paths: config.pick_count_dialog.bgm_paths.clone(),
+                volume: config.pick_count_dialog.bgm_volume as f32,
+            });
         }
         state
             .inner

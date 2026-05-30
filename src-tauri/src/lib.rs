@@ -140,6 +140,7 @@ pub fn run() {
             commands::config_cmd::get_system_fonts,
             commands::config_cmd::parse_student_list_text,
             commands::config_cmd::import_student_list_from_file,
+            commands::config_cmd::pick_asset_file,
             commands::config_cmd::save_app_config,
             commands::system::get_app_info,
             commands::system::check_update,

@@ -26,6 +26,7 @@ describe('createDefaultConfig', () => {
     const b = createDefaultConfig()
     expect(a).not.toBe(b)
     expect(a.floatingButton).not.toBe(b.floatingButton)
+    expect(a.pickCountDialog.bgmPaths).not.toBe(b.pickCountDialog.bgmPaths)
     expect(a.studentList).not.toBe(b.studentList)
   })
 
