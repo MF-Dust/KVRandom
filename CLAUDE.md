@@ -30,13 +30,13 @@ Commit subjects must match `commitlint.config.mjs`: `功能: ...`, `修复: ...`
 
 - `src-tauri/src/main.rs` is a thin binary entrypoint that calls `kvrandom_lib::run()`.
 - `src-tauri/src/lib.rs` is only the Tauri entrypoint: setup callback, window event handling, and the `invoke_handler!` registration. Business logic lives in dedicated modules:
-  - `src-tauri/src/commands/` — `#[tauri::command]` handlers grouped by surface (`floating`, `pick_dialog`, `audio`, `pick_result`, `config_cmd`, `system`, `log`, `misc`); commands are referenced via full module paths in `lib.rs`.
+  - `src-tauri/src/commands/` — `#[tauri::command]` handlers grouped by surface (`floating`, `pick_dialog`, `audio`, `pick_result`, `config_cmd`, `system`, `log`); commands are referenced via full module paths in `lib.rs`.
   - `src-tauri/src/config/` — `mod.rs` owns public types; `store.rs` handles disk I/O and signatures; `normalize.rs` clamps/defaults; `student_parse.rs` parses list text.
   - `src-tauri/src/error.rs` — `AppError` (`thiserror`) plus `AppResult<T>`; all commands return `AppResult<T>` and serialize errors as `{ kind, message }` over IPC.
   - `src-tauri/src/logging.rs` — `BufferLayer` `tracing` subscriber that mirrors events into the in-memory 600-entry `LogEntry` ring buffer on `AppState` and emits the `log-entry` event to webviews.
   - `picker.rs`, `audio.rs`, `windows.rs`, `tray.rs`, `update.rs`, `admin.rs`, `state.rs`, `models.rs`, `utils.rs` — single-purpose support modules.
 - Tauri creates separate webview windows labeled `floating`, `pick_count`, `pick_result`, `recruit`, and `config`. Routes are hash-based and map to Vue views in `src/router/index.ts`.
-- `src/main.ts` installs compatibility-style APIs on `window`, forwards renderer warnings/errors to the backend log buffer, and redirects plain browser preview sessions to `/config`.
+- `src/main.ts` forwards renderer warnings/errors to the backend log buffer and redirects plain browser preview sessions to `/config`.
 - `src/api/` is the per-feature bridge between Vue code and Tauri commands/events (`tauriCore.ts` wraps `invoke` with `unwrapAppError`). Prefer adding new renderer/backend calls there rather than invoking Tauri directly from components.
 - `src/types/` mirrors the Rust-side serde camelCase shapes (`config.ts`, `domain.ts`, `events.ts`, `api.ts`); import via `@/types`.
 - `src/views/` contains route-level Vue screens: `Floating.vue`, `PickCount.vue`, `PickResult.vue`, `Recruit.vue`, and `WebConfig.vue`. Shared UI pieces live in `src/components/`; cross-view state machines live in `src/composables/`.

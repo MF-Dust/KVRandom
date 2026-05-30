@@ -1,16 +1,12 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { installTauriCompatApis } from './tauriApi'
+import { logApi } from './api/logApi'
 
 import './style.css'
 
-installTauriCompatApis()
-
 const logToMain = (level: string, text: string) => {
-  if (window.logApi && typeof window.logApi.send === 'function') {
-    window.logApi.send(level, text)
-  }
+  logApi.send(level, text)
 }
 
 ;(['warn', 'error'] as const).forEach((method) => {
@@ -33,12 +29,8 @@ const logToMain = (level: string, text: string) => {
 })
 
 // If accessed outside the Tauri shell during frontend preview, redirect straight to config.
-const isElectron =
-  window.floatingButtonApi !== undefined ||
-  window.pickCountApi !== undefined ||
-  window.pickResultApi !== undefined ||
-  window.__TAURI_INTERNALS__ !== undefined
-if (!isElectron && window.location.hash === '') {
+const isTauri = window.__TAURI_INTERNALS__ !== undefined
+if (!isTauri && window.location.hash === '') {
   router.push('/config')
 }
 

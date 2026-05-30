@@ -27,7 +27,6 @@ pub(crate) async fn get_pick_count_config(app: AppHandle) -> AppResult<PickCount
     .await?
 }
 
-#[tauri::command]
 pub(crate) async fn open_pick_count(app: AppHandle) -> AppResult<()> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();

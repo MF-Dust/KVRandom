@@ -1,4 +1,4 @@
-import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
 import type {
   AppConfig,
   AppInfo,
@@ -24,9 +24,9 @@ export const appApi = {
   getLogs: () => invoke<LogEntryEventPayload[]>('get_logs'),
   getSystemFonts: () => invoke<string[]>('get_system_fonts'),
   onLogEntry: (callback: EventCallback<LogEntryEventPayload>): Unlisten =>
-    listenCompat<LogEntryEventPayload>('log-entry', callback),
+    listenEvent<LogEntryEventPayload>('log-entry', callback),
   onConfigUpdated: (callback: EventCallback<AppConfig>): Unlisten =>
-    listenCompat<AppConfig>('config-updated', callback),
+    listenEvent<AppConfig>('config-updated', callback),
 }
 
 export type AppApi = typeof appApi

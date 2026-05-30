@@ -33,69 +33,6 @@ export interface UpdateResult {
   debug: string[]
 }
 
-// ---------- Floating button ----------
-
-export interface FloatingDragMoveArgs {
-  dx: number
-  dy: number
-}
-
-export interface FloatingIgnoreMouseArgs {
-  ignore: boolean
-}
-
-// ---------- Pick count ----------
-
-export type PickCountSource = string | null
-
-export interface ConfirmPickCountArgs {
-  count: number
-  playMusic: boolean
-  source?: PickCountSource
-}
-
-// ---------- Audio ----------
-
-export interface PlayGachaSoundArgs {
-  volume: number
-}
-
-// ---------- Config / list ----------
-
-export interface ParseStudentListTextArgs {
-  rawText: string
-  existingStudents: Student[]
-}
-
-export interface ImportStudentListFromFileArgs {
-  existingStudents: Student[]
-}
-
-export interface SaveAppConfigArgs {
-  config: AppConfig
-}
-
-// ---------- Admin / startup ----------
-
-export interface CreateAdminStartupTaskArgs {
-  exePath: string
-  taskName: string
-}
-
-// ---------- Logs ----------
-
-export interface RendererLogArgs {
-  level: string
-  text: string
-}
-
-// ---------- Recruit ----------
-
-export interface ConfirmSelectStudentArgs {
-  studentName: string
-  source?: PickCountSource
-}
-
 // Re-exports useful for API modules
 export type {
   AppConfig,

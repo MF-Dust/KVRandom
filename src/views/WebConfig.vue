@@ -130,7 +130,7 @@
   import StudentImportPanel from '../components/config/StudentImportPanel.vue'
   import StudentManagerPanel from '../components/config/StudentManagerPanel.vue'
   import SystemSettingsPanel from '../components/config/SystemSettingsPanel.vue'
-  import { appApi } from '../tauriApi'
+  import { appApi } from '../api/appApi'
   import { useAppConfig } from '../composables/useAppConfig'
   import { useConfigTabs } from '../composables/useConfigTabs'
   import { useLogStream } from '../composables/useLogStream'

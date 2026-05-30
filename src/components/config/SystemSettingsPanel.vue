@@ -233,7 +233,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { NButton, NInput, NSwitch, NSelect } from 'naive-ui'
-  import { appApi } from '../../tauriApi'
+  import { appApi } from '../../api/appApi'
 
   defineProps({
     config: {

@@ -1,11 +1,11 @@
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 use super::{
-    config_path, escape_yaml_string, legacy_run_dir, normalize_config_value, AppConfig,
-    ConfigFileSignature, FileSignature, Student,
+    config_path, escape_yaml_string, normalize_config_value, AppConfig, ConfigFileSignature,
+    FileSignature, Student,
 };
 
 pub(crate) fn list_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -122,66 +122,6 @@ pub(crate) fn save_student_list(app: &AppHandle, students: &[Student]) -> Result
         .map_err(|e| format!("写入名单失败啦: {e}"))
 }
 
-fn legacy_paths(app: &AppHandle, file_name: &str, target: &Path) -> Vec<PathBuf> {
-    let mut paths = Vec::new();
-    if let Ok(app_config_dir) = app.path().app_config_dir() {
-        paths.push(app_config_dir.join(file_name));
-    }
-    if let Ok(app_data_dir) = app.path().app_data_dir() {
-        paths.push(app_data_dir.join(file_name));
-    }
-    if let Some(run_dir) = legacy_run_dir() {
-        paths.push(run_dir.join(file_name));
-    }
-    paths
-        .into_iter()
-        .filter(|path| path != target && path.exists())
-        .collect()
-}
-
-fn copy_legacy_file_if_missing(
-    app: &AppHandle,
-    target: &Path,
-    file_name: &str,
-) -> Result<bool, String> {
-    if target.exists() {
-        return Ok(false);
-    }
-    let Some(legacy_path) = legacy_paths(app, file_name, target).into_iter().next() else {
-        return Ok(false);
-    };
-    if let Some(parent) = target.parent() {
-        fs::create_dir_all(parent).map_err(|error| format!("创建配置目录失败啦: {error}"))?;
-    }
-    fs::copy(&legacy_path, target).map_err(|error| format!("迁移旧文件失败啦: {error}"))?;
-    Ok(true)
-}
-
-pub(crate) fn migrate_student_list_if_needed(app: &AppHandle) -> Result<(), String> {
-    let list_file = list_path(app)?;
-    if list_file.exists() {
-        return Ok(());
-    }
-    if copy_legacy_file_if_missing(app, &list_file, "list.yaml")? {
-        return Ok(());
-    }
-    let cfg_path = config_path(app)?;
-    if !cfg_path.exists() {
-        return Ok(());
-    }
-    let raw = fs::read_to_string(&cfg_path).map_err(|e| format!("读取配置失败啦: {e}"))?;
-    let parsed: Value = serde_yaml::from_str(&raw).map_err(|e| format!("解析配置失败啦: {e}"))?;
-    let config = normalize_config_value(parsed);
-    if config.student_list.is_empty() {
-        return Ok(());
-    }
-    save_student_list(app, &config.student_list)?;
-    let mut cleared = config;
-    cleared.student_list = Vec::new();
-    save_config(app, &cleared)?;
-    Ok(())
-}
-
 fn file_signature(path: &Path) -> Option<FileSignature> {
     let metadata = fs::metadata(path).ok()?;
     Some(FileSignature {
@@ -208,7 +148,6 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
     let fb = &config.floating_button;
     let pick = &config.pick_count_dialog;
     let pick_result = &config.pick_result_dialog;
-    let web = &config.web_config;
     let pos_x = fb
         .position
         .x
@@ -220,8 +159,6 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         .map(|value| value.to_string())
         .unwrap_or_else(|| "null".to_string());
     [
-        "# 学生名单已拆分到 list.yaml；这里保留空字段用于兼容旧版本～".to_string(),
-        "studentList: []".to_string(),
         format!("allowRepeatDraw: {}", config.allow_repeat_draw),
         String::new(),
         "# 字体选择配置，留空使用默认系统字体～".to_string(),
@@ -346,21 +283,25 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         String::new(),
         "# 应用配置～".to_string(),
         "webConfig:".to_string(),
-        "  # 兼容旧版本字段；Tauri版不再启动本地Web配置服务～".to_string(),
-        format!("  port: {}", web.port),
         "  # 启用管理员置顶增强（Windows下会尝试管理员权限）～".to_string(),
-        format!("  adminTopmostEnabled: {}", web.admin_topmost_enabled),
+        format!(
+            "  adminTopmostEnabled: {}",
+            config.web_config.admin_topmost_enabled
+        ),
         "  # 是否创建开机计划任务（管理员权限运行）～".to_string(),
-        format!("  adminAutoStartEnabled: {}", web.admin_auto_start_enabled),
+        format!(
+            "  adminAutoStartEnabled: {}",
+            config.web_config.admin_auto_start_enabled
+        ),
         "  # 开机任务运行的可执行文件路径～".to_string(),
         format!(
             "  adminAutoStartPath: \"{}\"",
-            escape_yaml_string(&web.admin_auto_start_path)
+            escape_yaml_string(&config.web_config.admin_auto_start_path)
         ),
         "  # 开机任务名称～".to_string(),
         format!(
             "  adminAutoStartTaskName: \"{}\"",
-            escape_yaml_string(&web.admin_auto_start_task_name)
+            escape_yaml_string(&config.web_config.admin_auto_start_task_name)
         ),
         String::new(),
     ]
@@ -380,27 +321,17 @@ fn write_default_config_if_missing(app: &AppHandle, path: &Path) -> Result<(), S
     if path.exists() {
         return Ok(());
     }
-
-    if copy_legacy_file_if_missing(app, path, "config.yml")? {
-        return Ok(());
-    }
-
     save_config(app, &AppConfig::default())
 }
 
 pub(crate) fn load_config(app: &AppHandle) -> Result<AppConfig, String> {
     let path = config_path(app)?;
     write_default_config_if_missing(app, &path)?;
-    migrate_student_list_if_needed(app)?;
     let raw = fs::read_to_string(&path).map_err(|error| format!("读取配置失败啦: {error}"))?;
     let parsed: Value =
         serde_yaml::from_str(&raw).map_err(|error| format!("解析配置失败啦: {error}"))?;
     let mut normalized = normalize_config_value(parsed);
-    let list_file_exists = list_path(app)?.exists();
-    let list_students = load_student_list(app)?;
-    if list_file_exists {
-        normalized.student_list = list_students;
-    }
+    normalized.student_list = load_student_list(app)?;
     let normalized_raw = to_config_yaml_with_comments(&normalized);
     if raw != normalized_raw {
         fs::write(&path, normalized_raw).map_err(|error| format!("写入配置失败啦: {error}"))?;

@@ -1,4 +1,4 @@
-import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
 import type {
   PickedStudent,
   PickResultDialogConfig,
@@ -11,9 +11,9 @@ export const pickResultApi = {
   getConfig: () => invoke<PickResultDialogConfig>('get_pick_result_config'),
   close: () => invoke<void>('close_pick_result'),
   onOpen: (callback: EventCallback<PickResultOpenPayload>): Unlisten =>
-    listenCompat<PickResultOpenPayload>('pick-result-open', callback),
+    listenEvent<PickResultOpenPayload>('pick-result-open', callback),
   onReset: (callback: EventCallback<PickResultResetPayload>): Unlisten =>
-    listenCompat<PickResultResetPayload>('pick-result-reset', callback),
+    listenEvent<PickResultResetPayload>('pick-result-reset', callback),
 }
 
 export type PickResultApi = typeof pickResultApi

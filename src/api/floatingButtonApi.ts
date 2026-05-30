@@ -1,4 +1,4 @@
-import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
 import type { FloatingButtonConfig, FloatingConfigUpdatedPayload } from '@/types'
 
 export const floatingButtonApi = {
@@ -10,7 +10,7 @@ export const floatingButtonApi = {
   setIgnoreMouseEvents: (ignore: boolean) =>
     invoke<void>('floating_button_set_ignore_mouse', { ignore }),
   onConfigUpdated: (callback: EventCallback<FloatingConfigUpdatedPayload>): Unlisten =>
-    listenCompat<FloatingConfigUpdatedPayload>('floating-config-updated', callback),
+    listenEvent<FloatingConfigUpdatedPayload>('floating-config-updated', callback),
 }
 
 export type FloatingButtonApi = typeof floatingButtonApi

@@ -32,7 +32,6 @@ export interface PickResultDialogConfig {
 }
 
 export interface WebConfig {
-  port: number
   adminTopmostEnabled: boolean
   adminAutoStartEnabled: boolean
   adminAutoStartPath: string

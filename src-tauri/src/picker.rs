@@ -25,7 +25,7 @@ fn valid_student_entries(students: &[Student]) -> impl Iterator<Item = (String, 
 
 pub(crate) fn assign_rarity(pity_counter: &mut u32) -> String {
     *pity_counter += 1;
-    let is_pity_draw = *pity_counter % 10 == 0;
+    let is_pity_draw = (*pity_counter).is_multiple_of(10);
 
     let mut rng = rand::thread_rng();
     let rand_val: f64 = rng.gen();

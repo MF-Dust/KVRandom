@@ -1,5 +1,3 @@
-# 学生名单已拆分到 list.yaml；这里保留空字段用于兼容旧版本～
-studentList: []
 allowRepeatDraw: true
 
 # 字体选择配置，留空使用默认系统字体～
@@ -36,8 +34,6 @@ pickResultDialog:
 
 # 应用配置～
 webConfig:
-  # 兼容旧版本字段；Tauri版不再启动本地Web配置服务～
-  port: 21219
   # 启用管理员置顶增强（Windows下会尝试管理员权限）～
   adminTopmostEnabled: false
   # 是否创建开机计划任务（管理员权限运行）～

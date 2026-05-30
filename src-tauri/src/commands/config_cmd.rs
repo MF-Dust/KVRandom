@@ -100,22 +100,6 @@ pub(crate) async fn save_app_config(
 }
 
 #[tauri::command]
-pub(crate) async fn save_student_list_file(
-    app: AppHandle,
-    students: Vec<Student>,
-) -> AppResult<()> {
-    tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
-        let state = app.state::<AppState>();
-        crate::config::save_student_list(&app, &students)?;
-        let mut guard = state.inner.lock().map_err(|_| state_locked())?;
-        guard.config.student_list = students;
-        guard.weighted_pool_cache = None;
-        Ok(())
-    })
-    .await?
-}
-
-#[tauri::command]
 pub(crate) async fn get_system_fonts() -> AppResult<Vec<String>> {
     tauri::async_runtime::spawn_blocking(move || Ok(crate::config::get_system_fonts_impl())).await?
 }

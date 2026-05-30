@@ -498,10 +498,11 @@
 
 <script setup lang="ts">
   import { ref, computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
-  import { appApi, recruitApi } from '../tauriApi'
+  import { appApi } from '../api/appApi'
   import { audioApi } from '../api/audioApi'
   import { pickCountApi } from '../api/pickCountApi'
   import { pickResultApi } from '../api/pickResultApi'
+  import { recruitApi } from '../api/recruitApi'
   import { useRecruitFlow } from '../composables/useRecruitFlow'
   import type { RecruitPool, Student } from '@/types'
   import PickResult from './PickResult.vue'

@@ -12,7 +12,6 @@ export const DEFAULT_PICK_COUNT = 1
 export const DEFAULT_PLAY_MUSIC = false
 export const DEFAULT_PLAY_GACHA_SOUND = true
 export const DEFAULT_GACHA_SOUND_VOLUME = 0.6
-export const DEFAULT_WEB_CONFIG_PORT = 21219
 
 export const createDefaultConfig = (): AppConfig => ({
   studentList: [],
@@ -38,7 +37,6 @@ export const createDefaultConfig = (): AppConfig => ({
     gachaSoundVolume: DEFAULT_GACHA_SOUND_VOLUME,
   },
   webConfig: {
-    port: DEFAULT_WEB_CONFIG_PORT,
     adminTopmostEnabled: false,
     adminAutoStartEnabled: false,
     adminAutoStartPath: '',

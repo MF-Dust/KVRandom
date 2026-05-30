@@ -67,11 +67,11 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 
 ## 配置说明
 
-应用会在程序所在目录下读写 `config.yml` 和 `list.yaml`。首次升级到新版时，程序会尝试从旧的 Tauri 用户配置目录、旧 app data 目录或旧运行目录迁移配置；如果字段缺失或超出范围，程序会在加载时归一化并写回。YAML 语法错误会直接报错，不会再静默覆盖成默认配置。
+应用会在程序所在目录下读写 `config.yml` 和 `list.yaml`。如果字段缺失或超出范围，程序会在加载时归一化并写回。YAML 语法错误会直接报错，不会再静默覆盖成默认配置。
 
 主要配置项：
 
-- `studentList`：抽取名单，每项包含 `name` 和 `weight`。
+- `list.yaml` 的 `students`：抽取名单，每项包含 `name` 和 `weight`。
 - `allowRepeatDraw`：是否允许重复抽取。
 - `floatingButton.sizePercent`：悬浮按钮大小百分比，默认 `100`。
 - `floatingButton.transparencyPercent`：悬浮按钮透明度，默认 `20`。
@@ -84,8 +84,6 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 - `pickResultDialog.gachaSoundVolume`：结果动画音效音量，范围 `0.0-1.0`。
 - `webConfig.adminTopmostEnabled`：Windows 下启动时是否尝试管理员置顶增强。
 - `webConfig.adminAutoStartEnabled`、`adminAutoStartPath`、`adminAutoStartTaskName`：管理员权限计划任务相关配置。
-
-`webConfig.port` 是兼容旧版本的保留字段。当前 Tauri 版不启动本地 Web 配置服务，也不开放 `localhost` 配置端口。
 
 ## 本地开发
 
@@ -174,8 +172,6 @@ GitHub Actions 工作流位于 `.github/workflows/build-windows.yml`。
 应用运行时会把 `public/` 作为外部资源目录，从以下位置查找资源：
 
 - `public/...`
-- 兼容性的直接相对路径
-- 安装/打包布局下的 `_up_/public/...`（历史兼容）
 
 如果发布版没有图片或没有声音，优先检查运行目录是否保留了 `public/image` 和 `public/sound`。
 

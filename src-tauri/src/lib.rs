@@ -122,7 +122,6 @@ pub fn run() {
             commands::floating::floating_button_drag_end,
             commands::floating::floating_button_set_ignore_mouse,
             commands::pick_dialog::get_pick_count_config,
-            commands::pick_dialog::open_pick_count,
             commands::pick_dialog::cancel_pick_count,
             commands::pick_dialog::confirm_pick_count,
             commands::pick_dialog::confirm_select_student,
@@ -142,14 +141,12 @@ pub fn run() {
             commands::config_cmd::parse_student_list_text,
             commands::config_cmd::import_student_list_from_file,
             commands::config_cmd::save_app_config,
-            commands::config_cmd::save_student_list_file,
             commands::system::get_app_info,
             commands::system::check_update,
             commands::system::request_admin_elevation,
             commands::system::create_admin_startup_task,
             commands::log::renderer_log,
             commands::log::get_logs,
-            commands::misc::pick_student_avatar,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

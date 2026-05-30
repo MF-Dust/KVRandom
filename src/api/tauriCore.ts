@@ -3,7 +3,6 @@ import { listen } from '@tauri-apps/api/event'
 
 /**
  * 把后端 AppError 序列化的 `{ kind, message }` 对象规范化回字符串展示。
- * 兼容旧的字符串错误、Error 实例与未知形状。
  */
 export function unwrapAppError(error: unknown): string {
   if (typeof error === 'string') return error
@@ -33,7 +32,7 @@ export function invoke<T = void>(cmd: string, args?: InvokeArgs): Promise<T> {
 export type Unlisten = () => void
 export type EventCallback<T> = (payload: T) => void
 
-export const listenCompat = <T = unknown>(
+export const listenEvent = <T = unknown>(
   eventName: string,
   callback: EventCallback<T>
 ): Unlisten => {

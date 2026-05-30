@@ -1,4 +1,4 @@
-import { invoke, listenCompat, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
 import type { PickCountDialogConfig, PickCountOpenPayload } from '@/types'
 
 export const pickCountApi = {
@@ -7,9 +7,9 @@ export const pickCountApi = {
   confirm: (count: number, playMusic: boolean, source: string | null = null) =>
     invoke<void>('confirm_pick_count', { count, playMusic, source }),
   onOpen: (callback: EventCallback<PickCountOpenPayload>): Unlisten =>
-    listenCompat<PickCountOpenPayload>('pick-count-open', callback),
+    listenEvent<PickCountOpenPayload>('pick-count-open', callback),
   onStopBgm: (callback: EventCallback<void>): Unlisten =>
-    listenCompat<void>('pick-count-stop-bgm', callback),
+    listenEvent<void>('pick-count-stop-bgm', callback),
 }
 
 export type PickCountApi = typeof pickCountApi

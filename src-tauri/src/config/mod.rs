@@ -106,7 +106,6 @@ impl Default for PickResultDialogConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct WebConfig {
-    pub(crate) port: i32,
     pub(crate) admin_topmost_enabled: bool,
     pub(crate) admin_auto_start_enabled: bool,
     pub(crate) admin_auto_start_path: String,
@@ -116,7 +115,6 @@ pub(crate) struct WebConfig {
 impl Default for WebConfig {
     fn default() -> Self {
         Self {
-            port: 21219,
             admin_topmost_enabled: false,
             admin_auto_start_enabled: false,
             admin_auto_start_path: String::new(),
@@ -277,20 +275,6 @@ pub(crate) fn program_dir() -> Result<PathBuf, String> {
         .parent()
         .map(Path::to_path_buf)
         .ok_or_else(|| "获取程序所在目录失败啦".to_string())
-}
-
-pub(crate) fn legacy_run_dir() -> Option<PathBuf> {
-    let current_dir = std::env::current_dir().ok()?;
-    if current_dir
-        .file_name()
-        .and_then(|name| name.to_str())
-        .is_some_and(|name| name == "src-tauri")
-    {
-        if let Some(project_dir) = current_dir.parent() {
-            return Some(project_dir.to_path_buf());
-        }
-    }
-    Some(current_dir)
 }
 
 pub(crate) fn config_path(app: &AppHandle) -> Result<PathBuf, String> {

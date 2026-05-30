@@ -5,7 +5,7 @@
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
   import { watch, onMounted, onBeforeUnmount } from 'vue'
-  import { appApi } from './tauriApi'
+  import { appApi } from './api/appApi'
 
   const route = useRoute()
   watch(

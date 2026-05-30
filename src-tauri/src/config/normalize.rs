@@ -205,12 +205,6 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
             ),
         },
         web_config: WebConfig {
-            port: clamp_i32(
-                value_as_i32(get_field(web, "port"), default.web_config.port),
-                1,
-                65535,
-                default.web_config.port,
-            ),
             admin_topmost_enabled: value_as_bool(
                 get_field(web, "adminTopmostEnabled"),
                 default.web_config.admin_topmost_enabled,
@@ -309,7 +303,6 @@ mod tests {
         assert_eq!(result.pick_count_dialog.default_count, MIN_PICK_COUNT);
         assert!(result.pick_result_dialog.default_play_gacha_sound);
         assert_eq!(result.pick_result_dialog.gacha_sound_volume, 0.6);
-        assert_eq!(result.web_config.port, 21219);
         assert_eq!(
             result.web_config.admin_auto_start_task_name,
             ADMIN_TASK_DEFAULT_NAME
@@ -329,9 +322,6 @@ mod tests {
             },
             "pickResultDialog": {
                 "gachaSoundVolume": 2
-            },
-            "webConfig": {
-                "port": 70000
             }
         }));
 
@@ -340,7 +330,6 @@ mod tests {
         assert_eq!(result.pick_count_dialog.background_darkness_percent, 0.0);
         assert_eq!(result.pick_count_dialog.default_count, MAX_PICK_COUNT);
         assert_eq!(result.pick_result_dialog.gacha_sound_volume, 1.0);
-        assert_eq!(result.web_config.port, 65535);
     }
 
     #[test]
