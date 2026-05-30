@@ -128,6 +128,7 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
             get_field(&value, "allowRepeatDraw"),
             default.allow_repeat_draw,
         ),
+        font_family: value_as_string(get_field(&value, "fontFamily"), &default.font_family),
         floating_button: FloatingButtonConfig {
             size_percent: clamp_f64(
                 value_as_f64(

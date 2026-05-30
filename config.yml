@@ -2,6 +2,9 @@
 studentList: []
 allowRepeatDraw: true
 
+# 字体选择配置，留空使用默认系统字体～
+fontFamily: ""
+
 # 悬浮按钮配置～
 floatingButton:
   # 按钮大小百分比（基准50px×50px），范围0-1000，默认100～

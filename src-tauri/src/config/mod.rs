@@ -9,8 +9,8 @@ pub(crate) mod student_parse;
 
 pub(crate) use normalize::normalize_config_value;
 pub(crate) use store::{
-    current_config_signature, load_config, load_config_with_signature, save_config,
-    save_student_list,
+    current_config_signature, get_system_fonts_impl, load_config, load_config_with_signature,
+    save_config, save_student_list,
 };
 pub(crate) use student_parse::parse_student_list_text_impl;
 
@@ -51,6 +51,10 @@ pub(crate) struct FloatingButtonConfig {
 
 fn default_floating_mode() -> String {
     "full".to_string()
+}
+
+fn default_font_family() -> String {
+    String::new()
 }
 
 impl Default for FloatingButtonConfig {
@@ -222,6 +226,8 @@ pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
 pub(crate) struct AppConfig {
     pub(crate) student_list: Vec<Student>,
     pub(crate) allow_repeat_draw: bool,
+    #[serde(default = "default_font_family")]
+    pub(crate) font_family: String,
     pub(crate) floating_button: FloatingButtonConfig,
     pub(crate) pick_count_dialog: PickCountDialogConfig,
     pub(crate) pick_result_dialog: PickResultDialogConfig,
@@ -235,6 +241,7 @@ impl Default for AppConfig {
         Self {
             student_list: Vec::new(),
             allow_repeat_draw: true,
+            font_family: String::new(),
             floating_button: FloatingButtonConfig::default(),
             pick_count_dialog: PickCountDialogConfig::default(),
             pick_result_dialog: PickResultDialogConfig::default(),

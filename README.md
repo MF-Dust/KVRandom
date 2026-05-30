@@ -53,19 +53,17 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 
 常见产物：
 
-- `KVRandom_*_x64-setup.exe`：NSIS 安装包。
-- `KVRandom_*_x64_en-US.msi`：MSI 安装包。
-- `kvrandom-windows-portable.zip`：便携版，包含 `kvrandom.exe`、`kvrandom_lib.dll` 和 `_up_` 资源目录。
+- `kvrandom-windows-portable.zip`：便携版，包含 `kvrandom.exe`、`kvrandom_lib.dll` 和 `public` 资源目录。
 
 基本使用：
 
-1. 安装或解压发布包。
+1. 解压发布包。
 2. 运行 `kvrandom.exe`。
 3. 在系统托盘中右键 KVRandom 图标，点击 `配置`。
 4. 导入或粘贴学生名单，调整权重和抽取偏好。
 5. 点击桌面悬浮按钮开始抽取。
 
-便携版不要只移动 `kvrandom.exe`，需要保留同目录下的 `kvrandom_lib.dll` 和 `_up_` 资源目录，否则图片、音乐或音效可能无法加载。
+便携版不要只移动 `kvrandom.exe`，需要保留同目录下的 `kvrandom_lib.dll` 和 `public` 资源目录，否则图片、音乐或音效可能无法加载。
 
 ## 配置说明
 
@@ -114,7 +112,7 @@ npm run build
 - `npm run dev` 启动完整 Tauri 开发应用。
 - `npm run dev:frontend` 只启动 Vite 前端。
 - `npm run build:frontend` 只构建 renderer。
-- `npm run build` 构建 Windows Tauri 安装包和 release 可执行文件。
+- `npm run build` 构建 Windows release 可执行文件（不再生成安装包）。
 - Rust 代码格式化使用 `cargo fmt --manifest-path src-tauri/Cargo.toml`。
 
 ## 项目结构
@@ -166,21 +164,20 @@ GitHub Actions 工作流位于 `.github/workflows/build-windows.yml`。
 
 1. 安装 Node 和 Rust。
 2. 执行 `npm ci`。
-3. 执行 `npm run build`。
-4. 复制 NSIS 和 MSI 安装包。
-5. 生成 `version.yml`，用于应用内更新检查。
-6. 生成 `kvrandom-windows-portable.zip`，包含 exe、DLL 和 `_up_` 资源目录。
-7. 上传 artifact 并发布到 GitHub Releases。
+3. 执行 `npm run build`（仅生成 release 可执行文件，不打包安装包）。
+4. 生成 `version.yml`，用于应用内更新检查。
+5. 生成 `kvrandom-windows-portable.zip`，包含 exe、DLL 和 `public` 资源目录。
+6. 上传 artifact 并发布到 GitHub Releases。
 
 ## 资源与音频
 
-Tauri 会把 `public/` 打包为外部资源。安装版和便携版运行时会从以下位置查找资源：
+应用运行时会把 `public/` 作为外部资源目录，从以下位置查找资源：
 
 - `public/...`
-- `_up_/public/...`
 - 兼容性的直接相对路径
+- 安装/打包布局下的 `_up_/public/...`（历史兼容）
 
-如果发布版没有图片或没有声音，优先检查运行目录是否保留了 `_up_/public/image` 和 `_up_/public/sound`。
+如果发布版没有图片或没有声音，优先检查运行目录是否保留了 `public/image` 和 `public/sound`。
 
 ## 贡献
 

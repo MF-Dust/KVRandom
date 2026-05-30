@@ -857,7 +857,13 @@
     flex-direction: column;
     overflow: hidden;
     background-color: #ebf4fc;
-    font-family: 'Segoe UI Variable', 'Microsoft YaHei UI', system-ui, sans-serif;
+    font-family: var(
+      --ba-font-family,
+      'Segoe UI Variable',
+      'Microsoft YaHei UI',
+      system-ui,
+      sans-serif
+    );
     color: var(--ba-dark);
     user-select: none;
   }

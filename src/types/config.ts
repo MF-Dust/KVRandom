@@ -63,6 +63,7 @@ export interface RecruitPool {
 export interface AppConfig {
   studentList: Student[]
   allowRepeatDraw: boolean
+  fontFamily: string
   floatingButton: FloatingButtonConfig
   pickCountDialog: PickCountDialogConfig
   pickResultDialog: PickResultDialogConfig

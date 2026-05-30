@@ -138,6 +138,7 @@ pub fn run() {
             commands::pick_result::close_recruit,
             commands::config_cmd::open_config,
             commands::config_cmd::get_config,
+            commands::config_cmd::get_system_fonts,
             commands::config_cmd::parse_student_list_text,
             commands::config_cmd::import_student_list_from_file,
             commands::config_cmd::save_app_config,

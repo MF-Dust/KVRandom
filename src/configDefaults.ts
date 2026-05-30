@@ -17,6 +17,7 @@ export const DEFAULT_WEB_CONFIG_PORT = 21219
 export const createDefaultConfig = (): AppConfig => ({
   studentList: [],
   allowRepeatDraw: true,
+  fontFamily: '',
   floatingButton: {
     sizePercent: DEFAULT_FLOATING_SIZE_PERCENT,
     transparencyPercent: DEFAULT_FLOATING_TRANSPARENCY_PERCENT,

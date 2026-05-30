@@ -1,5 +1,5 @@
 use std::fs;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 
 use crate::config::{
     current_config_signature, normalize_config_value, parse_student_list_text_impl, save_config,
@@ -87,6 +87,7 @@ pub(crate) async fn save_app_config(
         } else {
             create_floating_window(&app, &normalized)?;
         }
+        let _ = app.emit("config-updated", &normalized);
         push_log(&app, &state, "info", "配置保存成功！悬浮窗已经刷新啦～");
         Ok(ApiResult {
             ok: true,
@@ -112,4 +113,9 @@ pub(crate) async fn save_student_list_file(
         Ok(())
     })
     .await?
+}
+
+#[tauri::command]
+pub(crate) async fn get_system_fonts() -> AppResult<Vec<String>> {
+    tauri::async_runtime::spawn_blocking(move || Ok(crate::config::get_system_fonts_impl())).await?
 }

@@ -224,6 +224,12 @@ pub(crate) fn to_config_yaml_with_comments(config: &AppConfig) -> String {
         "studentList: []".to_string(),
         format!("allowRepeatDraw: {}", config.allow_repeat_draw),
         String::new(),
+        "# 字体选择配置，留空使用默认系统字体～".to_string(),
+        format!(
+            "fontFamily: \"{}\"",
+            escape_yaml_string(&config.font_family)
+        ),
+        String::new(),
         "# 悬浮按钮配置～".to_string(),
         "floatingButton:".to_string(),
         "  # 按钮大小百分比（基准50px×50px），范围0-1000，默认100～".to_string(),
@@ -407,4 +413,67 @@ pub(crate) fn load_config_with_signature(
 ) -> Result<(AppConfig, Option<ConfigFileSignature>), String> {
     let config = load_config(app)?;
     Ok((config, current_config_signature(app)?))
+}
+
+#[cfg(target_os = "windows")]
+pub(crate) fn get_system_fonts_impl() -> Vec<String> {
+    use std::collections::BTreeSet;
+    use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
+    use winreg::RegKey;
+
+    let mut font_names = BTreeSet::new();
+
+    // Query HKLM
+    if let Ok(hklm) = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts")
+    {
+        for val in hklm.enum_values().flatten() {
+            let name = val.0;
+            let cleaned = clean_font_name(&name);
+            for font in cleaned {
+                if !font.is_empty() {
+                    font_names.insert(font);
+                }
+            }
+        }
+    }
+
+    // Query HKCU
+    if let Ok(hkcu) = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey("Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts")
+    {
+        for val in hkcu.enum_values().flatten() {
+            let name = val.0;
+            let cleaned = clean_font_name(&name);
+            for font in cleaned {
+                if !font.is_empty() {
+                    font_names.insert(font);
+                }
+            }
+        }
+    }
+
+    font_names.into_iter().collect()
+}
+
+#[cfg(not(target_os = "windows"))]
+pub(crate) fn get_system_fonts_impl() -> Vec<String> {
+    Vec::new()
+}
+
+#[cfg(target_os = "windows")]
+fn clean_font_name(raw: &str) -> Vec<String> {
+    let mut cleaned = raw.to_string();
+    for suffix in &["(TrueType)", "(OpenType)", "(True Type)", "(PostScript)"] {
+        if let Some(idx) = cleaned.to_lowercase().find(&suffix.to_lowercase()) {
+            cleaned.truncate(idx);
+        }
+    }
+
+    cleaned
+        .split('&')
+        .flat_map(|s| s.split(','))
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
 }

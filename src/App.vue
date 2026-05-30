@@ -4,7 +4,8 @@
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
-  import { watch } from 'vue'
+  import { watch, onMounted, onBeforeUnmount } from 'vue'
+  import { appApi } from './tauriApi'
 
   const route = useRoute()
   watch(
@@ -20,23 +21,42 @@
     },
     { immediate: true }
   )
+
+  const applyFontFamily = (fontFamily?: string) => {
+    if (fontFamily && fontFamily.trim() !== '') {
+      document.documentElement.style.setProperty('--ba-font-family', fontFamily)
+    } else {
+      document.documentElement.style.removeProperty('--ba-font-family')
+    }
+  }
+
+  let removeConfigListener: (() => void) | null = null
+
+  onMounted(async () => {
+    try {
+      const config = await appApi.getConfig()
+      applyFontFamily(config.fontFamily)
+    } catch (err) {
+      console.error('加载字体配置失败:', err)
+    }
+
+    try {
+      removeConfigListener = appApi.onConfigUpdated((config) => {
+        applyFontFamily(config.fontFamily)
+      })
+    } catch (err) {
+      console.error('注册配置监听器失败:', err)
+    }
+  })
+
+  onBeforeUnmount(() => {
+    if (typeof removeConfigListener === 'function') {
+      removeConfigListener()
+    }
+  })
 </script>
 
 <style>
-  @font-face {
-    font-family: 'Resource Han Rounded';
-    src: url('/font/ResourceHanRoundedSC-Regular.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-  }
-
-  @font-face {
-    font-family: 'Resource Han Rounded';
-    src: url('/font/ResourceHanRoundedSC-Bold.woff2') format('woff2');
-    font-weight: bold;
-    font-style: normal;
-  }
-
   * {
     box-sizing: border-box;
   }
@@ -48,9 +68,14 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family:
-      'Resource Han Rounded', '方正兰亭圆_GBK', 'FZLanTingYuan-R-GBK', 'Microsoft YaHei UI',
-      'PingFang SC', sans-serif;
+    font-family: var(
+      --ba-font-family,
+      '方正兰亭圆_GBK',
+      'FZLanTingYuan-R-GBK',
+      'Microsoft YaHei UI',
+      'PingFang SC',
+      sans-serif
+    );
   }
 
   html:not(.is-config-page),

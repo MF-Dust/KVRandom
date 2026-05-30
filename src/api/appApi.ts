@@ -22,8 +22,11 @@ export const appApi = {
   createAdminStartupTask: (exePath: string, taskName: string) =>
     invoke<ApiResult>('create_admin_startup_task', { exePath, taskName }),
   getLogs: () => invoke<LogEntryEventPayload[]>('get_logs'),
+  getSystemFonts: () => invoke<string[]>('get_system_fonts'),
   onLogEntry: (callback: EventCallback<LogEntryEventPayload>): Unlisten =>
     listenCompat<LogEntryEventPayload>('log-entry', callback),
+  onConfigUpdated: (callback: EventCallback<AppConfig>): Unlisten =>
+    listenCompat<AppConfig>('config-updated', callback),
 }
 
 export type AppApi = typeof appApi

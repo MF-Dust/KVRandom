@@ -16,9 +16,7 @@
     "windows": []
   },
   "bundle": {
-    "active": true,
-    "targets": ["nsis", "msi"],
-    "icon": ["../public/image/app.ico"],
-    "resources": ["../public"]
+    "active": false,
+    "icon": ["../public/image/app.ico"]
   }
 }

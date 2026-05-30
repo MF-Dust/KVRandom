@@ -87,12 +87,8 @@ jobs:
           type: "$type"
           "@
           $content | Out-File -FilePath artifacts\version.yml -Encoding utf8
-          
-          # Copy installers
-          Get-ChildItem -Path "src-tauri/target/release/bundle/nsis/*.exe" | Copy-Item -Destination "artifacts/"
-          Get-ChildItem -Path "src-tauri/target/release/bundle/msi/*.msi" | Copy-Item -Destination "artifacts/"
-          
-          # Create Portable ZIP
+
+          # Create Portable ZIP (exe + DLL + public resources)
           $exePath = Get-ChildItem -Path "src-tauri/target/release/kvrandom.exe" | Select-Object -First 1
           if ($exePath) {
             $portableItems = @($exePath.FullName)
@@ -100,9 +96,8 @@ jobs:
             if (Test-Path $dllPath) {
               $portableItems += $dllPath
             }
-            $resourcePath = "src-tauri/target/release/_up_"
-            if (Test-Path $resourcePath) {
-              $portableItems += $resourcePath
+            if (Test-Path "public") {
+              $portableItems += "public"
             }
             Compress-Archive -Path $portableItems -DestinationPath "artifacts/kvrandom-windows-portable.zip"
           }

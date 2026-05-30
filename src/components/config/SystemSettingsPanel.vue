@@ -160,6 +160,45 @@
       </div>
     </div>
 
+    <!-- 字体设置 -->
+    <div class="ba-card">
+      <div class="ba-card-header">
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="4 7 4 4 20 4 20 7" />
+          <line x1="9" y1="20" x2="15" y2="20" />
+          <line x1="12" y1="4" x2="12" y2="20" />
+        </svg>
+        <span>字体设置～</span>
+      </div>
+      <div class="ba-form-item">
+        <label class="ba-label">选择或者自定义输入字体家族 (Font Family)</label>
+        <n-select
+          v-model:value="config.fontFamily"
+          :options="fontOptions"
+          placeholder="请选择或直接输入字体家族名称..."
+          filterable
+          tag
+        />
+        <p class="ba-card-desc">
+          老师可以选择系统内置的常用字体，或者手动输入您电脑里已安装的任何字体名称（如
+          “方正兰亭圆_GBK”、“微软雅黑” 等）哦！留空则使用默认字体。
+        </p>
+        <div class="ba-font-preview" :style="{ fontFamily: config.fontFamily || undefined }">
+          <span class="ba-preview-label">字体效果预览：</span>
+          <span class="ba-preview-text">老师，您觉得现在的字体效果怎么样？(0123456789 ABCabc)</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 商标版权 -->
     <div class="ba-card ba-card-muted">
       <div class="ba-card-header">
@@ -192,7 +231,9 @@
 </template>
 
 <script setup lang="ts">
-  import { NButton, NInput, NSwitch } from 'naive-ui'
+  import { ref, onMounted } from 'vue'
+  import { NButton, NInput, NSwitch, NSelect } from 'naive-ui'
+  import { appApi } from '../../tauriApi'
 
   defineProps({
     config: {
@@ -206,6 +247,32 @@
   })
 
   defineEmits(['request-admin-elevation', 'create-admin-startup-task', 'check-update'])
+
+  const fontOptions = ref<{ label: string; value: string }[]>([
+    { label: '系统默认字体', value: '' },
+    { label: '微软雅黑 (Microsoft YaHei)', value: 'Microsoft YaHei UI' },
+    { label: '方正兰亭圆 (FZLanTingYuan)', value: '方正兰亭圆_GBK' },
+    { label: '等线 (DengXian)', value: 'DengXian' },
+    { label: '宋体 (SimSun)', value: 'SimSun' },
+    { label: '楷体 (KaiTi)', value: 'KaiTi' },
+    { label: '黑体 (SimHei)', value: 'SimHei' },
+  ])
+
+  onMounted(async () => {
+    try {
+      const systemFonts = await appApi.getSystemFonts()
+      if (Array.isArray(systemFonts) && systemFonts.length > 0) {
+        const existingValues = new Set(fontOptions.value.map((opt) => opt.value.toLowerCase()))
+        systemFonts.forEach((font) => {
+          if (!existingValues.has(font.toLowerCase()) && font.trim() !== '') {
+            fontOptions.value.push({ label: font, value: font })
+          }
+        })
+      }
+    } catch (err) {
+      console.error('获取系统字体列表失败:', err)
+    }
+  })
 </script>
 
 <style scoped>
@@ -369,5 +436,30 @@
     font-size: 12px;
     color: #8ca3bf;
     line-height: 1.6;
+  }
+
+  .ba-font-preview {
+    margin-top: 8px;
+    padding: 12px 16px;
+    border: 1px dashed rgba(18, 138, 250, 0.2);
+    border-radius: 8px;
+    background: #fcfdfe;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ba-preview-label {
+    font-size: 11px;
+    color: #8ca3bf;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ba-preview-text {
+    font-size: 15px;
+    color: #1a3a5c;
+    font-weight: 500;
   }
 </style>

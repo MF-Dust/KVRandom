@@ -193,7 +193,8 @@
       errorColorPressed: '#C24040',
       borderRadius: '8px',
       borderRadiusSmall: '6px',
-      fontFamily: '"Segoe UI Variable", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif',
+      fontFamily:
+        'var(--ba-font-family, "Segoe UI Variable", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif)',
       fontSize: '14px',
     },
     Button: {
@@ -264,7 +265,14 @@
   .ba-page {
     position: relative;
     height: 100vh;
-    font-family: 'Segoe UI Variable', 'Microsoft YaHei UI', 'PingFang SC', system-ui, sans-serif;
+    font-family: var(
+      --ba-font-family,
+      'Segoe UI Variable',
+      'Microsoft YaHei UI',
+      'PingFang SC',
+      system-ui,
+      sans-serif
+    );
     color: var(--ba-ink);
     overflow: hidden;
     background: linear-gradient(160deg, #f0f7ff 0%, #e6f1ff 40%, #f5f9ff 100%);
