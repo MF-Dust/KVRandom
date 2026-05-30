@@ -124,6 +124,14 @@
                 @check-update="checkUpdate"
               />
             </div>
+
+            <div v-else-if="activeTab === 'about'" key="about" class="ba-tab-content">
+              <AboutSettingsPanel
+                :app-version="appVersion"
+                :is-admin="isAdmin"
+                :is-debug-mode="isDebugMode"
+              />
+            </div>
           </form>
 
           <!-- Collapsible log panel -->
@@ -142,6 +150,7 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted } from 'vue'
   import { NConfigProvider } from 'naive-ui'
+  import AboutSettingsPanel from '../components/config/AboutSettingsPanel.vue'
   import AppearanceSettingsPanel from '../components/config/AppearanceSettingsPanel.vue'
   import ConfigTabs from '../components/config/ConfigTabs.vue'
   import FloatingSettingsPanel from '../components/config/FloatingSettingsPanel.vue'

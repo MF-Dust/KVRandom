@@ -198,35 +198,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 商标版权 -->
-    <div class="ba-card ba-card-muted">
-      <div class="ba-card-header">
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg>
-        <span>商标 & 版权</span>
-      </div>
-      <div class="ba-copyright-text">
-        <p>"蔚蓝档案"是上海星啸网络科技有限公司的注册商标，版权所有。</p>
-        <p>「ブルーアーカイブ」は株式会社Yostarの登録商標です。著作権はすべて保有されています。</p>
-        <p>
-          "Blue Archive" is a registered trademark of NEXON Korea Corp. &amp; NEXON GAMES Co., Ltd.
-          All rights reserved.
-        </p>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -326,15 +297,6 @@
     color: #7c3aed;
   }
 
-  .ba-card-muted {
-    border-color: rgba(0, 0, 0, 0.06);
-    background: #fafbfc;
-  }
-
-  .ba-card-muted .ba-card-header {
-    color: #8ca3bf;
-  }
-
   .ba-card-header {
     display: flex;
     align-items: center;
@@ -423,19 +385,6 @@
   .ba-update-links {
     display: flex;
     gap: 16px;
-  }
-
-  .ba-copyright-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .ba-copyright-text p {
-    margin: 0;
-    font-size: 12px;
-    color: #8ca3bf;
-    line-height: 1.6;
   }
 
   .ba-font-preview {
