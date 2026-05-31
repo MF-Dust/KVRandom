@@ -1,7 +1,8 @@
 use rand::seq::SliceRandom;
 use rand::Rng;
+use std::collections::HashMap;
 
-use crate::config::{AppConfig, Student};
+use crate::config::{AppConfig, Student, StudentRateBoost};
 use crate::models::PickedStudent;
 
 const WEIGHT_BOOST_GAMMA: f64 = 1.5;
@@ -21,6 +22,37 @@ fn valid_student_entries(students: &[Student]) -> impl Iterator<Item = (String, 
             Some((name.to_string(), student.weight.max(0.0)))
         }
     })
+}
+
+fn apply_rate_boosts(
+    entries: Vec<(String, f64)>,
+    rate_boosts: &[StudentRateBoost],
+) -> Vec<(String, f64)> {
+    if rate_boosts.is_empty() {
+        return entries;
+    }
+
+    let boost_map: HashMap<String, f64> = rate_boosts
+        .iter()
+        .map(|boost| {
+            (
+                boost.student_name.trim().to_string(),
+                boost.boost_multiplier.max(1.0),
+            )
+        })
+        .collect();
+
+    entries
+        .into_iter()
+        .map(|(name, weight)| {
+            let boosted_weight = if let Some(&multiplier) = boost_map.get(&name) {
+                weight * multiplier
+            } else {
+                weight
+            };
+            (name, boosted_weight)
+        })
+        .collect()
 }
 
 pub(crate) fn assign_rarity(pity_counter: &mut u32) -> String {
@@ -57,7 +89,17 @@ fn enrich_picked_student(name: &str, students: &[Student], rarity: String) -> Pi
 }
 
 pub(crate) fn build_weighted_pool(config: &AppConfig) -> WeightedPool {
-    let entries = valid_student_entries(&config.student_list)
+    build_weighted_pool_with_boosts(config, &[])
+}
+
+pub(crate) fn build_weighted_pool_with_boosts(
+    config: &AppConfig,
+    rate_boosts: &[StudentRateBoost],
+) -> WeightedPool {
+    let base_entries = valid_student_entries(&config.student_list).collect::<Vec<_>>();
+    let boosted_entries = apply_rate_boosts(base_entries, rate_boosts);
+    let entries = boosted_entries
+        .into_iter()
         .map(|(name, weight)| (name, weight.powf(WEIGHT_BOOST_GAMMA)))
         .collect::<Vec<_>>();
     let total_weight = entries.iter().map(|(_, weight)| *weight).sum();
@@ -254,5 +296,82 @@ mod tests {
             "保底应升级，实际: {tenth}"
         );
         assert_eq!(pity, 10);
+    }
+
+    #[test]
+    fn build_weighted_pool_with_boosts_applies_multipliers() {
+        let cfg = make_config(vec![("阿罗娜", 1.0), ("普拉娜", 1.0), ("白子", 1.0)]);
+        let boosts = vec![
+            StudentRateBoost {
+                student_name: "阿罗娜".to_string(),
+                boost_multiplier: 2.0,
+            },
+            StudentRateBoost {
+                student_name: "白子".to_string(),
+                boost_multiplier: 3.0,
+            },
+        ];
+
+        let pool = build_weighted_pool_with_boosts(&cfg, &boosts);
+
+        assert_eq!(pool.entries.len(), 3);
+
+        // Find the weights after boost and gamma
+        let arona_weight = pool
+            .entries
+            .iter()
+            .find(|(name, _)| name == "阿罗娜")
+            .map(|(_, w)| *w)
+            .unwrap();
+        let plana_weight = pool
+            .entries
+            .iter()
+            .find(|(name, _)| name == "普拉娜")
+            .map(|(_, w)| *w)
+            .unwrap();
+        let shiroko_weight = pool
+            .entries
+            .iter()
+            .find(|(name, _)| name == "白子")
+            .map(|(_, w)| *w)
+            .unwrap();
+
+        // Expected: (base_weight * boost)^WEIGHT_BOOST_GAMMA
+        // 阿罗娜: (1.0 * 2.0)^1.5 = 2.0^1.5 ≈ 2.828
+        // 普拉娜: (1.0 * 1.0)^1.5 = 1.0
+        // 白子: (1.0 * 3.0)^1.5 = 3.0^1.5 ≈ 5.196
+
+        assert!(
+            (arona_weight - 2.0_f64.powf(WEIGHT_BOOST_GAMMA)).abs() < 0.001,
+            "阿罗娜权重应为 2^1.5，实际: {arona_weight}"
+        );
+        assert!(
+            (plana_weight - 1.0_f64.powf(WEIGHT_BOOST_GAMMA)).abs() < 0.001,
+            "普拉娜权重应为 1^1.5，实际: {plana_weight}"
+        );
+        assert!(
+            (shiroko_weight - 3.0_f64.powf(WEIGHT_BOOST_GAMMA)).abs() < 0.001,
+            "白子权重应为 3^1.5，实际: {shiroko_weight}"
+        );
+    }
+
+    #[test]
+    fn build_weighted_pool_with_boosts_ignores_nonexistent_students() {
+        let cfg = make_config(vec![("阿罗娜", 1.0), ("普拉娜", 1.0)]);
+        let boosts = vec![
+            StudentRateBoost {
+                student_name: "不存在的学生".to_string(),
+                boost_multiplier: 10.0,
+            },
+            StudentRateBoost {
+                student_name: "阿罗娜".to_string(),
+                boost_multiplier: 2.0,
+            },
+        ];
+
+        let pool = build_weighted_pool_with_boosts(&cfg, &boosts);
+
+        assert_eq!(pool.entries.len(), 2);
+        assert!(pool.entries.iter().all(|(name, _)| name != "不存在的学生"));
     }
 }

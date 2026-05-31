@@ -172,6 +172,55 @@
                 </div>
               </div>
             </div>
+
+            <!-- Rate Boost Students Section -->
+            <div class="ba-form-item">
+              <div class="ba-rate-boost-header">
+                <label class="ba-label">概率提升学生设置</label>
+                <n-button size="tiny" type="primary" @click="addRateBoost(pool)">
+                  添加学生
+                </n-button>
+              </div>
+              <p class="ba-rate-boost-hint">
+                为特定学生设置概率提升倍数，例如设置 2.0 表示该学生的抽取概率提升为原来的 2 倍。
+              </p>
+
+              <div
+                v-if="pool.rateBoostStudents && pool.rateBoostStudents.length > 0"
+                class="ba-rate-boost-list"
+              >
+                <div
+                  v-for="(boost, boostIndex) in pool.rateBoostStudents"
+                  :key="boostIndex"
+                  class="ba-rate-boost-item"
+                >
+                  <n-input
+                    v-model:value="boost.studentName"
+                    placeholder="学生姓名"
+                    style="flex: 1"
+                  />
+                  <n-input-number
+                    v-model:value="boost.boostMultiplier"
+                    placeholder="倍数"
+                    :min="1"
+                    :max="100"
+                    :step="0.1"
+                    style="width: 120px"
+                  />
+                  <n-button
+                    text
+                    type="error"
+                    size="small"
+                    @click="removeRateBoost(pool, boostIndex)"
+                  >
+                    删除
+                  </n-button>
+                </div>
+              </div>
+              <div v-else class="ba-rate-boost-empty">
+                <span>暂无概率提升设置，点击上方按钮添加～</span>
+              </div>
+            </div>
           </div>
         </n-collapse-item>
       </n-collapse>
@@ -180,7 +229,8 @@
 </template>
 
 <script setup lang="ts">
-  import { NButton, NCollapse, NCollapseItem, NInput, NSelect, NTag } from 'naive-ui'
+  import { NButton, NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NTag } from 'naive-ui'
+  import type { RecruitPool } from '@/types/config'
 
   const props = defineProps({
     config: {
@@ -231,16 +281,34 @@
       buttonText2: '招募10次',
       buttonCost1: '青辉石 x 120',
       buttonCost2: '青辉石 x 1200',
+      rateBoostStudents: [],
     })
   }
 
   const deletePool = (index: number | string) => {
-    const idx = Number(index)
+    const idx = typeof index === 'number' ? index : Number(index)
     if (props.config.recruitPools[idx].id === 'pool_select') {
       // Keep at least one select pool if they want, or warn, but let's allow deleting any except maybe default if needed.
       // Actually, just delete it.
     }
     props.config.recruitPools.splice(idx, 1)
+  }
+
+  const addRateBoost = (pool: RecruitPool) => {
+    if (!pool.rateBoostStudents) {
+      pool.rateBoostStudents = []
+    }
+    pool.rateBoostStudents.push({
+      studentName: '',
+      boostMultiplier: 2.0,
+    })
+  }
+
+  const removeRateBoost = (pool: RecruitPool, index: number | string) => {
+    if (pool.rateBoostStudents) {
+      const idx = typeof index === 'number' ? index : Number(index)
+      pool.rateBoostStudents.splice(idx, 1)
+    }
   }
 </script>
 
@@ -371,6 +439,46 @@
   .ba-btn-setup-row {
     display: flex;
     gap: 8px;
+  }
+
+  .ba-rate-boost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .ba-rate-boost-hint {
+    margin: 0 0 12px 0;
+    color: #8ca3bf;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .ba-rate-boost-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ba-rate-boost-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(18, 138, 250, 0.15);
+    border-radius: 6px;
+  }
+
+  .ba-rate-boost-empty {
+    padding: 20px;
+    text-align: center;
+    color: #8ca3bf;
+    font-size: 13px;
+    background: #f8fafc;
+    border: 1px dashed rgba(18, 138, 250, 0.2);
+    border-radius: 6px;
   }
 
   @media (max-width: 768px) {

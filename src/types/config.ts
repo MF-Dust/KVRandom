@@ -101,6 +101,11 @@ export interface WebConfig {
 export type RecruitPoolTabType = 'select' | 'pickup_blue' | 'pickup_pink' | 'pickup_red' | string
 export type RecruitGachaType = 'select' | 'gacha' | string
 
+export interface StudentRateBoost {
+  studentName: string
+  boostMultiplier: number
+}
+
 export interface RecruitPool {
   id: string
   name: string
@@ -117,6 +122,7 @@ export interface RecruitPool {
   buttonText2: string
   buttonCost1: string
   buttonCost2: string
+  rateBoostStudents?: StudentRateBoost[]
 }
 
 export interface AppConfig {

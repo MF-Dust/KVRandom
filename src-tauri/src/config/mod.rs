@@ -417,6 +417,13 @@ impl Default for WebConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct StudentRateBoost {
+    pub(crate) student_name: String,
+    pub(crate) boost_multiplier: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct RecruitPool {
     pub(crate) id: String,
     pub(crate) name: String,
@@ -436,6 +443,8 @@ pub(crate) struct RecruitPool {
     pub(crate) button_text2: String,
     pub(crate) button_cost1: String,
     pub(crate) button_cost2: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(crate) rate_boost_students: Vec<StudentRateBoost>,
 }
 
 pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
@@ -456,6 +465,7 @@ pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
             button_text2: "使用自选券".to_string(),
             button_cost1: "￥ 3,000".to_string(),
             button_cost2: "1".to_string(),
+            rate_boost_students: vec![],
         },
         RecruitPool {
             id: "pool_shiroko".to_string(),
@@ -473,6 +483,7 @@ pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
             button_text2: "招募10次".to_string(),
             button_cost1: " 青辉石 x 120".to_string(),
             button_cost2: " 青辉石 x 1200".to_string(),
+            rate_boost_students: vec![],
         },
         RecruitPool {
             id: "pool_koyuki".to_string(),
@@ -490,6 +501,7 @@ pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
             button_text2: "招募10次".to_string(),
             button_cost1: " 青辉石 x 120".to_string(),
             button_cost2: " 青辉石 x 1200".to_string(),
+            rate_boost_students: vec![],
         },
         RecruitPool {
             id: "pool_kaede".to_string(),
@@ -507,6 +519,7 @@ pub(crate) fn default_recruit_pools() -> Vec<RecruitPool> {
             button_text2: "招募10次".to_string(),
             button_cost1: " 青辉石 x 120".to_string(),
             button_cost2: " 青辉石 x 1200".to_string(),
+            rate_boost_students: vec![],
         },
     ]
 }

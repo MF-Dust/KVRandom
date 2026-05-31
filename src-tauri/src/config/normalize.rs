@@ -580,6 +580,35 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
                                 button_text2: value_as_string(get_field(item, "buttonText2"), ""),
                                 button_cost1: value_as_string(get_field(item, "buttonCost1"), ""),
                                 button_cost2: value_as_string(get_field(item, "buttonCost2"), ""),
+                                rate_boost_students: match get_field(item, "rateBoostStudents") {
+                                    Some(Value::Array(boosts)) => {
+                                        let mut boost_list = Vec::new();
+                                        for boost in boosts {
+                                            if let Value::Object(_) = boost {
+                                                let student_name = value_as_string(
+                                                    get_field(boost, "studentName"),
+                                                    "",
+                                                );
+                                                let boost_multiplier = value_as_f64(
+                                                    get_field(boost, "boostMultiplier"),
+                                                    1.0,
+                                                );
+                                                if !student_name.is_empty()
+                                                    && boost_multiplier >= 1.0
+                                                {
+                                                    boost_list.push(
+                                                        crate::config::StudentRateBoost {
+                                                            student_name,
+                                                            boost_multiplier,
+                                                        },
+                                                    );
+                                                }
+                                            }
+                                        }
+                                        boost_list
+                                    }
+                                    _ => Vec::new(),
+                                },
                             });
                         }
                     }
