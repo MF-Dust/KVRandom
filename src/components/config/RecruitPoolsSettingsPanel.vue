@@ -174,7 +174,7 @@
             </div>
 
             <!-- Rate Boost Students Section -->
-            <div class="ba-form-item">
+            <div v-if="pool.gachaType !== 'select'" class="ba-form-item">
               <div class="ba-rate-boost-header">
                 <label class="ba-label">概率提升学生设置</label>
                 <n-button size="tiny" type="primary" @click="addRateBoost(pool)">
@@ -194,9 +194,11 @@
                   :key="boostIndex"
                   class="ba-rate-boost-item"
                 >
-                  <n-input
+                  <n-select
                     v-model:value="boost.studentName"
-                    placeholder="学生姓名"
+                    placeholder="选择学生"
+                    :options="studentOptions"
+                    filterable
                     style="flex: 1"
                   />
                   <n-input-number
@@ -229,6 +231,7 @@
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue'
   import { NButton, NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NTag } from 'naive-ui'
   import type { RecruitPool } from '@/types/config'
 
@@ -237,6 +240,16 @@
       type: Object,
       required: true,
     },
+  })
+
+  const studentOptions = computed(() => {
+    if (!props.config.studentList || props.config.studentList.length === 0) {
+      return []
+    }
+    return props.config.studentList.map((student: any) => ({
+      label: student.name,
+      value: student.name,
+    }))
   })
 
   const tabTypeOptions = [
