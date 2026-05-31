@@ -650,6 +650,15 @@
       console.error('Failed to load configuration:', err)
     }
 
+    // Listen for config updates
+    const removeConfigListener = appApi.onConfigUpdated((config) => {
+      if (config) {
+        students.value = config.studentList || []
+        pools.value = config.recruitPools || []
+        recruitConfig.value = config.recruitConfig || createDefaultConfig().recruitConfig
+      }
+    })
+
     pickResultApi.onOpen(() => {
       showResultOverlay.value = true
     })
@@ -668,6 +677,11 @@
       } else {
         pauseStageVideo()
       }
+    })
+
+    // Store cleanup function
+    onBeforeUnmount(() => {
+      removeConfigListener()
     })
   })
 
