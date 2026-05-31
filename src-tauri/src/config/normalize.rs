@@ -512,6 +512,10 @@ pub(crate) fn normalize_config_value(value: Value) -> AppConfig {
                 get_field(recruit, "selectTicketDisplay"),
                 &default.recruit_config.select_ticket_display,
             ),
+            auto_skip_video: value_as_bool(
+                get_field(recruit, "autoSkipVideo"),
+                default.recruit_config.auto_skip_video,
+            ),
         },
         web_config: WebConfig {
             admin_topmost_enabled: value_as_bool(

@@ -424,6 +424,7 @@
                 <th>学院</th>
                 <th>社团</th>
                 <th>权重</th>
+                <th>提升倍数</th>
                 <th>预测概率</th>
               </tr>
             </thead>
@@ -433,7 +434,13 @@
                 <td>{{ student.academy || '未知' }}</td>
                 <td>{{ student.club || '未知' }}</td>
                 <td class="td-weight">{{ student.weight.toFixed(1) }}</td>
-                <td class="td-prob">{{ calculateProb(student.weight) }}%</td>
+                <td class="td-boost">
+                  <span v-if="getBoostMultiplier(student.name) > 1" class="boost-badge"
+                    >{{ getBoostMultiplier(student.name).toFixed(1) }}x</span
+                  >
+                  <span v-else>-</span>
+                </td>
+                <td class="td-prob">{{ calculateProb(student.name, student.weight) }}%</td>
               </tr>
             </tbody>
           </table>
@@ -579,14 +586,36 @@
       pageVisible.value
   )
 
-  // Sum of weights for rates calc
-  const totalWeight = computed(() => {
-    return students.value.reduce((sum, s) => sum + (s.weight || 0), 0)
+  // Get boosted weight for a student based on current pool's rate boosts
+  const getBoostedWeight = (studentName: string, baseWeight: number) => {
+    const pool = currentPool.value
+    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
+      return baseWeight
+    }
+
+    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
+    if (boost && boost.boostMultiplier > 0) {
+      return baseWeight * boost.boostMultiplier
+    }
+
+    return baseWeight
+  }
+
+  // Calculate total weight with boosts applied
+  const totalBoostedWeight = computed(() => {
+    return students.value.reduce((sum, s) => {
+      const boostedWeight = getBoostedWeight(s.name, s.weight || 0)
+      return sum + boostedWeight
+    }, 0)
   })
 
   // Sort students by probability/weight descending
   const sortedStudents = computed(() => {
-    return [...students.value].sort((a, b) => b.weight - a.weight)
+    return [...students.value].sort((a, b) => {
+      const aWeight = getBoostedWeight(a.name, a.weight)
+      const bWeight = getBoostedWeight(b.name, b.weight)
+      return bWeight - aWeight
+    })
   })
 
   // Lifecycle
@@ -760,9 +789,20 @@
     showDetailsModal.value = true
   }
 
-  const calculateProb = (weight: number) => {
-    if (totalWeight.value <= 0) return '0.00'
-    return ((weight / totalWeight.value) * 100).toFixed(2)
+  const calculateProb = (studentName: string, baseWeight: number) => {
+    if (totalBoostedWeight.value <= 0) return '0.00'
+    const boostedWeight = getBoostedWeight(studentName, baseWeight)
+    return ((boostedWeight / totalBoostedWeight.value) * 100).toFixed(2)
+  }
+
+  const getBoostMultiplier = (studentName: string) => {
+    const pool = currentPool.value
+    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
+      return 1
+    }
+
+    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
+    return boost && boost.boostMultiplier > 0 ? boost.boostMultiplier : 1
   }
 
   // Regular Gacha (Draw 1 or 10)
@@ -802,14 +842,21 @@
 
     saveCurrencies()
 
-    playVideoAndExecute(async () => {
+    const executeRecruit = async () => {
       try {
         // Confirm pick count, hide recruit window, track draw source as 'recruit'
         await pickCountApi.confirm(count, false, 'recruit')
       } catch (err) {
         console.error('Failed to trigger recruit draw:', err)
       }
-    })
+    }
+
+    // Auto skip video if enabled
+    if (recruitConfig.value.autoSkipVideo) {
+      await executeRecruit()
+    } else {
+      playVideoAndExecute(executeRecruit)
+    }
   }
 
   // Selection ticket recruitment
@@ -852,13 +899,21 @@
     showSelectionModal.value = false
 
     const studentName = selectedStudent.value.name
-    playVideoAndExecute(async () => {
+
+    const executeSelectRecruit = async () => {
       try {
         await recruitApi.confirmSelectStudent(studentName, 'recruit')
       } catch (err) {
         console.error('Failed to recruit selected student:', err)
       }
-    })
+    }
+
+    // Auto skip video if enabled
+    if (recruitConfig.value.autoSkipVideo) {
+      await executeSelectRecruit()
+    } else {
+      playVideoAndExecute(executeSelectRecruit)
+    }
   }
 </script>
 
@@ -1714,6 +1769,21 @@
   .td-prob {
     font-weight: 700;
     color: var(--ba-blue);
+  }
+
+  .td-boost {
+    text-align: center;
+  }
+
+  .boost-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #8b4513;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
   }
 
   /* Student selection ticket grid view styling */

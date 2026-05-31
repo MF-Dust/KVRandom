@@ -89,6 +89,7 @@ export interface RecruitConfig {
   recruitTicket10Display: string
   recruitTicket1Display: string
   selectTicketDisplay: string
+  autoSkipVideo?: boolean
 }
 
 export interface WebConfig {

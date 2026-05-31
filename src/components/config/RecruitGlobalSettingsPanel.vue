@@ -48,6 +48,14 @@
           <span class="ba-toggle-label">招募页显示结果遮罩</span>
         </div>
       </div>
+
+      <div class="ba-form-item">
+        <div class="ba-toggle-row">
+          <n-switch v-model:value="config.recruitConfig.autoSkipVideo" />
+          <span class="ba-toggle-label">自动跳过招募视频</span>
+        </div>
+        <p class="ba-hint-text">开启后，点击招募按钮时将自动跳过视频播放</p>
+      </div>
     </div>
 
     <div class="ba-card">

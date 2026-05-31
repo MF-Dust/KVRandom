@@ -369,6 +369,8 @@ pub(crate) struct RecruitConfig {
     pub(crate) recruit_ticket10_display: String,
     pub(crate) recruit_ticket1_display: String,
     pub(crate) select_ticket_display: String,
+    #[serde(default)]
+    pub(crate) auto_skip_video: bool,
 }
 
 impl Default for RecruitConfig {
@@ -391,6 +393,7 @@ impl Default for RecruitConfig {
             recruit_ticket10_display: "INF".to_string(),
             recruit_ticket1_display: "INF".to_string(),
             select_ticket_display: "INF".to_string(),
+            auto_skip_video: false,
         }
     }
 }
