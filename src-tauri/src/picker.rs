@@ -82,9 +82,9 @@ fn enrich_picked_student(name: &str, students: &[Student], rarity: String) -> Pi
     PickedStudent {
         name: name.to_string(),
         rarity,
-        avatar: student.and_then(|s| s.avatar.clone()),
-        academy: student.and_then(|s| s.academy.clone()),
-        club: student.and_then(|s| s.club.clone()),
+        avatar: student.and_then(|s| s.avatar.as_ref().cloned()),
+        academy: student.and_then(|s| s.academy.as_ref().cloned()),
+        club: student.and_then(|s| s.club.as_ref().cloned()),
     }
 }
 
@@ -136,9 +136,9 @@ pub(crate) fn pick_students_with_repeat(
             }
         }
         let index = pick_index.unwrap_or_else(|| rng.gen_range(0..weighted_pool.entries.len()));
-        let name = weighted_pool.entries[index].0.clone();
+        let name = &weighted_pool.entries[index].0;
         let rarity = assign_rarity(pity_counter);
-        picked.push(enrich_picked_student(&name, students, rarity));
+        picked.push(enrich_picked_student(name, students, rarity));
     }
 
     picked

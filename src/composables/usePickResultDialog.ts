@@ -88,7 +88,7 @@ export function usePickResultDialog() {
   }
 
   const stopGachaLoadingSound = () => {
-    audioApi.stopGachaSound().catch(() => {})
+    audioApi.stopGachaSoundSafely()
   }
 
   const playGachaLoadingSound = async () => {

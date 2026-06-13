@@ -123,6 +123,7 @@ pub(crate) async fn confirm_pick_count(
         let (token, config) = {
             let mut guard = state.inner.lock().map_err(|_| state_locked())?;
             guard.floating_hidden_for_pick_count = true;
+            // Clone is necessary: picked_students is used later in open_pick_result_window (line 155)
             guard.current_pick_results = picked_students.clone();
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
             guard.draw_trigger_source = source;

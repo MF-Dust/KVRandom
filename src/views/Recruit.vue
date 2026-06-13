@@ -527,7 +527,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
+  import {
+    ref,
+    computed,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    watch,
+    shallowRef,
+    watchEffect,
+  } from 'vue'
   import { appApi } from '../api/appApi'
   import { audioApi } from '../api/audioApi'
   import { pickCountApi } from '../api/pickCountApi'
@@ -609,13 +618,25 @@
     }, 0)
   })
 
-  // Sort students by probability/weight descending
-  const sortedStudents = computed(() => {
-    return [...students.value].sort((a, b) => {
-      const aWeight = getBoostedWeight(a.name, a.weight)
-      const bWeight = getBoostedWeight(b.name, b.weight)
-      return bWeight - aWeight
-    })
+  // Sort students by probability/weight descending - cached version
+  const sortedStudents = shallowRef<Student[]>([])
+  let sortDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+  watchEffect(() => {
+    // Clear existing timer
+    if (sortDebounceTimer) {
+      clearTimeout(sortDebounceTimer)
+    }
+
+    // Debounce the sort operation
+    sortDebounceTimer = setTimeout(() => {
+      const sorted = [...students.value].sort((a, b) => {
+        const aWeight = getBoostedWeight(a.name, a.weight)
+        const bWeight = getBoostedWeight(b.name, b.weight)
+        return bWeight - aWeight
+      })
+      sortedStudents.value = sorted
+    }, 100)
   })
 
   // Lifecycle
@@ -714,7 +735,11 @@
     syncStageMediaPlayback()
   }
 
-  watch([currentPool, shouldPlayStageMedia], syncStageMediaPlayback, { flush: 'post' })
+  // Watch currentPool changes to sync media
+  watch(currentPool, syncStageMediaPlayback, { flush: 'post' })
+
+  // Watch shouldPlayStageMedia changes independently
+  watch(shouldPlayStageMedia, syncStageMediaPlayback, { flush: 'post' })
 
   // Methods
   const saveCurrencies = () => {
@@ -723,15 +748,11 @@
 
   const switchPool = async (idx: number) => {
     activePoolIndex.value = idx
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
   }
 
   const handleExit = async () => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
     pauseStageVideo()
     try {
       await recruitApi.closeRecruit()
@@ -750,45 +771,60 @@
   }
 
   // Replenishment actions
+  const REPLENISH_CONFIG = {
+    pyroxene: { amount: 1200, operation: 'add' as const },
+    credit: { amount: 10000000, operation: 'add' as const },
+    ap: { amount: 120, operation: 'set' as const },
+    recruitTicket1: { amount: 10, operation: 'add' as const },
+    recruitTicket10: { amount: 2, operation: 'add' as const },
+    ticket: {
+      amount: 1,
+      operation: 'add' as const,
+      cost: { currency: 'credit' as const, amount: 30000000 },
+    },
+  } as const
+
   const openReplenish = async (target: string) => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
     replenishTarget.value = target
     showReplenishDialog.value = true
   }
 
   const closeReplenishDialog = async () => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
     showReplenishDialog.value = false
     replenishTarget.value = ''
   }
 
   const confirmReplenish = async () => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
 
-    if (replenishTarget.value === 'pyroxene') {
-      currencies.value.pyroxene += 1200
-    } else if (replenishTarget.value === 'credit') {
-      currencies.value.credit += 10000000
-    } else if (replenishTarget.value === 'ap') {
-      currencies.value.ap = 120
-    } else if (replenishTarget.value === 'recruitTicket1') {
-      currencies.value.recruitTicket1 += 10
-    } else if (replenishTarget.value === 'recruitTicket10') {
-      currencies.value.recruitTicket10 += 2
-    } else if (replenishTarget.value === 'ticket') {
-      if (currencies.value.credit < 30000000) {
+    const target = replenishTarget.value as keyof typeof REPLENISH_CONFIG
+    const config = REPLENISH_CONFIG[target]
+
+    if (!config) {
+      console.warn('Unknown replenish target:', target)
+      closeReplenishDialog()
+      return
+    }
+
+    // Check if there's a cost requirement
+    if ('cost' in config && config.cost) {
+      const { currency, amount: costAmount } = config.cost
+      if (currencies.value[currency] < costAmount) {
         alert('老师，信用积分不足以购买自选券哦！点击加号补充一下信用积分吧～')
         closeReplenishDialog()
         return
       }
-      currencies.value.credit -= 30000000
-      currencies.value.selectionTicket += 1
+      currencies.value[currency] -= costAmount
+    }
+
+    // Apply the replenishment - handle 'ticket' -> 'selectionTicket' mapping
+    const currencyKey = target === 'ticket' ? 'selectionTicket' : target
+    if (config.operation === 'add') {
+      ;(currencies.value as any)[currencyKey] += config.amount
+    } else if (config.operation === 'set') {
+      ;(currencies.value as any)[currencyKey] = config.amount
     }
 
     saveCurrencies()
@@ -797,9 +833,7 @@
 
   // Rates Modal
   const showRatesModal = async () => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
     showDetailsModal.value = true
   }
 
@@ -821,9 +855,7 @@
 
   // Regular Gacha (Draw 1 or 10)
   const handleGacha = async (count: number) => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
 
     if (students.value.length === 0) {
       alert('老师，名单中还没有任何成员哦！先去设置面板「导入名单」吧～')
@@ -875,9 +907,7 @@
 
   // Selection ticket recruitment
   const openSelectionModal = async () => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
 
     if (currencies.value.selectionTicket < 1) {
       alert('老师，您手头上没有自选券了哦，点击左侧按钮可以购买一张自选券～')
@@ -894,18 +924,14 @@
   }
 
   const selectStudent = async (student: Student) => {
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
     selectedStudent.value = student
   }
 
   const confirmStudentSelection = async () => {
     if (!selectedStudent.value) return
 
-    try {
-      await audioApi.playClickSound()
-    } catch {}
+    audioApi.playClickSoundSafely()
 
     // Selection tickets are an entry condition only; select recruitment is intentionally no-consume.
     saveCurrencies()

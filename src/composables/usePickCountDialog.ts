@@ -9,15 +9,10 @@ import {
   MAX_PICK_COUNT,
   MIN_PICK_COUNT,
 } from '../configDefaults'
+import { clampInt } from '../utils/configHelpers'
 
 const MIN_COUNT = MIN_PICK_COUNT
 const MAX_COUNT = MAX_PICK_COUNT
-function clampInt(value: unknown, min: number, max: number, fallback: number) {
-  const n = Number(value)
-  if (!Number.isFinite(n)) return fallback
-  const rounded = Math.round(n)
-  return Math.max(min, Math.min(max, rounded))
-}
 
 export function usePickCountDialog() {
   const count = ref(DEFAULT_PICK_COUNT)
@@ -99,7 +94,7 @@ export function usePickCountDialog() {
   }
 
   const playClickSound = () => {
-    audioApi.playClickSound().catch(() => {})
+    audioApi.playClickSoundSafely()
   }
 
   const increaseCount = () => {
@@ -131,7 +126,7 @@ export function usePickCountDialog() {
   }
 
   const stopAudio = () => {
-    audioApi.stopBgm().catch(() => {})
+    audioApi.stopBgmSafely()
   }
 
   const playBgm = async () => {
@@ -174,15 +169,19 @@ export function usePickCountDialog() {
     isLeaving.value = true
     isDialogOpen.value = false
     playClickSound()
-    window.setTimeout(() => {
-      if (action !== 'confirm') {
-        stopAudio()
-      }
+    window.setTimeout(async () => {
+      try {
+        if (action !== 'confirm') {
+          stopAudio()
+        }
 
-      if (action === 'confirm') {
-        pickCountApi.confirm(count.value, playMusic.value)
-      } else {
-        pickCountApi.cancel()
+        if (action === 'confirm') {
+          await pickCountApi.confirm(count.value, playMusic.value)
+        } else {
+          await pickCountApi.cancel()
+        }
+      } catch (error) {
+        console.error('[usePickCountDialog] Dialog action failed:', error)
       }
     }, exitAnimationMs.value)
   }
