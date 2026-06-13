@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 
 interface Currencies {
@@ -108,9 +108,8 @@ export function useRecruitCurrencies() {
     closeReplenishDialog()
   }
 
-  onMounted(() => {
-    loadCurrencies()
-  })
+  // Load currencies immediately (works in both production and test)
+  loadCurrencies()
 
   return {
     currencies,
