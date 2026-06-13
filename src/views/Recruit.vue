@@ -326,7 +326,7 @@
                 </div>
 
                 <!-- Use Ticket (Blue / btn-single style) -->
-                <div class="gacha-btn btn-single" @click="openSelectionModal">
+                <div class="gacha-btn btn-single" @click="handleOpenSelectionModal">
                   <div class="gacha-btn-inner gacha-classic">
                     <div
                       class="gacha-left-icon"
@@ -495,7 +495,7 @@
           <button
             class="ba-btn-confirm"
             :disabled="!selectedStudent"
-            @click="confirmStudentSelection"
+            @click="handleConfirmSelection"
           >
             确认招募！
           </button>
@@ -527,61 +527,74 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    ref,
-    computed,
-    nextTick,
-    onBeforeUnmount,
-    onMounted,
-    watch,
-    shallowRef,
-    watchEffect,
-  } from 'vue'
-  import { appApi } from '../api/appApi'
+  import { ref, computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
   import { audioApi } from '../api/audioApi'
-  import { pickCountApi } from '../api/pickCountApi'
-  import { pickResultApi } from '../api/pickResultApi'
   import { recruitApi } from '../api/recruitApi'
+  import { pickResultApi } from '../api/pickResultApi'
   import { useRecruitFlow } from '../composables/useRecruitFlow'
-  import { createDefaultConfig } from '../configDefaults'
+  import { useRecruitCurrencies } from '../composables/useRecruitCurrencies'
+  import { useRecruitPools } from '../composables/useRecruitPools'
+  import { useRecruitModals } from '../composables/useRecruitModals'
+  import { useRecruitGacha } from '../composables/useRecruitGacha'
   import { resolveAssetUrl } from '../utils/assets'
-  import type { RecruitConfig, RecruitPool, Student } from '@/types'
   import PickResult from './PickResult.vue'
 
-  const pools = ref<RecruitPool[]>([])
-  const activePoolIndex = ref(0)
-  const students = ref<Student[]>([])
-  const recruitConfig = ref<RecruitConfig>(createDefaultConfig().recruitConfig)
+  // Composables
+  const {
+    pools,
+    activePoolIndex,
+    students,
+    recruitConfig: recruitConfigRaw,
+    currentPool,
+    sortedStudents,
+    getBoostMultiplier,
+    calculateProb,
+    switchPool,
+  } = useRecruitPools()
 
-  // Interactive Currencies persisted locally
-  const currencies = ref({
-    pyroxene: 12000,
-    credit: 50000000,
-    ap: 120,
-    selectionTicket: 1,
-    recruitTicket1: 5,
-    recruitTicket10: 1,
-  })
+  const {
+    currencies,
+    showReplenishDialog,
+    replenishTarget,
+    saveCurrencies,
+    openReplenish,
+    closeReplenishDialog,
+    confirmReplenish,
+  } = useRecruitCurrencies()
 
-  const showReplenishDialog = ref(false)
-  const replenishTarget = ref('')
-  const showDetailsModal = ref(false)
-  const showSelectionModal = ref(false)
-  const selectedStudent = ref<Student | null>(null)
+  const {
+    showDetailsModal,
+    showSelectionModal,
+    selectedStudent,
+    showRatesModal,
+    openSelectionModal,
+    closeSelectionModal,
+    selectStudent,
+  } = useRecruitModals(students)
+
+  const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
+
+  const autoSkipVideo = computed(() => recruitConfigRaw.value.autoSkipVideo)
+
+  const { showResultOverlay, handleGacha, confirmStudentSelection } = useRecruitGacha(
+    students,
+    currencies,
+    saveCurrencies,
+    playVideoAndExecute,
+    autoSkipVideo
+  )
+
+  // Local state
   const stageBgVideoRef = ref<HTMLVideoElement | null>(null)
   const pageVisible = ref(document.visibilityState === 'visible')
   const recruitWindowVisible = ref(true)
   let removeRecruitVisibleListener: (() => void) | null = null
 
-  // Recruit Result Display
-  const showResultOverlay = ref(false)
+  // __CONTINUE_HERE__
 
-  // Video Playback Logic
-  const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
-
-  const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
+  // Computed properties
   const resolvedRecruitVideoPath = computed(() =>
-    resolveAssetUrl(recruitConfig.value.defaultVideoPath)
+    resolveAssetUrl(recruitConfigRaw.value.defaultVideoPath)
   )
   const shouldPlayStageMedia = computed(
     () =>
@@ -595,126 +608,18 @@
       pageVisible.value
   )
 
-  // Get boosted weight for a student based on current pool's rate boosts
-  const getBoostedWeight = (studentName: string, baseWeight: number) => {
-    const pool = currentPool.value
-    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
-      return baseWeight
-    }
+  // Display formatting - merge with raw config
+  const recruitConfig = computed(() => ({
+    ...recruitConfigRaw.value,
+    apDisplay: currencies.value.ap.toLocaleString(),
+    creditDisplay: currencies.value.credit.toLocaleString(),
+    pyroxeneDisplay: currencies.value.pyroxene.toLocaleString(),
+    recruitTicket1Display: currencies.value.recruitTicket1.toLocaleString(),
+    recruitTicket10Display: currencies.value.recruitTicket10.toLocaleString(),
+    selectTicketDisplay: currencies.value.selectionTicket.toLocaleString(),
+  }))
 
-    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
-    if (boost && boost.boostMultiplier > 0) {
-      return baseWeight * boost.boostMultiplier
-    }
-
-    return baseWeight
-  }
-
-  // Calculate total weight with boosts applied
-  const totalBoostedWeight = computed(() => {
-    return students.value.reduce((sum, s) => {
-      const boostedWeight = getBoostedWeight(s.name, s.weight || 0)
-      return sum + boostedWeight
-    }, 0)
-  })
-
-  // Sort students by probability/weight descending - cached version
-  const sortedStudents = shallowRef<Student[]>([])
-  let sortDebounceTimer: ReturnType<typeof setTimeout> | null = null
-
-  watchEffect(() => {
-    // Clear existing timer
-    if (sortDebounceTimer) {
-      clearTimeout(sortDebounceTimer)
-    }
-
-    // Debounce the sort operation
-    sortDebounceTimer = setTimeout(() => {
-      const sorted = [...students.value].sort((a, b) => {
-        const aWeight = getBoostedWeight(a.name, a.weight)
-        const bWeight = getBoostedWeight(b.name, b.weight)
-        return bWeight - aWeight
-      })
-      sortedStudents.value = sorted
-    }, 100)
-  })
-
-  // Lifecycle
-  onMounted(async () => {
-    // Load persisted currencies
-    const savedCurrencies = localStorage.getItem('ba_recruit_currencies')
-    if (savedCurrencies) {
-      try {
-        const parsed = JSON.parse(savedCurrencies)
-        currencies.value = {
-          pyroxene: parsed.pyroxene ?? 12000,
-          credit: parsed.credit ?? 50000000,
-          ap: parsed.ap ?? 120,
-          selectionTicket: parsed.selectionTicket ?? 1,
-          recruitTicket1: parsed.recruitTicket1 ?? 5,
-          recruitTicket10: parsed.recruitTicket10 ?? 1,
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    // Load config & student list
-    try {
-      const config = await appApi.getConfig()
-      if (config) {
-        students.value = config.studentList || []
-        pools.value = config.recruitPools || []
-        recruitConfig.value = config.recruitConfig || createDefaultConfig().recruitConfig
-      }
-    } catch (err) {
-      console.error('Failed to load configuration:', err)
-    }
-
-    // Listen for config updates
-    const removeConfigListener = appApi.onConfigUpdated((config) => {
-      if (config) {
-        students.value = config.studentList || []
-        pools.value = config.recruitPools || []
-        recruitConfig.value = config.recruitConfig || createDefaultConfig().recruitConfig
-      }
-    })
-
-    pickResultApi.onOpen(() => {
-      showResultOverlay.value = true
-    })
-
-    pickResultApi.onReset((payload) => {
-      if (payload?.reason === 'close') {
-        showResultOverlay.value = false
-      }
-    })
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    removeRecruitVisibleListener = recruitApi.onWindowVisible((visible) => {
-      recruitWindowVisible.value = visible
-      if (visible) {
-        syncStageMediaPlayback()
-      } else {
-        pauseStageVideo()
-      }
-    })
-
-    // Store cleanup function
-    onBeforeUnmount(() => {
-      removeConfigListener()
-    })
-  })
-
-  onBeforeUnmount(() => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
-    if (typeof removeRecruitVisibleListener === 'function') {
-      removeRecruitVisibleListener()
-      removeRecruitVisibleListener = null
-    }
-    pauseStageVideo()
-  })
-
+  // Video control
   const pauseStageVideo = () => {
     stageBgVideoRef.value?.pause()
   }
@@ -741,16 +646,7 @@
   // Watch shouldPlayStageMedia changes independently
   watch(shouldPlayStageMedia, syncStageMediaPlayback, { flush: 'post' })
 
-  // Methods
-  const saveCurrencies = () => {
-    localStorage.setItem('ba_recruit_currencies', JSON.stringify(currencies.value))
-  }
-
-  const switchPool = async (idx: number) => {
-    activePoolIndex.value = idx
-    audioApi.playClickSoundSafely()
-  }
-
+  // Window actions
   const handleExit = async () => {
     audioApi.playClickSoundSafely()
     pauseStageVideo()
@@ -770,190 +666,45 @@
     }
   }
 
-  // Replenishment actions
-  const REPLENISH_CONFIG = {
-    pyroxene: { amount: 1200, operation: 'add' as const },
-    credit: { amount: 10000000, operation: 'add' as const },
-    ap: { amount: 120, operation: 'set' as const },
-    recruitTicket1: { amount: 10, operation: 'add' as const },
-    recruitTicket10: { amount: 2, operation: 'add' as const },
-    ticket: {
-      amount: 1,
-      operation: 'add' as const,
-      cost: { currency: 'credit' as const, amount: 30000000 },
-    },
-  } as const
+  // Lifecycle
+  onMounted(() => {
+    pickResultApi.onOpen(() => {
+      showResultOverlay.value = true
+    })
 
-  const openReplenish = async (target: string) => {
-    audioApi.playClickSoundSafely()
-    replenishTarget.value = target
-    showReplenishDialog.value = true
-  }
-
-  const closeReplenishDialog = async () => {
-    audioApi.playClickSoundSafely()
-    showReplenishDialog.value = false
-    replenishTarget.value = ''
-  }
-
-  const confirmReplenish = async () => {
-    audioApi.playClickSoundSafely()
-
-    const target = replenishTarget.value as keyof typeof REPLENISH_CONFIG
-    const config = REPLENISH_CONFIG[target]
-
-    if (!config) {
-      console.warn('Unknown replenish target:', target)
-      closeReplenishDialog()
-      return
-    }
-
-    // Check if there's a cost requirement
-    if ('cost' in config && config.cost) {
-      const { currency, amount: costAmount } = config.cost
-      if (currencies.value[currency] < costAmount) {
-        alert('老师，信用积分不足以购买自选券哦！点击加号补充一下信用积分吧～')
-        closeReplenishDialog()
-        return
+    pickResultApi.onReset((payload) => {
+      if (payload?.reason === 'close') {
+        showResultOverlay.value = false
       }
-      currencies.value[currency] -= costAmount
-    }
+    })
 
-    // Apply the replenishment - handle 'ticket' -> 'selectionTicket' mapping
-    const currencyKey = target === 'ticket' ? 'selectionTicket' : target
-    if (config.operation === 'add') {
-      ;(currencies.value as any)[currencyKey] += config.amount
-    } else if (config.operation === 'set') {
-      ;(currencies.value as any)[currencyKey] = config.amount
-    }
-
-    saveCurrencies()
-    closeReplenishDialog()
-  }
-
-  // Rates Modal
-  const showRatesModal = async () => {
-    audioApi.playClickSoundSafely()
-    showDetailsModal.value = true
-  }
-
-  const calculateProb = (studentName: string, baseWeight: number) => {
-    if (totalBoostedWeight.value <= 0) return '0.00'
-    const boostedWeight = getBoostedWeight(studentName, baseWeight)
-    return ((boostedWeight / totalBoostedWeight.value) * 100).toFixed(2)
-  }
-
-  const getBoostMultiplier = (studentName: string) => {
-    const pool = currentPool.value
-    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
-      return 1
-    }
-
-    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
-    return boost && boost.boostMultiplier > 0 ? boost.boostMultiplier : 1
-  }
-
-  // Regular Gacha (Draw 1 or 10)
-  const handleGacha = async (count: number) => {
-    audioApi.playClickSoundSafely()
-
-    if (students.value.length === 0) {
-      alert('老师，名单中还没有任何成员哦！先去设置面板「导入名单」吧～')
-      return
-    }
-
-    if (count === 1) {
-      if (currencies.value.recruitTicket1 > 0) {
-        currencies.value.recruitTicket1 -= 1
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    removeRecruitVisibleListener = recruitApi.onWindowVisible((visible) => {
+      recruitWindowVisible.value = visible
+      if (visible) {
+        syncStageMediaPlayback()
       } else {
-        const cost = 120
-        if (currencies.value.pyroxene < cost) {
-          alert('老师，招募券与青辉石都不够了哦！点击上方加号补充一下吧～')
-          return
-        }
-        currencies.value.pyroxene -= cost
+        pauseStageVideo()
       }
-    } else {
-      if (currencies.value.recruitTicket10 > 0) {
-        currencies.value.recruitTicket10 -= 1
-      } else {
-        const cost = 1200
-        if (currencies.value.pyroxene < cost) {
-          alert('老师，招募券与青辉石都不够了哦！点击上方加号补充一下吧～')
-          return
-        }
-        currencies.value.pyroxene -= cost
-      }
-    }
+    })
+  })
 
-    saveCurrencies()
-
-    const executeRecruit = async () => {
-      try {
-        // Confirm pick count, hide recruit window, track draw source as 'recruit'
-        await pickCountApi.confirm(count, false, 'recruit')
-      } catch (err) {
-        console.error('Failed to trigger recruit draw:', err)
-      }
+  onBeforeUnmount(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    if (typeof removeRecruitVisibleListener === 'function') {
+      removeRecruitVisibleListener()
+      removeRecruitVisibleListener = null
     }
+    pauseStageVideo()
+  })
 
-    // Auto skip video if enabled
-    if (recruitConfig.value.autoSkipVideo) {
-      await executeRecruit()
-    } else {
-      playVideoAndExecute(executeRecruit)
-    }
+  // Wrapper functions for template
+  const handleOpenSelectionModal = () => {
+    openSelectionModal(currencies)
   }
 
-  // Selection ticket recruitment
-  const openSelectionModal = async () => {
-    audioApi.playClickSoundSafely()
-
-    if (currencies.value.selectionTicket < 1) {
-      alert('老师，您手头上没有自选券了哦，点击左侧按钮可以购买一张自选券～')
-      return
-    }
-
-    if (students.value.length === 0) {
-      alert('老师，名单中还没有任何学生哦，自选券找不到人可以招募呀～')
-      return
-    }
-
-    selectedStudent.value = null
-    showSelectionModal.value = true
-  }
-
-  const selectStudent = async (student: Student) => {
-    audioApi.playClickSoundSafely()
-    selectedStudent.value = student
-  }
-
-  const confirmStudentSelection = async () => {
-    if (!selectedStudent.value) return
-
-    audioApi.playClickSoundSafely()
-
-    // Selection tickets are an entry condition only; select recruitment is intentionally no-consume.
-    saveCurrencies()
-
-    showSelectionModal.value = false
-
-    const studentName = selectedStudent.value.name
-
-    const executeSelectRecruit = async () => {
-      try {
-        await recruitApi.confirmSelectStudent(studentName, 'recruit')
-      } catch (err) {
-        console.error('Failed to recruit selected student:', err)
-      }
-    }
-
-    // Auto skip video if enabled
-    if (recruitConfig.value.autoSkipVideo) {
-      await executeSelectRecruit()
-    } else {
-      playVideoAndExecute(executeSelectRecruit)
-    }
+  const handleConfirmSelection = () => {
+    confirmStudentSelection(selectedStudent, closeSelectionModal)
   }
 </script>
 
