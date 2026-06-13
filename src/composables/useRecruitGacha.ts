@@ -1,6 +1,7 @@
 import { ref, type Ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
+import { recruitApi } from '../api/recruitApi'
 import type { Student } from '@/types'
 
 interface Currencies {
@@ -83,12 +84,12 @@ export function useRecruitGacha(
     // Selection tickets are an entry condition only; select recruitment is intentionally no-consume.
     saveCurrencies()
 
+    const studentName = selectedStudent.value.name
     closeSelectionModal()
 
     const executeSelection = async () => {
       try {
-        // Emit pick-result-reset and pick-result-open with the selected student
-        await pickCountApi.confirm(1, false, 'recruit')
+        await recruitApi.confirmSelectStudent(studentName, 'recruit')
       } catch (err) {
         console.error('Failed to trigger selection:', err)
       }

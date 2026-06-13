@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useRecruitModals } from './useRecruitModals'
 import type { Student } from '@/types'
 
@@ -11,7 +11,7 @@ vi.mock('../api/audioApi', () => ({
 }))
 
 describe('useRecruitModals', () => {
-  let students: ReturnType<typeof ref<Student[]>>
+  let students: Ref<Student[]>
 
   beforeEach(() => {
     students = ref([

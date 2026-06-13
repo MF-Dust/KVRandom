@@ -589,6 +589,8 @@
   const pageVisible = ref(document.visibilityState === 'visible')
   const recruitWindowVisible = ref(true)
   let removeRecruitVisibleListener: (() => void) | null = null
+  let removePickResultOpenListener: (() => void) | null = null
+  let removePickResultResetListener: (() => void) | null = null
 
   // __CONTINUE_HERE__
 
@@ -668,11 +670,11 @@
 
   // Lifecycle
   onMounted(() => {
-    pickResultApi.onOpen(() => {
+    removePickResultOpenListener = pickResultApi.onOpen(() => {
       showResultOverlay.value = true
     })
 
-    pickResultApi.onReset((payload) => {
+    removePickResultResetListener = pickResultApi.onReset((payload) => {
       if (payload?.reason === 'close') {
         showResultOverlay.value = false
       }
@@ -694,6 +696,14 @@
     if (typeof removeRecruitVisibleListener === 'function') {
       removeRecruitVisibleListener()
       removeRecruitVisibleListener = null
+    }
+    if (typeof removePickResultOpenListener === 'function') {
+      removePickResultOpenListener()
+      removePickResultOpenListener = null
+    }
+    if (typeof removePickResultResetListener === 'function') {
+      removePickResultResetListener()
+      removePickResultResetListener = null
     }
     pauseStageVideo()
   })

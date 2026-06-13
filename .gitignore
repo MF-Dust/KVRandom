@@ -10,3 +10,4 @@ config.local.yml
 # Local AI assistant state
 /.claude
 /.antigravitycli
+/.codegraph
