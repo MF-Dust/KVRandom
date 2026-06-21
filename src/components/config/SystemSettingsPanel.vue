@@ -205,12 +205,9 @@
   import { ref, onMounted } from 'vue'
   import { NButton, NInput, NSwitch, NSelect } from 'naive-ui'
   import { appApi } from '../../api/appApi'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
   defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
     updateState: {
       type: Object,
       required: true,
@@ -219,6 +216,7 @@
 
   defineEmits(['request-admin-elevation', 'create-admin-startup-task', 'check-update'])
 
+  const config = useConfigModel()
   const fontOptions = ref<{ label: string; value: string }[]>([
     { label: '系统默认字体', value: '' },
     { label: '微软雅黑 (Microsoft YaHei)', value: 'Microsoft YaHei UI' },

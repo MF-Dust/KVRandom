@@ -190,18 +190,20 @@
 <script setup lang="ts">
   import { NButton, NInput, NInputNumber, NSlider, NSwitch } from 'naive-ui'
   import { appApi } from '../../api/appApi'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  const props = defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  type PickResultAssetField =
+    | 'gachaSoundPath'
+    | 'blueEnvelopeImage'
+    | 'goldEnvelopeImage'
+    | 'pinkEnvelopeImage'
 
-  const pickAsset = async (field: string, kind: 'image' | 'audio') => {
+  const config = useConfigModel()
+
+  const pickAsset = async (field: PickResultAssetField, kind: 'image' | 'audio') => {
     const path = await appApi.pickAssetFile(kind)
     if (path) {
-      props.config.pickResultDialog[field] = path
+      config.value.pickResultDialog[field] = path
     }
   }
 </script>

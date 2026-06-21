@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onBeforeUnmount, shallowRef, watchEffect } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { appApi } from '../api/appApi'
 import type { RecruitConfig, RecruitPool, Student } from '@/types'
@@ -12,24 +12,17 @@ export function useRecruitPools() {
 
   const currentPool = computed(() => pools.value[activePoolIndex.value] || null)
 
-  // Cached sorted students with debounce
-  const sortedStudents = shallowRef<Student[]>([])
-  let sortDebounceTimer: ReturnType<typeof setTimeout> | null = null
+  const boostMultiplierMap = computed(() => {
+    const boosts = currentPool.value?.rateBoostStudents || []
+    return new Map(
+      boosts
+        .filter((boost) => boost.studentName && boost.boostMultiplier > 0)
+        .map((boost) => [boost.studentName, boost.boostMultiplier])
+    )
+  })
 
   const getBoostedWeight = (studentName: string, baseWeight: number) => {
-    const pool = currentPool.value
-    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
-      return baseWeight
-    }
-
-    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
-    const multiplier = boost && boost.boostMultiplier > 0 ? boost.boostMultiplier : 1
-
-    if (multiplier === 1) {
-      return baseWeight
-    }
-
-    return baseWeight * multiplier
+    return baseWeight * getBoostMultiplier(studentName)
   }
 
   const totalBoostedWeight = computed(() => {
@@ -39,31 +32,16 @@ export function useRecruitPools() {
     }, 0)
   })
 
-  watchEffect(() => {
-    // Clear existing timer
-    if (sortDebounceTimer) {
-      clearTimeout(sortDebounceTimer)
-    }
-
-    // Debounce the sort operation
-    sortDebounceTimer = setTimeout(() => {
-      const sorted = [...students.value].sort((a, b) => {
-        const aWeight = getBoostedWeight(a.name, a.weight)
-        const bWeight = getBoostedWeight(b.name, b.weight)
-        return bWeight - aWeight
-      })
-      sortedStudents.value = sorted
-    }, 100)
+  const sortedStudents = computed(() => {
+    return [...students.value].sort((a, b) => {
+      const aWeight = getBoostedWeight(a.name, a.weight)
+      const bWeight = getBoostedWeight(b.name, b.weight)
+      return bWeight - aWeight
+    })
   })
 
   const getBoostMultiplier = (studentName: string) => {
-    const pool = currentPool.value
-    if (!pool || !pool.rateBoostStudents || pool.rateBoostStudents.length === 0) {
-      return 1
-    }
-
-    const boost = pool.rateBoostStudents.find((b) => b.studentName === studentName)
-    return boost && boost.boostMultiplier > 0 ? boost.boostMultiplier : 1
+    return boostMultiplierMap.value.get(studentName) || 1
   }
 
   const calculateProb = (studentName: string, baseWeight: number) => {

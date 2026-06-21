@@ -14,8 +14,3 @@ export function resolveAssetUrl(path?: string | null): string {
   }
   return `/${value.replace(/^public[\\/]/, '').replace(/\\/g, '/')}`
 }
-
-export function firstAssetPath(paths?: string[] | null, fallback = ''): string {
-  const found = paths?.find((path) => String(path || '').trim())
-  return found || fallback
-}

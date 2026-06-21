@@ -10,10 +10,6 @@ use crate::windows::{
     show_floating_window, stop_pick_count_bgm,
 };
 
-fn state_locked() -> AppError {
-    AppError::State("阿罗娜状态卡住了...请重试～".to_string())
-}
-
 #[tauri::command]
 pub(crate) async fn get_pick_result_config(app: AppHandle) -> AppResult<PickResultDialogConfig> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<PickResultDialogConfig> {
@@ -31,7 +27,7 @@ pub(crate) async fn get_pick_results(app: AppHandle) -> AppResult<Vec<PickedStud
         let results = state
             .inner
             .lock()
-            .map_err(|_| state_locked())?
+            .map_err(|_| AppError::state_locked())?
             .current_pick_results
             .clone();
         Ok(results)
@@ -44,7 +40,7 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> AppResult<()> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
         let state = app.state::<AppState>();
         let (token, source, _play_bgm) = {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);
             guard.current_pick_results.clear();
             guard.floating_hidden_for_pick_count = false;
@@ -69,7 +65,7 @@ pub(crate) async fn close_pick_result(app: AppHandle) -> AppResult<()> {
                         },
                     );
                     {
-                        let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+                        let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
                         guard.floating_hidden_for_pick_count = true;
                     }
                     hide_floating_window(&app);
@@ -102,7 +98,7 @@ pub(crate) async fn open_recruit(app: AppHandle) -> AppResult<()> {
         state
             .inner
             .lock()
-            .map_err(|_| state_locked())?
+            .map_err(|_| AppError::state_locked())?
             .floating_hidden_for_pick_count = true;
         hide_floating_window(&app);
         Ok(())
@@ -119,7 +115,7 @@ pub(crate) async fn close_recruit(app: AppHandle) -> AppResult<()> {
         state
             .inner
             .lock()
-            .map_err(|_| state_locked())?
+            .map_err(|_| AppError::state_locked())?
             .floating_hidden_for_pick_count = false;
         show_floating_window(&app);
         Ok(())

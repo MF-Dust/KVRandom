@@ -21,6 +21,7 @@ export interface PickResultResetPayload {
 }
 
 export interface LogEntryEventPayload {
+  id?: string
   level: string
   text: string
   time: string | number

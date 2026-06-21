@@ -10,10 +10,6 @@ use crate::models::ApiResult;
 use crate::state::{push_log, refresh_config, AppState};
 use crate::windows::{apply_floating_window_config, create_floating_window};
 
-fn state_locked() -> AppError {
-    AppError::State("阿罗娜状态卡住了...请重试～".to_string())
-}
-
 #[tauri::command]
 pub(crate) async fn open_config(app: AppHandle) -> AppResult<()> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<()> {
@@ -112,7 +108,7 @@ pub(crate) async fn save_app_config(
         save_config(&app, &normalized)?;
         let config_signature = current_config_signature(&app).ok().flatten();
         {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             guard.apply_config(normalized.clone(), config_signature, true);
         }
         if let Some(window) = app.get_webview_window("floating") {

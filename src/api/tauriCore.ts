@@ -40,7 +40,11 @@ export const listenEvent = <T = unknown>(
   let disposed = false
 
   listen<T>(eventName, (event) => {
-    callback(event.payload)
+    try {
+      callback(event.payload)
+    } catch (error) {
+      console.warn(`Event handler failed for ${eventName}`, unwrapAppError(error))
+    }
   })
     .then((fn) => {
       if (disposed) {

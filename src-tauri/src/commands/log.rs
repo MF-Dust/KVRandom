@@ -43,7 +43,7 @@ pub(crate) async fn get_logs(app: AppHandle) -> AppResult<Vec<LogEntry>> {
         let logs = state
             .inner
             .lock()
-            .map_err(|_| crate::error::AppError::State("阿罗娜状态卡住了...请重试～".to_string()))?
+            .map_err(|_| crate::error::AppError::state_locked())?
             .logs
             .iter()
             .cloned()

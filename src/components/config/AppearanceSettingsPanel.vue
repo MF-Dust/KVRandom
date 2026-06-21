@@ -60,13 +60,9 @@
 
 <script setup lang="ts">
   import { NColorPicker, NInput, NInputNumber, NSwitch } from 'naive-ui'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  const config = useConfigModel()
 </script>
 
 <style scoped>

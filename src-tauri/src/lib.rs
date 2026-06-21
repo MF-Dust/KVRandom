@@ -49,7 +49,7 @@ pub fn run() {
         .setup(move |app| {
             let app_handle = app.handle().clone();
             let (initial_config, initial_config_signature) =
-                load_config_with_signature(&app_handle).map_err(anyhow::Error::msg)?;
+                load_config_with_signature(&app_handle).map_err(|e| e.to_string())?;
             let mut single_instance_guard = Some(single_instance_guard);
 
             if initial_config.web_config.admin_topmost_enabled
@@ -70,13 +70,13 @@ pub fn run() {
                         app_handle.exit(0);
                         return Ok(());
                     }
-                    Err(error) => return Err(anyhow::Error::msg(error).into()),
+                    Err(error) => return Err(error.to_string().into()),
                 };
             }
 
             let single_instance_guard = single_instance_guard
                 .take()
-                .ok_or_else(|| anyhow::Error::msg("单实例锁还没初始化呢..."))?;
+                .ok_or_else(|| "单实例锁还没初始化呢...".to_string())?;
             app.manage(AppState {
                 inner: Mutex::new(RuntimeState::new(
                     initial_config.clone(),
@@ -88,8 +88,8 @@ pub fn run() {
 
             init_logging(app_handle.clone());
 
-            setup_tray(&app_handle).map_err(anyhow::Error::msg)?;
-            create_floating_window(&app_handle, &initial_config).map_err(anyhow::Error::msg)?;
+            setup_tray(&app_handle).map_err(|e| e.to_string())?;
+            create_floating_window(&app_handle, &initial_config).map_err(|e| e.to_string())?;
             Ok(())
         })
         .on_window_event(|window, event| {

@@ -61,4 +61,9 @@ mod tests {
 
         assert_eq!(candidate, PathBuf::from("app/public/sound/bgm.mp3"));
     }
+
+    #[test]
+    fn clamp_i32_uses_fallback_for_invalid_range() {
+        assert_eq!(clamp_i32(10, 20, 1, 7), 7);
+    }
 }

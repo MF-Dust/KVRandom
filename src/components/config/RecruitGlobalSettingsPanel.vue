@@ -155,18 +155,14 @@
 <script setup lang="ts">
   import { NButton, NInput, NSwitch } from 'naive-ui'
   import { appApi } from '../../api/appApi'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  const props = defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  const config = useConfigModel()
 
   const pickVideo = async () => {
     const path = await appApi.pickAssetFile('video')
     if (path) {
-      props.config.recruitConfig.defaultVideoPath = path
+      config.value.recruitConfig.defaultVideoPath = path
     }
   }
 </script>

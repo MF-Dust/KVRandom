@@ -15,12 +15,33 @@ export function useLogStream(appApi: AppApi) {
   const logs = ref<UiLogEntry[]>([])
   let logSeed = 0
   let removeLogListener: (() => void) | null = null
+  const seenLogIds = new Set<string>()
 
-  const addLog: AddLog = (level, text, timeOverride) => {
+  const addLogEntry = (entry: LogEntryEventPayload) => {
+    if (entry.id && seenLogIds.has(entry.id)) {
+      return
+    }
+    if (entry.id) {
+      seenLogIds.add(entry.id)
+    }
+    const time = entry.time
+      ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
+      : undefined
+    addLog(entry.level || 'info', entry.text || '', time, entry.id)
+  }
+
+  const addLog = (
+    level: LogLevel | string,
+    text: string,
+    timeOverride?: string,
+    idOverride?: string
+  ) => {
     const time = timeOverride || new Date().toLocaleTimeString('zh-CN', { hour12: false })
-    logs.value.push({ id: `${Date.now()}-${logSeed++}`, level, text, time })
+    const id = idOverride || `${Date.now()}-${logSeed++}`
+    logs.value.push({ id, level, text, time })
     if (logs.value.length > 200) {
-      logs.value.splice(0, logs.value.length - 200)
+      const removed = logs.value.splice(0, logs.value.length - 200)
+      removed.forEach((entry) => seenLogIds.delete(entry.id))
     }
   }
 
@@ -31,20 +52,12 @@ export function useLogStream(appApi: AppApi) {
 
     try {
       const existingLogs = await appApi.getLogs()
-      existingLogs.forEach((entry: LogEntryEventPayload) => {
-        const time = entry.time
-          ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
-          : undefined
-        addLog(entry.level || 'info', entry.text || '', time)
-      })
+      existingLogs.forEach(addLogEntry)
     } catch (_error) {}
 
     removeLogListener = appApi.onLogEntry((entry) => {
       try {
-        const time = entry.time
-          ? new Date(entry.time).toLocaleTimeString('zh-CN', { hour12: false })
-          : undefined
-        addLog(entry.level || 'info', entry.text || '', time)
+        addLogEntry(entry)
       } catch (_error) {}
     })
   }

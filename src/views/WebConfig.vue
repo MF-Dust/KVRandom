@@ -80,7 +80,6 @@
 
             <div v-else-if="activeTab === 'students'" key="students" class="ba-tab-content">
               <StudentManagerPanel
-                :config="config"
                 @remove-student="removeStudent"
                 @reset-weights="resetWeights"
                 @add-students="addStudents"
@@ -88,19 +87,19 @@
             </div>
 
             <div v-else-if="activeTab === 'floating'" key="floating" class="ba-tab-content">
-              <FloatingSettingsPanel :config="config" />
+              <FloatingSettingsPanel />
             </div>
 
             <div v-else-if="activeTab === 'appearance'" key="appearance" class="ba-tab-content">
-              <AppearanceSettingsPanel :config="config" />
+              <AppearanceSettingsPanel />
             </div>
 
             <div v-else-if="activeTab === 'pickCount'" key="pickCount" class="ba-tab-content">
-              <PickSettingsPanel :config="config" />
+              <PickSettingsPanel />
             </div>
 
             <div v-else-if="activeTab === 'pickResult'" key="pickResult" class="ba-tab-content">
-              <ResultSettingsPanel :config="config" />
+              <ResultSettingsPanel />
             </div>
 
             <div
@@ -108,16 +107,15 @@
               key="recruitGlobal"
               class="ba-tab-content"
             >
-              <RecruitGlobalSettingsPanel :config="config" />
+              <RecruitGlobalSettingsPanel />
             </div>
 
             <div v-else-if="activeTab === 'recruitPools'" key="recruitPools" class="ba-tab-content">
-              <RecruitPoolsSettingsPanel :config="config" />
+              <RecruitPoolsSettingsPanel />
             </div>
 
             <div v-else-if="activeTab === 'web'" key="web" class="ba-tab-content">
               <SystemSettingsPanel
-                :config="config"
                 :update-state="updateState"
                 @request-admin-elevation="requestAdminElevation"
                 @create-admin-startup-task="createAdminStartupTask"
@@ -148,26 +146,48 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeUnmount, onMounted } from 'vue'
+  import { computed, defineAsyncComponent, onBeforeUnmount, onMounted } from 'vue'
   import { NConfigProvider } from 'naive-ui'
-  import AboutSettingsPanel from '../components/config/AboutSettingsPanel.vue'
-  import AppearanceSettingsPanel from '../components/config/AppearanceSettingsPanel.vue'
   import ConfigTabs from '../components/config/ConfigTabs.vue'
-  import FloatingSettingsPanel from '../components/config/FloatingSettingsPanel.vue'
-  import PickSettingsPanel from '../components/config/PickSettingsPanel.vue'
-  import RecruitGlobalSettingsPanel from '../components/config/RecruitGlobalSettingsPanel.vue'
-  import RecruitPoolsSettingsPanel from '../components/config/RecruitPoolsSettingsPanel.vue'
-  import ResultSettingsPanel from '../components/config/ResultSettingsPanel.vue'
   import RuntimeLogPanel from '../components/config/RuntimeLogPanel.vue'
-  import StudentImportPanel from '../components/config/StudentImportPanel.vue'
-  import StudentManagerPanel from '../components/config/StudentManagerPanel.vue'
-  import SystemSettingsPanel from '../components/config/SystemSettingsPanel.vue'
   import { appApi } from '../api/appApi'
   import { useAppConfig } from '../composables/useAppConfig'
   import { useConfigTabs } from '../composables/useConfigTabs'
+  import { provideConfigModel } from '../composables/useConfigModel'
   import { useLogStream } from '../composables/useLogStream'
   import { useStudentListSync } from '../composables/useStudentListSync'
   import { useUpdateCheck } from '../composables/useUpdateCheck'
+
+  const AboutSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/AboutSettingsPanel.vue')
+  )
+  const AppearanceSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/AppearanceSettingsPanel.vue')
+  )
+  const FloatingSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/FloatingSettingsPanel.vue')
+  )
+  const PickSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/PickSettingsPanel.vue')
+  )
+  const RecruitGlobalSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/RecruitGlobalSettingsPanel.vue')
+  )
+  const RecruitPoolsSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/RecruitPoolsSettingsPanel.vue')
+  )
+  const ResultSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/ResultSettingsPanel.vue')
+  )
+  const StudentImportPanel = defineAsyncComponent(
+    () => import('../components/config/StudentImportPanel.vue')
+  )
+  const StudentManagerPanel = defineAsyncComponent(
+    () => import('../components/config/StudentManagerPanel.vue')
+  )
+  const SystemSettingsPanel = defineAsyncComponent(
+    () => import('../components/config/SystemSettingsPanel.vue')
+  )
 
   const { tabGroups, activeTab, switchTab, getActiveTabMeta } = useConfigTabs()
   const { logs, addLog, startLogStream, stopLogStream } = useLogStream(appApi)
@@ -182,6 +202,8 @@
     requestAdminElevation,
     createAdminStartupTask,
   } = useAppConfig(appApi, addLog)
+
+  provideConfigModel(config)
 
   const {
     rawListText,

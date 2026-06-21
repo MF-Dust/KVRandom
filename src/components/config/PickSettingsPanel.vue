@@ -187,26 +187,22 @@
   import { NButton, NInput, NInputNumber, NSlider, NSwitch } from 'naive-ui'
   import { MAX_PICK_COUNT, MIN_PICK_COUNT } from '../../configDefaults'
   import { appApi } from '../../api/appApi'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  const props = defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  const config = useConfigModel()
 
   const addBgm = () => {
-    props.config.pickCountDialog.bgmPaths.push('sound/bgm.mp3')
+    config.value.pickCountDialog.bgmPaths.push('sound/bgm.mp3')
   }
 
   const removeBgm = (index: number) => {
-    props.config.pickCountDialog.bgmPaths.splice(index, 1)
+    config.value.pickCountDialog.bgmPaths.splice(index, 1)
   }
 
   const pickBgm = async (index: number) => {
     const path = await appApi.pickAssetFile('audio')
     if (path) {
-      props.config.pickCountDialog.bgmPaths[index] = path
+      config.value.pickCountDialog.bgmPaths[index] = path
     }
   }
 </script>

@@ -36,6 +36,7 @@ export function usePickCountDialog() {
 
   let removeOnOpenListener: (() => void) | null = null
   let removeStopListener: (() => void) | null = null
+  let exitTimer: ReturnType<typeof setTimeout> | null = null
 
   const canDecrease = computed(() => count.value > MIN_COUNT)
   const canIncrease = computed(() => count.value < MAX_COUNT)
@@ -169,7 +170,11 @@ export function usePickCountDialog() {
     isLeaving.value = true
     isDialogOpen.value = false
     playClickSound()
-    window.setTimeout(async () => {
+    if (exitTimer) {
+      clearTimeout(exitTimer)
+    }
+    exitTimer = window.setTimeout(async () => {
+      exitTimer = null
       try {
         if (action !== 'confirm') {
           stopAudio()
@@ -233,6 +238,10 @@ export function usePickCountDialog() {
 
   onBeforeUnmount(() => {
     stopAudio()
+    if (exitTimer) {
+      clearTimeout(exitTimer)
+      exitTimer = null
+    }
     if (typeof removeOnOpenListener === 'function') {
       removeOnOpenListener()
     }

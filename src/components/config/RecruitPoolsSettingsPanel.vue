@@ -233,20 +233,16 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { NButton, NCollapse, NCollapseItem, NInput, NInputNumber, NSelect, NTag } from 'naive-ui'
-  import type { RecruitPool } from '@/types/config'
+  import type { RecruitPool, Student } from '@/types'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  const props = defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  const config = useConfigModel()
 
   const studentOptions = computed(() => {
-    if (!props.config.studentList || props.config.studentList.length === 0) {
+    if (!config.value.studentList || config.value.studentList.length === 0) {
       return []
     }
-    return props.config.studentList.map((student: any) => ({
+    return config.value.studentList.map((student: Student) => ({
       label: student.name,
       value: student.name,
     }))
@@ -274,11 +270,11 @@
   }
 
   const addPool = () => {
-    if (!props.config.recruitPools) {
-      props.config.recruitPools = []
+    if (!config.value.recruitPools) {
+      config.value.recruitPools = []
     }
     const newId = `pool_${Date.now()}`
-    props.config.recruitPools.push({
+    config.value.recruitPools.push({
       id: newId,
       name: '新增限时招募',
       tabName: '新勧誘開催中!',
@@ -300,11 +296,10 @@
 
   const deletePool = (index: number | string) => {
     const idx = typeof index === 'number' ? index : Number(index)
-    if (props.config.recruitPools[idx].id === 'pool_select') {
-      // Keep at least one select pool if they want, or warn, but let's allow deleting any except maybe default if needed.
-      // Actually, just delete it.
+    if (!Number.isInteger(idx) || !config.value.recruitPools[idx]) {
+      return
     }
-    props.config.recruitPools.splice(idx, 1)
+    config.value.recruitPools.splice(idx, 1)
   }
 
   const addRateBoost = (pool: RecruitPool) => {

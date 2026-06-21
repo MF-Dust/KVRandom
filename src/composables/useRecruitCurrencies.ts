@@ -10,6 +10,8 @@ interface Currencies {
   recruitTicket10: number
 }
 
+type CurrencyKey = keyof Currencies
+
 const REPLENISH_CONFIG = {
   pyroxene: { amount: 1200, operation: 'add' as const },
   credit: { amount: 10000000, operation: 'add' as const },
@@ -23,7 +25,13 @@ const REPLENISH_CONFIG = {
   },
 } as const
 
+type ReplenishTarget = keyof typeof REPLENISH_CONFIG
+
 const STORAGE_KEY = 'ba_recruit_currencies'
+
+const isReplenishTarget = (target: string): target is ReplenishTarget => {
+  return target in REPLENISH_CONFIG
+}
 
 export function useRecruitCurrencies() {
   const currencies = ref<Currencies>({
@@ -76,14 +84,13 @@ export function useRecruitCurrencies() {
   const confirmReplenish = () => {
     audioApi.playClickSoundSafely()
 
-    const target = replenishTarget.value as keyof typeof REPLENISH_CONFIG
-    const config = REPLENISH_CONFIG[target]
-
-    if (!config) {
-      console.warn('Unknown replenish target:', target)
+    if (!isReplenishTarget(replenishTarget.value)) {
+      console.warn('Unknown replenish target:', replenishTarget.value)
       closeReplenishDialog()
       return
     }
+    const target = replenishTarget.value
+    const config = REPLENISH_CONFIG[target]
 
     // Check if there's a cost requirement
     if ('cost' in config && config.cost) {
@@ -97,11 +104,11 @@ export function useRecruitCurrencies() {
     }
 
     // Apply the replenishment - handle 'ticket' -> 'selectionTicket' mapping
-    const currencyKey = target === 'ticket' ? 'selectionTicket' : target
+    const currencyKey: CurrencyKey = target === 'ticket' ? 'selectionTicket' : target
     if (config.operation === 'add') {
-      ;(currencies.value as any)[currencyKey] += config.amount
+      currencies.value[currencyKey] += config.amount
     } else if (config.operation === 'set') {
-      ;(currencies.value as any)[currencyKey] = config.amount
+      currencies.value[currencyKey] = config.amount
     }
 
     saveCurrencies()

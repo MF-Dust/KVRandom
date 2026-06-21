@@ -266,32 +266,9 @@ impl From<&str> for AppError {
     }
 }
 
-// Helper functions for common error construction
 impl AppError {
     pub(crate) fn state_locked() -> Self {
         AppError::StateLocked
-    }
-
-    pub(crate) fn window_not_found(label: impl Into<String>) -> Self {
-        AppError::WindowNotFound {
-            label: label.into(),
-        }
-    }
-
-    pub(crate) fn student_not_found(name: impl Into<String>) -> Self {
-        AppError::StudentNotFound { name: name.into() }
-    }
-
-    pub(crate) fn config_invalid(
-        field: impl Into<String>,
-        value: impl std::fmt::Display,
-        reason: impl Into<String>,
-    ) -> Self {
-        AppError::ConfigInvalid {
-            field: field.into(),
-            value: value.to_string(),
-            reason: reason.into(),
-        }
     }
 }
 
@@ -355,15 +332,6 @@ mod tests {
     fn helper_functions_construct_correct_errors() {
         let err = AppError::state_locked();
         assert_eq!(err.kind(), "state_locked");
-
-        let err = AppError::window_not_found("main");
-        assert_eq!(err.kind(), "window_not_found");
-
-        let err = AppError::student_not_found("阿罗娜");
-        assert_eq!(err.kind(), "student_not_found");
-
-        let err = AppError::config_invalid("weight", -1, "must be non-negative");
-        assert_eq!(err.kind(), "config_invalid");
     }
 
     #[test]

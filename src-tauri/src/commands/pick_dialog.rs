@@ -13,10 +13,6 @@ use crate::windows::{
     open_pick_count_window, open_pick_result_window, stop_pick_count_bgm,
 };
 
-fn state_locked() -> AppError {
-    AppError::State("阿罗娜状态卡住了...请重试～".to_string())
-}
-
 #[tauri::command]
 pub(crate) async fn get_pick_count_config(app: AppHandle) -> AppResult<PickCountDialogConfig> {
     tauri::async_runtime::spawn_blocking(move || -> AppResult<PickCountDialogConfig> {
@@ -38,7 +34,7 @@ pub(crate) async fn open_pick_count(app: AppHandle) -> AppResult<()> {
         state
             .inner
             .lock()
-            .map_err(|_| state_locked())?
+            .map_err(|_| AppError::state_locked())?
             .floating_hidden_for_pick_count = true;
         hide_floating_window(&app);
         Ok(())
@@ -55,7 +51,7 @@ pub(crate) async fn cancel_pick_count(app: AppHandle) -> AppResult<()> {
         state
             .inner
             .lock()
-            .map_err(|_| state_locked())?
+            .map_err(|_| AppError::state_locked())?
             .floating_hidden_for_pick_count = false;
         crate::windows::show_floating_window(&app);
         Ok(())
@@ -84,7 +80,7 @@ pub(crate) async fn confirm_pick_count(
             apply_floating_window_config(&window, &config);
         }
         let picked_students = {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             if guard.config.allow_repeat_draw {
                 if guard.weighted_pool_cache.is_none() {
                     guard.weighted_pool_cache = Some(build_weighted_pool(&guard.config));
@@ -121,7 +117,7 @@ pub(crate) async fn confirm_pick_count(
         }
 
         let (token, config) = {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             guard.floating_hidden_for_pick_count = true;
             // Clone is necessary: picked_students is used later in open_pick_result_window (line 155)
             guard.current_pick_results = picked_students.clone();
@@ -180,7 +176,7 @@ pub(crate) async fn confirm_select_student(
         }
 
         let picked_student = {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             let mut pity = guard.pity_counter;
             let rarity = assign_rarity(&mut pity);
             guard.pity_counter = pity;
@@ -203,7 +199,7 @@ pub(crate) async fn confirm_select_student(
         }
 
         let (token, config) = {
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             guard.floating_hidden_for_pick_count = true;
             guard.current_pick_results = vec![picked_student.clone()];
             guard.pick_result_token = guard.pick_result_token.saturating_add(1);

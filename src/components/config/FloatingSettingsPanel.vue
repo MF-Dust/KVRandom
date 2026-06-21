@@ -200,18 +200,14 @@
     NRadioButton,
   } from 'naive-ui'
   import { appApi } from '../../api/appApi'
+  import { useConfigModel } from '../../composables/useConfigModel'
 
-  const props = defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  const config = useConfigModel()
 
   const pickAsset = async (field: 'iconPath' | 'clickSoundPath', kind: 'image' | 'audio') => {
     const path = await appApi.pickAssetFile(kind)
     if (path) {
-      props.config.floatingButton[field] = path
+      config.value.floatingButton[field] = path
     }
   }
 </script>

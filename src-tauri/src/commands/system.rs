@@ -7,10 +7,6 @@ use crate::models::{ApiResult, AppInfo, UpdateResult};
 use crate::state::{refresh_config, AppState};
 use crate::update::check_update_from_main;
 
-fn state_locked() -> AppError {
-    AppError::State("阿罗娜状态卡住了...请重试～".to_string())
-}
-
 #[tauri::command]
 pub(crate) async fn get_app_info(app: AppHandle) -> AppResult<AppInfo> {
     tauri::async_runtime::spawn_blocking(move || {
@@ -46,7 +42,11 @@ pub(crate) async fn request_admin_elevation(app: AppHandle) -> AppResult<ApiResu
         }
         let result = request_admin_relaunch();
         if result.ok {
-            state.inner.lock().map_err(|_| state_locked())?.is_quitting = true;
+            state
+                .inner
+                .lock()
+                .map_err(|_| AppError::state_locked())?
+                .is_quitting = true;
             let app_clone = app.clone();
             std::thread::spawn(move || {
                 std::thread::sleep(std::time::Duration::from_millis(150));
@@ -78,7 +78,7 @@ pub(crate) async fn create_admin_startup_task(
             };
             crate::config::save_config(&app, &config)?;
             let config_signature = crate::config::current_config_signature(&app).ok().flatten();
-            let mut guard = state.inner.lock().map_err(|_| state_locked())?;
+            let mut guard = state.inner.lock().map_err(|_| AppError::state_locked())?;
             guard.apply_config(config, config_signature, true);
         }
         Ok(result)

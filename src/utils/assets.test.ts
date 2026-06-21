@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { resolveAssetUrl, firstAssetPath } from './assets'
+import { resolveAssetUrl } from './assets'
 
 // Mock @tauri-apps/api/core
 vi.mock('@tauri-apps/api/core', () => ({
@@ -51,23 +51,5 @@ describe('resolveAssetUrl', () => {
 
   it('normalizes backslashes to forward slashes in relative paths', () => {
     expect(resolveAssetUrl('image\\subfolder\\icon.png')).toBe('/image/subfolder/icon.png')
-  })
-})
-
-describe('firstAssetPath', () => {
-  it('returns first non-empty path', () => {
-    expect(firstAssetPath(['', 'path1', 'path2'])).toBe('path1')
-    expect(firstAssetPath([null as any, '', '  ', 'valid'], '')).toBe('valid')
-  })
-
-  it('returns fallback when no valid paths', () => {
-    expect(firstAssetPath([], 'fallback')).toBe('fallback')
-    expect(firstAssetPath(['', '  '], 'default')).toBe('default')
-    expect(firstAssetPath(null, 'none')).toBe('none')
-  })
-
-  it('returns empty string as default fallback', () => {
-    expect(firstAssetPath([])).toBe('')
-    expect(firstAssetPath(null)).toBe('')
   })
 })

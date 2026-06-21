@@ -158,15 +158,10 @@
   import { ref } from 'vue'
   import { NButton, NSlider, NSwitch, NTag, NInput, NModal } from 'naive-ui'
   import type { Student } from '@/types'
-
-  defineProps({
-    config: {
-      type: Object,
-      required: true,
-    },
-  })
+  import { useConfigModel } from '../../composables/useConfigModel'
 
   const emit = defineEmits(['remove-student', 'reset-weights', 'add-students'])
+  const config = useConfigModel()
 
   const showBatchAddModal = ref(false)
   const batchAddText = ref('')
