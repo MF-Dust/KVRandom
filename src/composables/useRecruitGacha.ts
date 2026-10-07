@@ -2,7 +2,7 @@ import { ref, type Ref } from 'vue'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
 import { recruitApi } from '../api/recruitApi'
-import type { Student } from '@/types'
+import type { RecruitPool, Student } from '@/types'
 
 interface Currencies {
   pyroxene: number
@@ -13,14 +13,43 @@ interface Currencies {
   recruitTicket10: number
 }
 
+type RecruitPayment =
+  | { currency: 'recruitTicket1'; amount: 1 }
+  | { currency: 'recruitTicket10'; amount: 1 }
+  | { currency: 'pyroxene'; amount: number }
+
 export function useRecruitGacha(
   students: Ref<Student[]>,
   currencies: Ref<Currencies>,
   saveCurrencies: () => void,
   playVideoAndExecute: (callback: () => Promise<void>) => void,
-  autoSkipVideo: Ref<boolean | undefined>
+  autoSkipVideo: Ref<boolean | undefined>,
+  currentPool: Ref<RecruitPool | null>
 ) {
   const showResultOverlay = ref(false)
+
+  const resolvePayment = (count: number): RecruitPayment | null => {
+    if (count === 1) {
+      if (currencies.value.recruitTicket1 > 0) {
+        return { currency: 'recruitTicket1', amount: 1 }
+      }
+      return currencies.value.pyroxene >= 120 ? { currency: 'pyroxene', amount: 120 } : null
+    }
+
+    if (count === 10) {
+      if (currencies.value.recruitTicket10 > 0) {
+        return { currency: 'recruitTicket10', amount: 1 }
+      }
+      return currencies.value.pyroxene >= 1200 ? { currency: 'pyroxene', amount: 1200 } : null
+    }
+
+    return null
+  }
+
+  const commitPayment = (payment: RecruitPayment) => {
+    currencies.value[payment.currency] -= payment.amount
+    saveCurrencies()
+  }
 
   const handleGacha = async (count: number) => {
     audioApi.playClickSoundSafely()
@@ -30,42 +59,32 @@ export function useRecruitGacha(
       return
     }
 
-    if (count === 1) {
-      if (currencies.value.recruitTicket1 > 0) {
-        currencies.value.recruitTicket1 -= 1
-      } else {
-        const cost = 120
-        if (currencies.value.pyroxene < cost) {
-          alert('老师，招募券与青辉石都不够了哦！点击上方加号补充一下吧～')
-          return
-        }
-        currencies.value.pyroxene -= cost
-      }
-    } else {
-      if (currencies.value.recruitTicket10 > 0) {
-        currencies.value.recruitTicket10 -= 1
-      } else {
-        const cost = 1200
-        if (currencies.value.pyroxene < cost) {
-          alert('老师，招募券与青辉石都不够了哦！点击上方加号补充一下吧～')
-          return
-        }
-        currencies.value.pyroxene -= cost
-      }
+    if (count !== 1 && count !== 10) {
+      console.error('Unsupported recruit count:', count)
+      return
     }
 
-    saveCurrencies()
+    const poolId = currentPool.value?.id || null
+    if (!poolId || currentPool.value?.gachaType !== 'gacha') {
+      console.error('Invalid recruit pool:', currentPool.value)
+      return
+    }
+
+    const payment = resolvePayment(count)
+    if (!payment) {
+      alert('老师，招募券与青辉石都不够了哦！点击上方加号补充一下吧～')
+      return
+    }
 
     const executeRecruit = async () => {
       try {
-        // Confirm pick count, hide recruit window, track draw source as 'recruit'
-        await pickCountApi.confirm(count, false, 'recruit')
+        await pickCountApi.confirm(count, false, 'recruit', poolId)
+        commitPayment(payment)
       } catch (err) {
         console.error('Failed to trigger recruit draw:', err)
       }
     }
 
-    // Auto skip video if enabled
     if (autoSkipVideo.value) {
       await executeRecruit()
     } else {
@@ -81,21 +100,23 @@ export function useRecruitGacha(
 
     audioApi.playClickSoundSafely()
 
-    // Selection tickets are an entry condition only; select recruitment is intentionally no-consume.
-    saveCurrencies()
+    const poolId = currentPool.value?.id || null
+    if (!poolId || currentPool.value?.gachaType !== 'select') {
+      console.error('Invalid selection pool:', currentPool.value)
+      return
+    }
 
     const studentName = selectedStudent.value.name
     closeSelectionModal()
 
     const executeSelection = async () => {
       try {
-        await recruitApi.confirmSelectStudent(studentName, 'recruit')
+        await recruitApi.confirmSelectStudent(studentName, 'recruit', poolId)
       } catch (err) {
         console.error('Failed to trigger selection:', err)
       }
     }
 
-    // Auto skip video if enabled
     if (autoSkipVideo.value) {
       await executeSelection()
     } else {

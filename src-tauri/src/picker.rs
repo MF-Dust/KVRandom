@@ -149,7 +149,16 @@ pub(crate) fn pick_students_without_repeat(
     count: i32,
     pity_counter: &mut u32,
 ) -> Vec<PickedStudent> {
-    let pool = valid_student_entries(&config.student_list).collect::<Vec<_>>();
+    pick_students_without_repeat_with_boosts(config, count, pity_counter, &[])
+}
+
+pub(crate) fn pick_students_without_repeat_with_boosts(
+    config: &AppConfig,
+    count: i32,
+    pity_counter: &mut u32,
+    rate_boosts: &[StudentRateBoost],
+) -> Vec<PickedStudent> {
+    let pool = build_weighted_pool_with_boosts(config, rate_boosts).entries;
 
     if pool.is_empty() || count <= 0 {
         return Vec::new();

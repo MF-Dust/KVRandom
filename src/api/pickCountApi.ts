@@ -4,8 +4,12 @@ import type { PickCountDialogConfig, PickCountOpenPayload } from '@/types'
 export const pickCountApi = {
   getConfig: () => invoke<PickCountDialogConfig>('get_pick_count_config'),
   cancel: () => invoke<void>('cancel_pick_count'),
-  confirm: (count: number, playMusic: boolean, source: string | null = null) =>
-    invoke<void>('confirm_pick_count', { count, playMusic, source }),
+  confirm: (
+    count: number,
+    playMusic: boolean,
+    source: string | null = null,
+    poolId: string | null = null
+  ) => invoke<void>('confirm_pick_count', { count, playMusic, source, poolId }),
   onOpen: (callback: EventCallback<PickCountOpenPayload>): Unlisten =>
     listenEvent<PickCountOpenPayload>('pick-count-open', callback),
   onStopBgm: (callback: EventCallback<void>): Unlisten =>
