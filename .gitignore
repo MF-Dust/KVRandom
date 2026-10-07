@@ -1,7 +1,9 @@
 /node_modules
 /dist
-/src-tauri/gen
-/src-tauri/target
+/src-dotnet/**/bin/
+/src-dotnet/**/obj/
+/release/
+/artifacts/
 
 # Local runtime/config overrides
 config.local.yml

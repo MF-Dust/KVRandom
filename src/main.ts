@@ -2,8 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { logApi } from './api/logApi'
-
-import './style.css'
+import { notifyRendererReady } from './api/desktopCore'
 
 const logToMain = (level: string, text: string) => {
   logApi.send(level, text)
@@ -28,10 +27,12 @@ const logToMain = (level: string, text: string) => {
   }
 })
 
-// If accessed outside the Tauri shell during frontend preview, redirect straight to config.
-const isTauri = window.__TAURI_INTERNALS__ !== undefined
-if (!isTauri && window.location.hash === '') {
+// Browser-only preview opens settings; desktop windows keep their assigned route.
+if (!window.__KV_DESKTOP__ && window.location.hash === '') {
   router.push('/config')
 }
 
-createApp(App).use(router).mount('#app')
+const app = createApp(App).use(router)
+await router.isReady()
+app.mount('#app')
+notifyRendererReady()

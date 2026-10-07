@@ -1,4 +1,4 @@
-import { invoke } from './tauriCore'
+import { invoke } from './desktopCore'
 
 export const audioApi = {
   playClickSound: (path = 'sound/button_click.wav', volume = 1) =>

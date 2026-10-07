@@ -1,20 +1,17 @@
 # Build artifacts
 dist
-src-tauri/target
-src-tauri/gen
+src-dotnet/**/bin
+src-dotnet/**/obj
+release
+artifacts
 
 # Lockfile / auto-generated
 package-lock.json
-src-tauri/Cargo.lock
 
 # User-editable runtime config & data (preserve user style)
 config.yml
 config.local.yml
 list.yaml
-
-# Tauri generated / managed
-src-tauri/capabilities/**/*.json
-src-tauri/tauri.conf.json
 
 # CI workflow files (preserve original formatting)
 .github/

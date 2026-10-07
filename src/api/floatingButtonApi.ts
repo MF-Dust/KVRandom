@@ -1,4 +1,4 @@
-import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './desktopCore'
 import type { FloatingButtonConfig, FloatingConfigUpdatedPayload } from '@/types'
 
 export const floatingButtonApi = {

@@ -1,55 +1,41 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { resolveAssetUrl } from './assets'
-
-// Mock @tauri-apps/api/core
-vi.mock('@tauri-apps/api/core', () => ({
-  convertFileSrc: (path: string) => `asset://localhost/${path.replace(/\\/g, '/')}`,
-}))
 
 describe('resolveAssetUrl', () => {
   it('returns empty string for null or empty paths', () => {
-    expect(resolveAssetUrl(null)).toBe('')
-    expect(resolveAssetUrl(undefined)).toBe('')
-    expect(resolveAssetUrl('')).toBe('')
-    expect(resolveAssetUrl('   ')).toBe('')
+    for (const path of [null, undefined, '', '   ']) expect(resolveAssetUrl(path)).toBe('')
   })
 
-  it('preserves URLs with http/https/data/blob protocols', () => {
-    expect(resolveAssetUrl('https://example.com/video.mp4')).toBe('https://example.com/video.mp4')
-    expect(resolveAssetUrl('http://example.com/audio.mp3')).toBe('http://example.com/audio.mp3')
-    expect(resolveAssetUrl('data:image/png;base64,abc')).toBe('data:image/png;base64,abc')
-    expect(resolveAssetUrl('blob:http://localhost/123')).toBe('blob:http://localhost/123')
+  it('preserves web, data, blob URLs and bundled paths', () => {
+    for (const path of [
+      'https://example.com/video.mp4',
+      'http://example.com/audio.mp3',
+      'data:image/png;base64,abc',
+      'blob:http://localhost/123',
+      '/image/random.svg',
+      '/sound/bgm.mp3',
+    ]) {
+      expect(resolveAssetUrl(path)).toBe(path)
+    }
   })
 
-  it('preserves paths starting with /', () => {
-    expect(resolveAssetUrl('/image/random.svg')).toBe('/image/random.svg')
-    expect(resolveAssetUrl('/sound/bgm.mp3')).toBe('/sound/bgm.mp3')
+  it('encodes Windows and UNC paths for the native asset origin', () => {
+    for (const path of [
+      'C:\\Users\\Test\\Videos\\recruit.mp4',
+      '\\\\server\\share\\video.mp4',
+      'D:\\立绘\\a #1.png',
+    ]) {
+      expect(resolveAssetUrl(path)).toBe(
+        `https://assets.kvrandom.local/file?path=${encodeURIComponent(path)}`
+      )
+    }
   })
 
-  it('converts Windows absolute paths using convertFileSrc', () => {
-    const windowsPath = 'C:\\Users\\Test\\Videos\\recruit.mp4'
-    const result = resolveAssetUrl(windowsPath)
-    expect(result).toContain('asset://localhost/')
-    expect(result).toContain('C:/Users/Test/Videos/recruit.mp4')
-  })
-
-  it('converts UNC paths using convertFileSrc', () => {
-    const uncPath = '\\\\server\\share\\video.mp4'
-    const result = resolveAssetUrl(uncPath)
-    expect(result).toContain('asset://localhost/')
-  })
-
-  it('converts relative paths to absolute paths with leading /', () => {
+  it('normalizes bundled relative paths', () => {
     expect(resolveAssetUrl('image/icon.png')).toBe('/image/icon.png')
     expect(resolveAssetUrl('sound/click.wav')).toBe('/sound/click.wav')
-  })
-
-  it('strips "public/" prefix from relative paths', () => {
     expect(resolveAssetUrl('public/image/icon.png')).toBe('/image/icon.png')
     expect(resolveAssetUrl('public\\image\\icon.png')).toBe('/image/icon.png')
-  })
-
-  it('normalizes backslashes to forward slashes in relative paths', () => {
     expect(resolveAssetUrl('image\\subfolder\\icon.png')).toBe('/image/subfolder/icon.png')
   })
 })

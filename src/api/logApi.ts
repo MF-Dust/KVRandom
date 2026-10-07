@@ -1,4 +1,4 @@
-import { invoke } from './tauriCore'
+import { invoke } from './desktopCore'
 import type { LogLevel } from '@/types'
 
 export const logApi = {

@@ -6,8 +6,9 @@ export default [
   {
     ignores: [
       'dist/**',
-      'src-tauri/target/**',
-      'src-tauri/gen/**',
+      'src-dotnet/**/bin/**',
+      'src-dotnet/**/obj/**',
+      'release/**',
       'node_modules/**',
       '.claude/**',
       '*.config.mjs',

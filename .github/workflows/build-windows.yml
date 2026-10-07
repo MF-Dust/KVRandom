@@ -29,19 +29,25 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Rust
-        uses: Swatinem/rust-cache@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          workspaces: src-tauri -> target
+          dotnet-version: '10.0.x'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Frontend type check
+        run: npm run type-check
+
+      - name: Frontend tests
+        run: npm test
+
+      - name: Backend checks
+        run: npm run test:backend
 
       - name: Build package
         env:
@@ -88,19 +94,8 @@ jobs:
           "@
           $content | Out-File -FilePath artifacts\version.yml -Encoding utf8
 
-          # Create Portable ZIP (exe + DLL + public resources)
-          $exePath = Get-ChildItem -Path "src-tauri/target/release/kvrandom.exe" | Select-Object -First 1
-          if ($exePath) {
-            $portableItems = @($exePath.FullName)
-            $dllPath = "src-tauri/target/release/kvrandom_lib.dll"
-            if (Test-Path $dllPath) {
-              $portableItems += $dllPath
-            }
-            if (Test-Path "public") {
-              $portableItems += "public"
-            }
-            Compress-Archive -Path $portableItems -DestinationPath "artifacts/kvrandom-windows-portable.zip"
-          }
+          # Include the self-contained .NET runtime, WebView2 loader and Vue resources.
+          Compress-Archive -Path "release/win-x64/*" -DestinationPath "artifacts/kvrandom-windows-portable.zip"
 
       - name: Upload package
         uses: actions/upload-artifact@v4

@@ -1,5 +1,5 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { getCurrentWindow } from '@tauri-apps/api/window'
+import { invoke } from '../api/desktopCore'
 import { audioApi } from '../api/audioApi'
 import { pickCountApi } from '../api/pickCountApi'
 import type { PickCountDialogConfig } from '@/types'
@@ -135,11 +135,11 @@ export function usePickCountDialog() {
   }
 
   const isCurrentWindowVisible = async () => {
-    if (!window.__TAURI_INTERNALS__) {
+    if (!window.__KV_DESKTOP__) {
       return false
     }
     try {
-      return await getCurrentWindow().isVisible()
+      return await invoke<boolean>('is_window_visible')
     } catch (_error) {
       return false
     }

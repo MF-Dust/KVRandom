@@ -5,8 +5,11 @@
   "author": "HydrogenRua",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "dev": "tauri dev",
-    "build": "tauri build",
+    "dev": "node scripts/desktop.mjs dev",
+    "build": "node scripts/desktop.mjs build",
+    "build:backend": "dotnet build src-dotnet/KVRandom.csproj",
+    "test:backend": "dotnet run --project src-dotnet/tests/KVRandom.Tests.csproj",
+    "test:desktop": "node scripts/smoke-desktop.mjs",
     "dev:frontend": "vite",
     "build:frontend": "vite build",
     "preview": "vite preview",
@@ -17,7 +20,6 @@
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:rust": "cargo test --manifest-path=src-tauri/Cargo.toml",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -28,19 +30,17 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ],
-    "src-tauri/**/*.rs": [
-      "cargo fmt --manifest-path=src-tauri/Cargo.toml --"
+    "src-dotnet/**/*.cs": [
+      "dotnet format src-dotnet/KVRandom.csproj --include"
     ]
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.11.0",
     "naive-ui": "^2.44.1",
     "vue": "^3.5.17",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
-    "@tauri-apps/cli": "^2.11.1",
     "@types/node": "^25.9.1",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vue/eslint-config-typescript": "^14.3.0",

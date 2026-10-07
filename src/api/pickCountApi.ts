@@ -1,4 +1,4 @@
-import { invoke, listenEvent, type EventCallback, type Unlisten } from './tauriCore'
+import { invoke, listenEvent, type EventCallback, type Unlisten } from './desktopCore'
 import type { PickCountDialogConfig, PickCountOpenPayload } from '@/types'
 
 export const pickCountApi = {

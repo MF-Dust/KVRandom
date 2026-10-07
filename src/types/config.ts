@@ -1,6 +1,6 @@
 /**
  * Application configuration types. Field names are kept in camelCase to match
- * serde output from the Rust backend (src-tauri/src/config.rs).
+ * the C# backend JSON/YAML schema (src-dotnet/ConfigStore.cs).
  */
 
 import type { Student } from './domain'

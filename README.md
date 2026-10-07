@@ -9,14 +9,14 @@
   <a href="https://github.com/MF-Dust/KVRandom/releases"><img src="https://img.shields.io/github/v/release/MF-Dust/KVRandom?style=flat-square" alt="GitHub release"></a>
   <a href="https://github.com/MF-Dust/KVRandom/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square" alt="License: AGPL-3.0"></a>
   <img src="https://img.shields.io/badge/platform-Windows-0078d4?style=flat-square&logo=windows&logoColor=white" alt="Platform: Windows">
-  <img src="https://img.shields.io/badge/Tauri-2-24c8db?style=flat-square&logo=tauri&logoColor=white" alt="Tauri 2">
+  <img src="https://img.shields.io/badge/.NET-10-512bd4?style=flat-square&logo=dotnet&logoColor=white" alt=".NET 10">
   <img src="https://img.shields.io/badge/Vue-3-42b883?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue 3">
-  <img src="https://img.shields.io/badge/Rust-backend-b7410e?style=flat-square&logo=rust&logoColor=white" alt="Rust backend">
+  <img src="https://img.shields.io/badge/C%23-WPF%20%2B%20WebView2-512bd4?style=flat-square" alt="C# WPF and WebView2">
   <a href="https://deepwiki.com/MF-Dust/KVRandom"><img src="https://img.shields.io/badge/DeepWiki-open-blue?style=flat-square" alt="Open in DeepWiki"></a>
   <a href="https://zread.ai/MF-Dust/KVRandom"><img src="https://img.shields.io/badge/Zread-open-6f42c1?style=flat-square" alt="Open in Zread"></a>
 </p>
 
-KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名工具。应用提供悬浮按钮、抽取人数选择、名单权重管理、结果动画、音乐音效、托盘配置页和 Windows 置顶增强等功能。
+KVRandom 是一款基于 .NET 10、C# WPF/WebView2 和 Vue 3 的 Windows 桌面随机点名工具。应用提供悬浮按钮、抽取人数选择、名单权重管理、结果动画、音乐音效、托盘配置页和 Windows 置顶增强等功能。
 
 项目灵感来自《蔚蓝档案(Blue Archive)》的学生招募表现形式，但本项目不是官方项目，也不隶属于相关权利方。
 
@@ -26,7 +26,7 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 - 抽取人数：支持 1-10 人，可设置默认人数和背景暗度。
 - 名单管理：支持文本粘贴、TXT/CSV 导入、去重、权重保留和权重重置。
 - 抽取策略：支持允许重复抽取和不重复抽取两种模式。
-- 权重抽取：重复抽取使用权重池缓存，不重复抽取按权重进行无放回抽样。
+- 权重抽取：重复抽取按权重进行抽样，不重复抽取按权重进行无放回抽样。
 - 结果动画：使用蓝、金、粉信封样式展示结果，并带保底表现。
 - 音频反馈：支持按钮点击音、抽取背景音乐和结果动画音效。
 - 配置页面：通过托盘菜单打开，无需本地 Web 服务端口。
@@ -53,7 +53,7 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 
 常见产物：
 
-- `kvrandom-windows-portable.zip`：便携版，包含 `kvrandom.exe`、`kvrandom_lib.dll` 和 `public` 资源目录。
+- `kvrandom-windows-portable.zip`：便携版，包含 `kvrandom.exe`、.NET 运行时、WebView2 加载器和 `wwwroot` 资源目录。
 
 基本使用：
 
@@ -63,7 +63,7 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 4. 导入或粘贴学生名单，调整权重和抽取偏好。
 5. 点击桌面悬浮按钮开始抽取。
 
-便携版不要只移动 `kvrandom.exe`，需要保留同目录下的 `kvrandom_lib.dll` 和 `public` 资源目录，否则图片、音乐或音效可能无法加载。
+便携版不要只移动 `kvrandom.exe`，请保留解压后的所有 DLL、运行时文件和 `wwwroot` 目录。发布版自带 .NET 运行时，但系统仍需安装 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。
 
 ## 配置说明
 
@@ -89,64 +89,58 @@ KVRandom 是一款基于 Tauri 2、Rust 和 Vue 3 的 Windows 桌面随机点名
 
 环境要求：
 
-- Node.js 20+
-- Rust stable
-- Windows 环境用于完整桌面功能和安装包构建
-
-常用命令：
+- Node.js 22.12+（推荐 24）
+- .NET 10 SDK
+- Windows 10/11 与 Microsoft Edge WebView2 Runtime
 
 ```powershell
 npm ci
 npm run dev
-npm run dev:frontend
+npm run type-check
+npm test
 npm run build:frontend
-cargo check --manifest-path src-tauri/Cargo.toml
-cargo test --manifest-path src-tauri/Cargo.toml
+npm run build:backend
+npm run test:backend
 npm run build
+npm run test:desktop
 ```
 
-说明：
-
-- `npm run dev` 启动完整 Tauri 开发应用。
-- `npm run dev:frontend` 只启动 Vite 前端。
-- `npm run build:frontend` 只构建 renderer。
-- `npm run build` 构建 Windows release 可执行文件（不再生成安装包）。
-- Rust 代码格式化使用 `cargo fmt --manifest-path src-tauri/Cargo.toml`。
+- `npm run dev` 同时启动 Vite 和 C# 桌面宿主，退出时关闭子进程。
+- `npm run dev:frontend` 只预览前端；配置保存、文件选择等原生能力需在桌面应用内使用。
+- `npm run build` 生成自包含 Windows x64 便携目录 `release/win-x64/`，不生成安装程序。
+- `npm run test:desktop` 在 Windows 上验证发布版窗口、IPC、配置、抽取和音频；使用临时名单与配置，需空闲的本机 `9229` 端口，不会请求 UAC 或创建开机任务。
+- C# 格式化：`dotnet format src-dotnet/KVRandom.csproj`。
+- 开发构建的配置位于可执行文件所在的 `bin` 目录；可使用 `--data-dir <目录>` 隔离测试配置。
 
 ## 项目结构
 
 ```text
 .
-├─ public/
-│  ├─ image/          # 图片、图标和信封素材
-│  └─ sound/          # 点击音、背景音乐、抽取音效
+├─ public/                 # 图片、音频等第三方素材
 ├─ src/
-│  ├─ api/            # Tauri command/event 封装
-│  ├─ components/     # Vue 组件
-│  ├─ composables/    # 配置、日志、弹窗、更新等组合逻辑
-│  ├─ router/         # 前端路由
-│  └─ views/          # 悬浮窗、配置页、人数选择、结果页
-├─ src-tauri/
-│  ├─ capabilities/   # Tauri 权限配置
-│  ├─ src/            # Rust 后端逻辑
-│  ├─ Cargo.toml
-│  └─ tauri.conf.json
-├─ .github/workflows/ # Windows 构建和发布工作流
-├─ config.yml         # 示例/程序所在目录配置
-├─ list.yaml          # 示例/程序所在目录名单
+│  ├─ api/                 # WebView2 command/event 桥接
+│  ├─ components/          # Vue 组件
+│  ├─ composables/         # 配置、弹窗和招募逻辑
+│  ├─ views/               # 悬浮窗、设置、人数、结果和招募页面
+│  └─ configDefaults.json  # 前后端共用默认配置
+├─ src-dotnet/
+│  ├─ Program.cs           # 单实例、WPF 入口
+│  ├─ DesktopHost.cs       # 命令、窗口切换、托盘与日志
+│  ├─ BrowserWindow.cs     # 透明 WebView2 与可信来源 IPC
+│  ├─ ConfigStore.cs       # YAML 归一化、持久化与名单解析
+│  ├─ Picker.cs            # 权重抽取、概率提升与保底
+│  ├─ AudioController.cs   # 持久 WebView2 音频播放
+│  ├─ AssetHandler.cs      # 本地资源和视频分段请求
+│  ├─ SystemIntegration.cs # 管理员权限与开机计划任务
+│  ├─ UpdateChecker.cs     # GitHub Releases 更新检查
+│  ├─ tests/               # 可运行的后端检查
+│  └─ KVRandom.csproj
+├─ scripts/desktop.mjs     # 开发和发布入口
+├─ .github/workflows/      # Windows 构建和发布
+├─ config.yml
+├─ list.yaml
 └─ package.json
 ```
-
-Rust 后端按职责拆分：
-
-- `commands.rs`：Tauri commands。
-- `config.rs`：配置结构、默认值、归一化、名单解析和配置持久化。
-- `picker.rs`：权重抽取逻辑。
-- `windows.rs`：Tauri 窗口创建、显示、隐藏和位置保存。
-- `audio.rs`：基于 rodio 的音频播放线程。
-- `tray.rs`：系统托盘菜单。
-- `admin.rs`：Windows 管理员权限、单实例锁和计划任务。
-- `update.rs`：GitHub Releases 更新检查。
 
 ## 发布流程
 
@@ -160,20 +154,18 @@ GitHub Actions 工作流位于 `.github/workflows/build-windows.yml`。
 
 工作流会：
 
-1. 安装 Node 和 Rust。
+1. 安装 Node 和 .NET 10 SDK。
 2. 执行 `npm ci`。
-3. 执行 `npm run build`（仅生成 release 可执行文件，不打包安装包）。
+3. 执行前后端检查与 `npm run build`（发布自包含便携目录）。
 4. 生成 `version.yml`，用于应用内更新检查。
-5. 生成 `kvrandom-windows-portable.zip`，包含 exe、DLL 和 `public` 资源目录。
+5. 将完整 `release/win-x64/` 打包为 `kvrandom-windows-portable.zip`。
 6. 上传 artifact 并发布到 GitHub Releases。
 
 ## 资源与音频
 
-应用运行时会把 `public/` 作为外部资源目录，从以下位置查找资源：
+Vite 将 `public/` 中的资源复制到前端输出，C# 构建再将其放到 `wwwroot/`。原有 `/image/...`、`sound/...`、`public/...` 配置路径仍可使用；本地绝对路径和 UNC 路径通过原生资源处理器加载，并支持视频分段请求。
 
-- `public/...`
-
-如果发布版没有图片或没有声音，优先检查运行目录是否保留了 `public/image` 和 `public/sound`。
+音频由持久的悬浮 WebView2 播放，关闭结果窗或隐藏招募窗不会销毁音频宿主，保留 MP3/WAV/OGG/FLAC 支持。发布版缺少图片或声音时，请检查 `wwwroot/image` 和 `wwwroot/sound`。
 
 ## 贡献
 

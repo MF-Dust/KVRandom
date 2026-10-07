@@ -1,40 +1,37 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Project Structure
 
-This project is a Tauri 2 desktop app with a Vue 3/Vite renderer.
+KVRandom is a .NET 10 C# WPF/WebView2 Windows desktop app with a Vue 3/Vite renderer.
 
-- `src/` contains the frontend app, including `App.vue`, `main.js`, shared CSS, router setup, Tauri API wrappers, views, and components.
-- `src-tauri/` contains the Rust backend, Tauri window/tray setup, commands, capabilities, and package configuration.
-- `public/image/` and `public/sound/` contain bundled visual and audio assets.
-- `config.yml` is the runtime configuration example used by the app.
-- `dist/`, `node_modules/`, and `src-tauri/target/` are generated outputs and should not be edited directly.
+- `src/`: renderer, views, components, types and desktop API wrappers.
+- `src-dotnet/`: C# desktop host, commands, configuration, picker and Windows integration.
+- `src-dotnet/tests/`: runnable backend checks.
+- `src/configDefaults.json`: defaults shared with the C# backend.
+- `public/image/`, `public/sound/`: bundled third-party assets.
+- `config.yml`, `list.yaml`: runtime examples; preserve existing user data and YAML schema.
+- `dist/`, `node_modules/`, `src-dotnet/**/bin/`, `src-dotnet/**/obj/`, `release/`: generated outputs, do not edit directly.
 
-## Build, Test, and Development Commands
+## Commands
 
-- `npm ci` installs exact Node dependencies from `package-lock.json`.
-- `npm run dev` starts the full Tauri development app.
-- `npm run dev:frontend` starts only the Vite renderer on port `5173`.
-- `npm run build:frontend` builds the renderer only.
-- `npm run build` builds the Windows Tauri package.
-- `npm run preview` previews the built Vite frontend.
-- `cargo fmt --manifest-path src-tauri/Cargo.toml` formats Rust code.
-- `cargo check --manifest-path src-tauri/Cargo.toml` checks Rust compilation without packaging.
+- `npm ci`: install exact Node dependencies.
+- `npm run dev`: start Vite and the C# desktop app.
+- `npm run dev:frontend`: browser-only Vite development on port 5173.
+- `npm run build:frontend`: build renderer.
+- `npm run build:backend`: compile C# desktop host.
+- `npm run build`: self-contained Windows x64 publish into `release/win-x64/`.
+- `npm run type-check`, `npm run lint`, `npm test`: renderer checks.
+- `npm run test:backend`: backend checks.
+- `dotnet format src-dotnet/KVRandom.csproj`: format C#.
 
-## Coding Style & Naming Conventions
+## Style and Tests
 
-Use the existing style: 2-space indentation in Vue, JavaScript, CSS, JSON, and YAML; standard `rustfmt` formatting for Rust. Vue components use PascalCase file names such as `FloatingButton.vue`; route views live in `src/views/`. JavaScript modules use camelCase exports and the `@` alias for `src`. Rust structs and enums use PascalCase, functions and variables use snake_case, and serialized config fields use camelCase via Serde.
+Use 2-space indentation for Vue/TypeScript/CSS/JSON/YAML and 4-space C# indentation. Vue components use PascalCase names; route views live in `src/views/`. TypeScript exports use camelCase and the `@` alias. C# classes/methods/properties use PascalCase. JSON/YAML fields remain camelCase.
 
-## Testing Guidelines
+Before a PR, run frontend build, type-check and tests plus backend build and tests. For packaging changes run `npm run build`. Place renderer tests near modules and backend checks in `src-dotnet/tests/`. Smoke-test window transitions, floating dragging/position persistence, audio, tray and UAC on Windows when affected.
 
-No automated test script is currently defined. Before opening a PR, run `npm run build:frontend` and `cargo check --manifest-path src-tauri/Cargo.toml`; for packaging or release changes, run `npm run build`. If tests are added, place frontend tests near the related renderer module and Rust unit tests inside the relevant `src-tauri/src/*.rs` module.
+## Commits and Security
 
-## Commit & Pull Request Guidelines
+Use concise Chinese prefixes such as `功能:`, `修复:`, `优化:`, `项目:`, `版本号:`, and `Agent:`. Keep commits focused. Use `[unstable]` for preview releases and `[ci]` to trigger the Windows release workflow.
 
-Git history uses concise Chinese prefixes such as `功能:`, `修复:`, `优化:`, `项目:`, `版本号:`, and `Agent:`. Keep commits focused and describe user-visible behavior first. Include `[skip build]` only when intentionally bypassing the Windows build workflow; use `[unstable]` for preview release builds.
-
-Pull requests should include a short summary, linked issue when applicable, test/build commands run, and screenshots or recordings for UI changes.
-
-## Security & Configuration Tips
-
-Do not commit personal `config.yml` data, secrets, generated installers, or local build artifacts. Treat files in `public/` as third-party assets and preserve licensing notes in `README.md`.
+PRs should include a summary, linked issues, validation commands and screenshots/recordings for UI changes. Do not commit personal configuration, secrets, installers or local build artifacts. Preserve README licensing notes for `public/` assets. Only trusted app-origin pages may invoke native commands; do not relax navigation/IPC boundaries to load external content.

@@ -215,12 +215,9 @@ export function usePickResultDialog() {
   }
 
   onMounted(async () => {
-    await loadSoundConfig()
-
-    const initial = await pickResultApi.getResults()
-    applyResults({ results: initial })
-
+    let openedByEvent = false
     removeOpenListener = pickResultApi.onOpen(async (payload) => {
+      openedByEvent = true
       await loadSoundConfig(payload?.config)
       applyResults(payload)
     })
@@ -228,6 +225,10 @@ export function usePickResultDialog() {
     removeResetListener = pickResultApi.onReset((payload) => {
       handleReset(payload)
     })
+
+    await loadSoundConfig()
+    const initial = await pickResultApi.getResults()
+    if (!openedByEvent) applyResults({ results: initial })
   })
 
   onBeforeUnmount(() => {

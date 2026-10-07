@@ -11,6 +11,12 @@ declare module '*.vue' {
 
 declare global {
   interface Window {
-    __TAURI_INTERNALS__?: Record<string, unknown>
+    __KV_DESKTOP__?: boolean
+    chrome?: {
+      webview?: {
+        postMessage: (message: unknown) => void
+        addEventListener: (event: 'message', callback: (event: { data: any }) => void) => void // eslint-disable-line @typescript-eslint/no-explicit-any
+      }
+    }
   }
 }

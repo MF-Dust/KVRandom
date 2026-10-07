@@ -1,5 +1,5 @@
 /**
- * Tauri event payload types — matches Serialize structs in src-tauri/src/models.rs.
+ * Desktop event payload types — emitted by src-dotnet/DesktopHost.cs.
  */
 
 import type { PickCountDialogConfig, PickResultDialogConfig } from './config'

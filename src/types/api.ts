@@ -1,6 +1,5 @@
 /**
- * API command input/output types. Names mirror #[tauri::command] signatures
- * in src-tauri/src/commands.rs (will be split into src-tauri/src/commands/* in step 4).
+ * Desktop command input/output types. Names match src-dotnet/DesktopHost.cs.
  */
 
 import type {

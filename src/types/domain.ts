@@ -1,5 +1,5 @@
 /**
- * Domain types — atomic business entities mirrored from the Rust backend.
+ * Domain types — atomic business entities shared with the C# backend.
  * Field names match serde camelCase output.
  */
 
