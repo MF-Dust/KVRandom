@@ -581,7 +581,8 @@
     currencies,
     saveCurrencies,
     playVideoAndExecute,
-    autoSkipVideo
+    autoSkipVideo,
+    currentPool
   )
 
   // Local state

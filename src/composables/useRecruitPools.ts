@@ -4,6 +4,8 @@ import { appApi } from '../api/appApi'
 import type { RecruitConfig, RecruitPool, Student } from '@/types'
 import { createDefaultConfig } from '../configDefaults'
 
+const WEIGHT_BOOST_GAMMA = 1.5
+
 export function useRecruitPools() {
   const pools = ref<RecruitPool[]>([])
   const activePoolIndex = ref(0)
@@ -21,33 +23,34 @@ export function useRecruitPools() {
     )
   })
 
+  const getBoostMultiplier = (studentName: string) => {
+    return boostMultiplierMap.value.get(studentName) || 1
+  }
+
   const getBoostedWeight = (studentName: string, baseWeight: number) => {
-    return baseWeight * getBoostMultiplier(studentName)
+    return Math.max(0, baseWeight) * getBoostMultiplier(studentName)
+  }
+
+  const getEffectiveWeight = (studentName: string, baseWeight: number) => {
+    return Math.pow(getBoostedWeight(studentName, baseWeight), WEIGHT_BOOST_GAMMA)
   }
 
   const totalBoostedWeight = computed(() => {
-    return students.value.reduce((sum, s) => {
-      const boostedWeight = getBoostedWeight(s.name, s.weight || 0)
-      return sum + boostedWeight
+    return students.value.reduce((sum, student) => {
+      return sum + getEffectiveWeight(student.name, student.weight || 0)
     }, 0)
   })
 
   const sortedStudents = computed(() => {
     return [...students.value].sort((a, b) => {
-      const aWeight = getBoostedWeight(a.name, a.weight)
-      const bWeight = getBoostedWeight(b.name, b.weight)
-      return bWeight - aWeight
+      return getEffectiveWeight(b.name, b.weight) - getEffectiveWeight(a.name, a.weight)
     })
   })
 
-  const getBoostMultiplier = (studentName: string) => {
-    return boostMultiplierMap.value.get(studentName) || 1
-  }
-
   const calculateProb = (studentName: string, baseWeight: number) => {
     if (totalBoostedWeight.value <= 0) return '0.00'
-    const boostedWeight = getBoostedWeight(studentName, baseWeight)
-    return ((boostedWeight / totalBoostedWeight.value) * 100).toFixed(2)
+    const effectiveWeight = getEffectiveWeight(studentName, baseWeight)
+    return ((effectiveWeight / totalBoostedWeight.value) * 100).toFixed(2)
   }
 
   const switchPool = (idx: number) => {

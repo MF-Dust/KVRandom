@@ -54,7 +54,7 @@ describe('useRecruitPools', () => {
 
     expect(state.sortedStudents.value.map((student) => student.name)).toEqual(['阿罗娜', '白子'])
     expect(state.getBoostMultiplier('阿罗娜')).toBe(4)
-    expect(state.calculateProb('阿罗娜', 1)).toBe('66.67')
-    expect(state.calculateProb('白子', 2)).toBe('33.33')
+    expect(state.calculateProb('阿罗娜', 1)).toBe('73.88')
+    expect(state.calculateProb('白子', 2)).toBe('26.12')
   })
 })
