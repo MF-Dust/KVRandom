@@ -28,61 +28,87 @@
 
 <template>
   <div class="pick-overlay" :class="{ 'is-leaving': isLeaving }" :style="overlayStyle">
-    <div class="pick-panel" :style="panelStyle">
-      <h1 class="pick-title">{{ titleText }}</h1>
+    <!-- inert while leaving: no further input, but keeps the visual state during the exit -->
+    <section
+      class="pick-panel ba-dialog"
+      :style="panelStyle"
+      :inert="isLeaving"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pick-title"
+    >
+      <header class="ba-dialog__header">
+        <h1 id="pick-title" class="ba-dialog__title pick-title">{{ titleText }}</h1>
+      </header>
 
-      <div class="pick-counter-row">
-        <button
-          class="pick-circle-btn"
-          :disabled="isLeaving || !canDecrease"
-          aria-label="减少～"
-          @click="decreaseCount"
-        >
-          -
-        </button>
-        <div class="pick-count-box">{{ count }}</div>
-        <button
-          class="pick-circle-btn"
-          :disabled="isLeaving || !canIncrease"
-          aria-label="增加！"
-          @click="increaseCount"
-        >
-          +
-        </button>
+      <div class="pick-body">
+        <div class="pick-counter-row">
+          <button
+            type="button"
+            class="ba-btn ba-btn--sm pick-range-btn"
+            :disabled="!canDecrease"
+            @click="setMinCount"
+          >
+            {{ minButtonText }}
+          </button>
+          <button
+            type="button"
+            class="ba-btn ba-btn--blue pick-step-btn"
+            :disabled="!canDecrease"
+            aria-label="减少～"
+            @click="decreaseCount"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+          <div class="pick-count-box" aria-live="polite">
+            <span class="pick-count-value">{{ count }}</span>
+          </div>
+          <button
+            type="button"
+            class="ba-btn ba-btn--blue pick-step-btn"
+            :disabled="!canIncrease"
+            aria-label="增加！"
+            @click="increaseCount"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="ba-btn ba-btn--sm pick-range-btn"
+            :disabled="!canIncrease"
+            @click="setMaxCount"
+          >
+            {{ maxButtonText }}
+          </button>
+        </div>
+        <p class="pick-range-hint">{{ rangeHintText }}</p>
       </div>
 
-      <div class="pick-range-row">
-        <button class="pick-range-btn" :disabled="isLeaving || !canDecrease" @click="setMinCount">
-          {{ minButtonText }}
-        </button>
-        <span class="pick-range-hint">{{ rangeHintText }}</span>
-        <button class="pick-range-btn" :disabled="isLeaving || !canIncrease" @click="setMaxCount">
-          {{ maxButtonText }}
-        </button>
-      </div>
+      <footer class="pick-footer">
+        <div class="pick-actions">
+          <button type="button" class="ba-btn ba-btn--lg pick-action-btn" @click="handleCancel">
+            {{ cancelButtonText }}
+          </button>
+          <button
+            type="button"
+            class="ba-btn ba-btn--lg ba-btn--yellow ba-btn--shine pick-action-btn"
+            @click="handleConfirm"
+          >
+            {{ confirmButtonText }}
+          </button>
+        </div>
 
-      <div class="pick-actions">
-        <button
-          class="pick-action-btn pick-action-cancel"
-          :disabled="isLeaving"
-          @click="handleCancel"
-        >
-          {{ cancelButtonText }}
-        </button>
-        <button
-          class="pick-action-btn pick-action-confirm"
-          :disabled="isLeaving"
-          @click="handleConfirm"
-        >
-          {{ confirmButtonText }}
-        </button>
-      </div>
-
-      <label v-if="allowMusicToggle" class="pick-music-row">
-        <input v-model="playMusic" class="pick-checkbox" type="checkbox" :disabled="isLeaving" />
-        <span>{{ musicLabelText }}</span>
-      </label>
-    </div>
+        <label v-if="allowMusicToggle" class="pick-music-row">
+          <input v-model="playMusic" class="ba-checkbox" type="checkbox" />
+          <span>{{ musicLabelText }}</span>
+        </label>
+      </footer>
+    </section>
   </div>
 </template>
 
@@ -102,14 +128,8 @@
   }
 
   .pick-panel {
-    width: min(560px, 92vw);
-    border-radius: 20px;
-    padding: 30px 30px 20px;
-    background: #eff6ff;
-    border: 1px solid rgba(255, 255, 255, 0.76);
-    box-shadow:
-      0 14px 34px rgba(3, 17, 44, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    width: min(600px, 92vw);
+    background: var(--ba-surface-tint);
     opacity: 0;
     transform: translateY(18px);
     animation: pick-panel-fly-fade-in 0.4s ease-out forwards;
@@ -120,172 +140,123 @@
   }
 
   .pick-title {
-    margin: 0;
-    text-align: center;
-    color: #0b325f;
-    font-size: 32px;
-    line-height: 1;
-    letter-spacing: 3px;
-    font-weight: 800;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.45);
+    font-size: 22px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ---- Counter ---- */
+  .pick-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 26px 6px;
   }
 
   .pick-counter-row {
-    margin-top: 26px;
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
+    grid-template-columns: auto auto minmax(120px, 1fr) auto auto;
     align-items: center;
-    gap: 14px;
-  }
-
-  .pick-range-row {
-    margin-top: 12px;
-    display: grid;
-    grid-template-columns: 88px 1fr 88px;
-    align-items: center;
-    gap: 12px;
+    gap: 8px;
+    width: 100%;
   }
 
   .pick-range-btn {
-    height: 36px;
-    border-radius: 12px;
-    border: 0;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    color: #0b2a55;
-    background: #e3e9f3;
-    box-shadow: 0 5px 10px rgba(19, 35, 62, 0.14);
-    transition: transform 120ms ease;
+    min-width: 72px;
+    padding: 0 14px;
   }
 
-  .pick-range-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
+  .pick-step-btn {
+    width: 66px;
+    min-height: 66px;
+    padding: 0;
   }
 
-  .pick-range-btn:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-  }
-
-  .pick-range-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
-  }
-
-  .pick-range-hint {
-    text-align: center;
-    color: rgba(15, 35, 66, 0.78);
-    font-size: 13px;
-    letter-spacing: 0.3px;
-  }
-
-  .pick-circle-btn {
-    width: 70px;
-    height: 70px;
-    border-radius: 15%;
-    border: none;
-    cursor: pointer;
-    font-size: 60px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #101a8c;
-    background: #cfd7e4;
-    box-shadow: 0 8px 16px rgba(10, 30, 68, 0.28);
-    transition: transform 120ms ease;
-  }
-
-  .pick-circle-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
-  .pick-circle-btn:active:not(:disabled) {
-    transform: translateY(1px) scale(0.985);
-  }
-
-  .pick-circle-btn:disabled {
-    cursor: not-allowed;
-    background: linear-gradient(180deg, #aab3be, #969faa);
-    color: rgba(255, 255, 255, 0.7);
-    box-shadow: none;
+  .pick-step-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.2;
+    stroke-linecap: round;
   }
 
   .pick-count-box {
-    height: 76px;
-    border-radius: 16px;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0d1356;
-    border: 1px solid rgba(161, 204, 255, 0.42);
-    color: #eff6ff;
-    font-size: 44px;
+    height: 78px;
+    overflow: hidden;
+    border-radius: var(--ba-radius-sm);
+    background: linear-gradient(180deg, #24476f 0%, var(--ba-ink-strong) 100%);
+    box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.4),
+      inset 0 0 0 1px rgba(140, 210, 255, 0.28),
+      0 1px 0 #ffffff;
+  }
+
+  .pick-count-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.05) 0 2px,
+      transparent 2px 9px
+    );
+  }
+
+  .pick-count-value {
+    position: relative;
+    color: #ffffff;
+    font-family: var(--ba-font-num);
+    font-size: 50px;
     font-weight: 700;
-    letter-spacing: 2px;
-    box-shadow: inset 0 1px 5px rgba(115, 180, 255, 0.22);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 14px rgba(76, 198, 255, 0.65);
+  }
+
+  .pick-range-hint {
+    margin: 0;
+    color: var(--ba-muted);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  /* ---- Actions ---- */
+  .pick-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 26px 20px;
+    border-top: 1px solid rgba(16, 52, 96, 0.08);
   }
 
   .pick-actions {
-    margin-top: 24px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 18px;
+    width: 100%;
   }
 
   .pick-action-btn {
-    height: 50px;
-    border-radius: 13px;
-    border: 0;
-    cursor: pointer;
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    transition: transform 120ms ease;
-  }
-
-  .pick-action-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
-  .pick-action-btn:active:not(:disabled) {
-    transform: translateY(1px) scale(0.992);
-  }
-
-  .pick-action-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-    box-shadow: none;
-  }
-
-  .pick-action-cancel {
-    color: #152131;
-    background: #fdfeff;
-    box-shadow: 0 5px 10px rgba(22, 31, 50, 0.14);
-  }
-
-  .pick-action-confirm {
-    color: #3a2800;
-    background: #fffb13e2;
-    box-shadow: 0 5px 10px rgba(92, 68, 0, 0.18);
+    width: 100%;
+    padding: 0 16px;
   }
 
   .pick-music-row {
-    margin-top: 14px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 9px;
-    color: rgba(17, 39, 71, 0.9);
+    gap: 10px;
+    color: var(--ba-ink);
     font-size: 14px;
-    letter-spacing: 0.4px;
-  }
-
-  .pick-checkbox {
-    width: 17px;
-    height: 17px;
-    accent-color: #2662ad;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
   }
 
   @keyframes pick-overlay-fade-in {

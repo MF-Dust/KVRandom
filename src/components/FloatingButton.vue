@@ -107,11 +107,25 @@
     align-items: center;
     justify-content: center;
     background: linear-gradient(145deg, #66ccff, #4091f0);
-    transition: transform 180ms ease;
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.55),
+      0 3px 7px rgba(8, 48, 110, 0.35);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
   }
 
   .floating-button:hover {
     transform: translateY(-1px);
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.85),
+      0 0 0 3px rgba(76, 198, 255, 0.4),
+      0 4px 8px rgba(8, 48, 110, 0.4);
+  }
+
+  .floating-button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
   }
 
   .floating-button:active {

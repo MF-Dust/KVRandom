@@ -204,80 +204,13 @@
 </script>
 
 <style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition:
-      box-shadow 0.25s,
-      transform 0.25s;
-  }
-
-  .ba-card:hover {
-    box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #128afa;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-card-desc {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-  }
-
-  .ba-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .ba-toggle-label {
-    font-size: 14px;
-    color: #1a3a5c;
-  }
-
-  .ba-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 24px 0;
-    color: #8ca3bf;
-    font-size: 14px;
-  }
-
-  .ba-empty-img {
-    width: 120px;
-    height: auto;
-    opacity: 0.7;
-  }
-
   .ba-table-wrapper {
     max-height: 360px;
     overflow-y: auto;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 10px;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
     scrollbar-width: thin;
-    scrollbar-color: #b8d4f0 transparent;
+    scrollbar-color: #bcd4ec transparent;
   }
 
   .ba-student-table {
@@ -287,23 +220,41 @@
   }
 
   .ba-student-table th {
-    padding: 10px 14px;
-    background: linear-gradient(180deg, #f0f7ff 0%, #e4f0ff 100%);
-    color: #1a5a96;
-    font-weight: 600;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(18, 138, 250, 0.15);
     position: sticky;
     top: 0;
     z-index: 1;
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--ba-blue);
+    background: linear-gradient(180deg, #f3f9ff 0%, var(--ba-blue-soft) 100%);
+    color: var(--ba-ink-strong);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
   }
 
   .ba-student-table td {
     padding: 8px 14px;
-    border-bottom: 1px solid #f0f4f8;
-    color: #1a3a5c;
+    border-bottom: 1px solid var(--ba-line-soft);
+    color: var(--ba-ink);
     font-size: 14px;
     vertical-align: middle;
+  }
+
+  .ba-student-table tbody tr {
+    transition: background 0.15s;
+  }
+
+  .ba-student-table tbody tr:nth-child(even) {
+    background: #fafcfe;
+  }
+
+  .ba-student-table tbody tr:hover {
+    background: var(--ba-blue-soft);
+  }
+
+  .ba-student-table td.col-name {
+    color: var(--ba-ink-strong);
+    font-weight: 700;
   }
 
   .col-name {
@@ -332,14 +283,6 @@
     text-align: center;
   }
 
-  .ba-student-table tbody tr {
-    transition: background 0.15s;
-  }
-
-  .ba-student-table tbody tr:hover {
-    background: rgba(18, 138, 250, 0.03);
-  }
-
   .ba-weight-cell {
     display: flex;
     align-items: center;
@@ -347,23 +290,28 @@
   }
 
   .ba-del-btn {
-    background: none;
-    border: none;
-    color: #d44747;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 6px;
+    border: none;
+    border-radius: var(--ba-radius-sm);
+    background: none;
+    color: var(--ba-red);
+    cursor: pointer;
     transition:
       background 0.16s ease,
       color 0.16s ease;
   }
 
   .ba-del-btn:hover {
-    background: #fff0f0;
-    color: #c03030;
+    background: #ffeef2;
+    color: #cf3c58;
+  }
+
+  .ba-del-btn:focus-visible {
+    outline: 2px solid var(--ba-red);
+    outline-offset: 1px;
   }
 
   .ba-student-actions {
@@ -377,19 +325,19 @@
   }
 
   .ba-batch-desc {
+    margin: 0 0 12px;
+    color: var(--ba-muted);
     font-size: 13px;
-    color: #5a7394;
-    line-height: 1.6;
-    margin-bottom: 12px;
+    line-height: 1.7;
   }
 
   .ba-batch-desc code {
-    background: #f0f7ff;
-    color: #128afa;
     padding: 2px 6px;
     border-radius: 4px;
+    background: var(--ba-blue-soft);
+    color: var(--ba-blue-strong);
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .ba-modal-actions {

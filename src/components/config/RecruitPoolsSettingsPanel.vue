@@ -136,7 +136,7 @@
               </div>
             </div>
 
-            <div class="ba-form-grid-3" style="grid-template-columns: 1fr 2fr 2fr">
+            <div class="ba-form-grid-3 ba-pool-button-grid">
               <div class="ba-form-item">
                 <label class="ba-label">招募类型</label>
                 <n-select v-model:value="pool.gachaType" :options="gachaTypeOptions" />
@@ -321,87 +321,49 @@
 </script>
 
 <style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .ba-card-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #128afa;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-card-desc {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-  }
-
   .ba-empty-card {
     align-items: center;
     justify-content: center;
-    padding: 40px 0;
-  }
-
-  .ba-empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    color: #8ca3bf;
-    font-size: 14px;
-  }
-
-  .ba-empty-img {
-    width: 120px;
-    height: auto;
-    opacity: 0.7;
+    padding: 32px 0;
   }
 
   .ba-pools-list {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 16px;
+    padding: 6px 18px 10px;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-card-radius);
+    background: var(--ba-surface);
+    box-shadow: var(--ba-shadow-sm);
   }
 
   .ba-pool-collapse-item {
-    border-bottom: 1px solid #f0f4f8;
-    padding: 8px 0;
+    padding: 6px 0;
   }
 
   .ba-pool-header {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
   }
 
   .ba-pool-name {
-    font-weight: 700;
-    color: #1a3a5c;
+    position: relative;
+    padding-left: 14px;
+    color: var(--ba-ink-strong);
     font-size: 14px;
+    font-weight: 800;
+  }
+
+  .ba-pool-name::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 5px;
+    height: 16px;
+    border-radius: 1px;
+    background: var(--ba-blue);
+    transform: translateY(-50%) skewX(var(--ba-skew));
   }
 
   .ba-pool-meta {
@@ -410,38 +372,18 @@
   }
 
   .ba-pool-form {
-    padding: 14px 8px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background: #fafcff;
-    border-radius: 8px;
-    border: 1px dashed rgba(18, 138, 250, 0.15);
     margin-top: 8px;
+    padding: 16px;
+    border: 1px solid var(--ba-line-soft);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface-soft);
   }
 
-  .ba-form-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .ba-form-grid-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-
-  .ba-form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .ba-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1a3a5c;
+  .ba-pool-button-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr);
   }
 
   .ba-btn-setup-row {
@@ -451,14 +393,14 @@
 
   .ba-rate-boost-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    justify-content: space-between;
+    margin-bottom: 2px;
   }
 
   .ba-rate-boost-hint {
-    margin: 0 0 12px 0;
-    color: #8ca3bf;
+    margin: 0 0 8px;
+    color: var(--ba-subtle);
     font-size: 12px;
     line-height: 1.5;
   }
@@ -474,26 +416,25 @@
     align-items: center;
     gap: 8px;
     padding: 10px;
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.15);
-    border-radius: 6px;
+    border: 1px solid var(--ba-line);
+    border-left: 4px solid var(--ba-yellow);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface);
   }
 
   .ba-rate-boost-empty {
-    padding: 20px;
-    text-align: center;
-    color: #8ca3bf;
+    padding: 18px;
+    border: 1px dashed var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface);
+    color: var(--ba-subtle);
     font-size: 13px;
-    background: #f8fafc;
-    border: 1px dashed rgba(18, 138, 250, 0.2);
-    border-radius: 6px;
+    text-align: center;
   }
 
   @media (max-width: 768px) {
-    .ba-form-grid-2,
-    .ba-form-grid-3 {
-      grid-template-columns: 1fr;
-      gap: 12px;
+    .ba-pool-button-grid {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

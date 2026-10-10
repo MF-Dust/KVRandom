@@ -75,106 +75,93 @@
 </script>
 
 <style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: var(--ba-card-radius, 12px);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
   .ba-card-about {
-    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    background:
+      radial-gradient(circle at 100% 0%, var(--ba-blue-soft) 0%, transparent 45%),
+      linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
   }
 
   .ba-about-head {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
   }
 
   .ba-app-mark {
-    width: 54px;
-    height: 54px;
-    border-radius: 14px;
     display: flex;
+    flex: none;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--ba-blue, #128afa) 0%, #7fc8ff 100%);
-    box-shadow: 0 8px 22px rgba(18, 138, 250, 0.2);
+    width: 58px;
+    height: 58px;
+    border: 3px solid #ffffff;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--ba-blue-soft) 0%, #ffffff 100%);
+    box-shadow:
+      0 0 0 1px var(--ba-line),
+      0 8px 20px var(--ba-blue-glow);
   }
 
   .ba-app-mark img {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
   }
 
   .ba-about-title h3 {
     margin: 0;
-    color: #0c2d4f;
+    color: var(--ba-ink-strong);
     font-size: 22px;
-    font-weight: 800;
+    font-weight: 900;
     line-height: 1.2;
+    letter-spacing: 0.02em;
   }
 
   .ba-about-title p {
     margin: 4px 0 0;
-    color: #5a7394;
+    color: var(--ba-muted);
     font-size: 13px;
   }
 
   .ba-info-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
 
   .ba-info-item {
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 10px;
-    padding: 12px;
-    background: #fbfdff;
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding: 12px 14px;
+    overflow: hidden;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface);
+  }
+
+  .ba-info-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--ba-blue);
   }
 
   .ba-info-label {
-    color: #8ca3bf;
+    color: var(--ba-subtle);
     font-size: 12px;
+    font-weight: 700;
   }
 
   .ba-info-value {
-    color: #1a3a5c;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .ba-card-muted {
-    border-color: rgba(0, 0, 0, 0.06);
-    background: #fafbfc;
-  }
-
-  .ba-card-muted .ba-card-header {
-    color: #8ca3bf;
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ba-blue, #128afa);
-    font-weight: 700;
+    color: var(--ba-ink-strong);
+    font-family: var(--ba-font-num);
     font-size: 15px;
+    font-weight: 700;
   }
 
   .ba-copyright-text {
@@ -185,14 +172,14 @@
 
   .ba-copyright-text p {
     margin: 0;
+    color: var(--ba-subtle);
     font-size: 12px;
-    color: #8ca3bf;
     line-height: 1.6;
   }
 
   @media (max-width: 768px) {
     .ba-info-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

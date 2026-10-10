@@ -1,0 +1,78 @@
+/* ==========================================================================
+   Blue Archive design tokens
+   Shared by every renderer window (floating, pick count/result, recruit, config).
+   Brand colours can be overridden per page by setting --ba-blue / --ba-yellow on
+   an element with the `ba-themed` class; derived shades are recomputed there.
+   ========================================================================== */
+
+:root {
+  /* Brand */
+  --ba-blue: #128afa;
+  --ba-yellow: #ffd84d;
+  --ba-cyan: #4cc6ff;
+  --ba-cyan-light: #8de1ff;
+  --ba-pink: #ff7ac6;
+  --ba-red: #ef5470;
+  --ba-green: #2fbf7a;
+
+  /* Neutrals (Schale navy family) */
+  --ba-ink-strong: #102b4c;
+  --ba-ink: #1f3a5f;
+  --ba-muted: #5a7597;
+  --ba-subtle: #8ca3bf;
+  --ba-line: #d5e3f0;
+  --ba-line-soft: #e7eff7;
+  --ba-surface: #ffffff;
+  --ba-surface-soft: #f4f8fc;
+  --ba-surface-tint: #ebf5ff;
+  --ba-backdrop: rgba(8, 24, 48, 0.55);
+
+  /* Geometry */
+  --ba-skew: -10deg;
+  --ba-radius-xs: 3px;
+  --ba-radius-sm: 6px;
+  --ba-radius: 10px;
+  --ba-card-radius: 10px;
+
+  /* Elevation */
+  --ba-shadow-sm: 0 1px 2px rgba(16, 52, 96, 0.08), 0 2px 8px rgba(16, 52, 96, 0.06);
+  --ba-shadow: 0 6px 18px rgba(16, 52, 96, 0.14);
+  --ba-shadow-lg: 0 18px 48px rgba(6, 22, 48, 0.34);
+
+  /* Typography — --ba-font-family is set at runtime from config.fontFamily */
+  --ba-font: var(
+    --ba-font-family,
+    '方正兰亭圆_GBK',
+    'FZLanTingYuan-R-GBK',
+    'Microsoft YaHei UI',
+    'PingFang SC',
+    'Noto Sans SC',
+    sans-serif
+  );
+  --ba-font-num:
+    'Bahnschrift', 'DIN Alternate', 'Segoe UI', var(--ba-font-family, 'Microsoft YaHei UI'),
+    sans-serif;
+}
+
+/* Derived shades follow the nearest brand override. */
+:root,
+.ba-themed {
+  --ba-blue-hover: color-mix(in srgb, var(--ba-blue) 78%, #ffffff);
+  --ba-blue-strong: color-mix(in srgb, var(--ba-blue) 80%, #002a66);
+  --ba-blue-soft: color-mix(in srgb, var(--ba-blue) 10%, #ffffff);
+  --ba-blue-tint: color-mix(in srgb, var(--ba-blue) 20%, #ffffff);
+  --ba-blue-glow: color-mix(in srgb, var(--ba-blue) 32%, transparent);
+  --ba-yellow-light: color-mix(in srgb, var(--ba-yellow) 42%, #ffffff);
+  --ba-yellow-strong: color-mix(in srgb, var(--ba-yellow) 80%, #d68a00);
+
+  /* Button fills */
+  --ba-fill-yellow: linear-gradient(
+    180deg,
+    var(--ba-yellow-light) 0%,
+    var(--ba-yellow) 48%,
+    var(--ba-yellow-strong) 100%
+  );
+  --ba-fill-blue: linear-gradient(180deg, var(--ba-cyan-light) 0%, var(--ba-cyan) 100%);
+  --ba-fill-white: linear-gradient(180deg, #ffffff 0%, #eaf1f8 100%);
+  --ba-fill-navy: linear-gradient(180deg, #2c4c74 0%, var(--ba-ink-strong) 100%);
+}

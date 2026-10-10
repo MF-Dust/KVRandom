@@ -102,7 +102,7 @@
     </div>
 
     <!-- 检查更新 -->
-    <div class="ba-card ba-card-purple">
+    <div class="ba-card ba-card-pink">
       <div class="ba-card-header">
         <svg
           viewBox="0 0 24 24"
@@ -245,108 +245,6 @@
 </script>
 
 <style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-section-hint {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-    padding: 0 4px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition:
-      box-shadow 0.25s,
-      transform 0.25s;
-  }
-
-  .ba-card:hover {
-    box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .ba-card-amber {
-    border-color: rgba(243, 185, 0, 0.2);
-    background: linear-gradient(180deg, #fffef8 0%, #ffffff 100%);
-  }
-
-  .ba-card-amber .ba-card-header {
-    color: #c48f00;
-  }
-
-  .ba-card-purple {
-    border-color: rgba(139, 92, 246, 0.15);
-    background: linear-gradient(180deg, #faf8ff 0%, #ffffff 100%);
-  }
-
-  .ba-card-purple .ba-card-header {
-    color: #7c3aed;
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #128afa;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-card-desc {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-  }
-
-  .ba-toggle-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .ba-toggle-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .ba-toggle-label {
-    font-size: 14px;
-    color: #1a3a5c;
-    font-weight: 500;
-  }
-
-  .ba-toggle-hint {
-    font-size: 12px;
-    color: #8ca3bf;
-    line-height: 1.5;
-  }
-
-  .ba-form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .ba-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1a3a5c;
-  }
-
   .ba-update-row {
     display: flex;
     align-items: center;
@@ -354,30 +252,32 @@
   }
 
   .ba-update-status {
+    color: var(--ba-muted);
     font-size: 13px;
-    font-weight: 600;
-    color: #5a7394;
+    font-weight: 700;
   }
 
   .ba-status-update {
-    color: #1b5fd1;
+    color: var(--ba-blue-strong);
   }
+
   .ba-status-ok {
-    color: #2f7d4b;
+    color: #23915c;
   }
+
   .ba-status-error {
-    color: #c24040;
+    color: #cf3c58;
   }
 
   .ba-update-detail {
     padding: 10px 14px;
-    border: 1px solid #e8f0f8;
-    border-radius: 8px;
-    background: #f8fbff;
+    border: 1px solid var(--ba-line-soft);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface-soft);
+    color: var(--ba-muted);
     font-size: 12px;
-    color: #5a7394;
-    white-space: pre-wrap;
     line-height: 1.6;
+    white-space: pre-wrap;
   }
 
   .ba-update-links {
@@ -386,27 +286,26 @@
   }
 
   .ba-font-preview {
-    margin-top: 8px;
-    padding: 12px 16px;
-    border: 1px dashed rgba(18, 138, 250, 0.2);
-    border-radius: 8px;
-    background: #fcfdfe;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    margin-top: 6px;
+    padding: 12px 16px;
+    border: 1px dashed color-mix(in srgb, var(--ba-blue) 30%, var(--ba-line));
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface-soft);
   }
 
   .ba-preview-label {
+    color: var(--ba-subtle);
     font-size: 11px;
-    color: #8ca3bf;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
   .ba-preview-text {
+    color: var(--ba-ink);
     font-size: 15px;
-    color: #1a3a5c;
     font-weight: 500;
   }
 </style>

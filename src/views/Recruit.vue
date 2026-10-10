@@ -3,7 +3,7 @@
     <!-- Header Bar -->
     <header class="recruit-header">
       <div class="header-left">
-        <button class="header-back-btn" title="返回" @click="handleExit">
+        <button type="button" class="header-back-btn" title="返回" @click="handleExit">
           <svg
             viewBox="0 0 24 24"
             width="22"
@@ -37,10 +37,8 @@
               />
             </svg>
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.apDisplay
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('ap')">+</button>
+          <span class="currency-val">{{ recruitConfig.apDisplay }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('ap')">+</button>
         </div>
 
         <!-- Credit Currency -->
@@ -48,10 +46,8 @@
           <div class="currency-icon-wrapper">
             <img src="/image/credit.png" class="currency-icon-img" alt="Credit" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.creditDisplay
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('credit')">+</button>
+          <span class="currency-val">{{ recruitConfig.creditDisplay }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('credit')">+</button>
         </div>
 
         <!-- Pyroxene Currency -->
@@ -59,10 +55,10 @@
           <div class="currency-icon-wrapper">
             <img src="/image/pyroxene.png" class="currency-icon-img" alt="Pyroxene" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.pyroxeneDisplay
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('pyroxene')">+</button>
+          <span class="currency-val">{{ recruitConfig.pyroxeneDisplay }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('pyroxene')">
+            +
+          </button>
         </div>
 
         <!-- 10-Draw Recruit Ticket -->
@@ -74,10 +70,10 @@
               alt="10-Draw Ticket"
             />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.recruitTicket10Display
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('recruitTicket10')">+</button>
+          <span class="currency-val">{{ recruitConfig.recruitTicket10Display }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('recruitTicket10')">
+            +
+          </button>
         </div>
 
         <!-- 1-Draw Recruit Ticket -->
@@ -85,13 +81,13 @@
           <div class="currency-icon-wrapper">
             <img src="/image/recruit_ticket_1.webp" class="currency-icon-img" alt="1-Draw Ticket" />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.recruitTicket1Display
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('recruitTicket1')">+</button>
+          <span class="currency-val">{{ recruitConfig.recruitTicket1Display }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('recruitTicket1')">
+            +
+          </button>
         </div>
 
-        <!-- Selection Ticket (Optional display if present) -->
+        <!-- Selection Ticket -->
         <div v-if="recruitConfig.showCurrencyBar" class="currency-item ticket-pill">
           <div class="currency-icon-wrapper">
             <img
@@ -100,14 +96,12 @@
               alt="Selection Ticket"
             />
           </div>
-          <span class="currency-val" style="font-weight: 900; font-family: monospace">{{
-            recruitConfig.selectTicketDisplay
-          }}</span>
-          <button class="currency-add-btn" @click="openReplenish('ticket')">+</button>
+          <span class="currency-val">{{ recruitConfig.selectTicketDisplay }}</span>
+          <button type="button" class="currency-add-btn" @click="openReplenish('ticket')">+</button>
         </div>
 
         <!-- Settings Button -->
-        <button class="header-setting-btn" title="设置" @click="handleOpenSettings">
+        <button type="button" class="header-icon-btn" title="设置" @click="handleOpenSettings">
           <svg
             viewBox="0 0 24 24"
             width="20"
@@ -126,7 +120,7 @@
         </button>
 
         <!-- Home Button -->
-        <button class="header-home-btn" title="主页" @click="handleExit">
+        <button type="button" class="header-icon-btn" title="主页" @click="handleExit">
           <svg
             viewBox="0 0 24 24"
             width="20"
@@ -176,7 +170,11 @@
         </div>
 
         <!-- Bottom left selectable members button -->
-        <button class="selectable-members-btn" @click="showRatesModal">
+        <button
+          type="button"
+          class="ba-btn ba-btn--sm selectable-members-btn"
+          @click="showRatesModal"
+        >
           {{ recruitConfig.selectableMembersText }}
         </button>
       </aside>
@@ -208,6 +206,7 @@
             <div class="ba-bg-grids"></div>
             <div class="ba-bg-stripes"></div>
             <div class="ba-bg-rays"></div>
+            <div class="ba-bg-halo"></div>
             <div class="ba-bg-shards">
               <div class="ba-shard ba-shard-1"></div>
               <div class="ba-shard ba-shard-2"></div>
@@ -232,7 +231,7 @@
           <!-- Bottom Actions Row -->
           <div class="stage-actions-row">
             <!-- Magnifying Glass -->
-            <button class="rates-search-btn" title="成员一览" @click="showRatesModal">
+            <button type="button" class="rates-search-btn" title="成员一览" @click="showRatesModal">
               <div class="rates-btn-box">
                 <svg
                   viewBox="0 0 24 24"
@@ -251,19 +250,15 @@
             <!-- Gacha Buttons -->
             <div class="gacha-buttons-wrapper">
               <template v-if="currentPool?.gachaType === 'gacha'">
-                <button class="gacha-btn btn-single" @click="handleGacha(1)">
+                <button type="button" class="gacha-btn btn-single" @click="handleGacha(1)">
                   <div class="gacha-btn-inner gacha-classic">
                     <div class="gacha-left-icon">
                       <img src="/image/recruit_envelope_1.png" alt="1 Draw" />
                     </div>
                     <div class="gacha-right-content">
                       <div class="gacha-cost-pill">
-                        <img
-                          :src="true ? '/image/recruit_ticket_1.webp' : '/image/pyroxene.png'"
-                          class="btn-cost-icon"
-                          alt="cost"
-                        />
-                        <span>{{ true ? '1' : '120' }}</span>
+                        <img src="/image/recruit_ticket_1.webp" class="btn-cost-icon" alt="cost" />
+                        <span>1</span>
                       </div>
                       <span class="gacha-btn-title">{{
                         currentPool.buttonText1 || '招募1次'
@@ -271,19 +266,15 @@
                     </div>
                   </div>
                 </button>
-                <button class="gacha-btn btn-multi" @click="handleGacha(10)">
+                <button type="button" class="gacha-btn btn-multi" @click="handleGacha(10)">
                   <div class="gacha-btn-inner gacha-classic">
                     <div class="gacha-left-icon">
                       <img src="/image/recruit_envelope_10.png" alt="10 Draw" />
                     </div>
                     <div class="gacha-right-content">
                       <div class="gacha-cost-pill">
-                        <img
-                          :src="true ? '/image/recruit_ticket_10.webp' : '/image/pyroxene.png'"
-                          class="btn-cost-icon"
-                          alt="cost"
-                        />
-                        <span>{{ true ? '1' : '1,200' }}</span>
+                        <img src="/image/recruit_ticket_10.webp" class="btn-cost-icon" alt="cost" />
+                        <span>1</span>
                       </div>
                       <span class="gacha-btn-title">{{
                         currentPool.buttonText2 || '招募10次'
@@ -294,24 +285,17 @@
               </template>
               <template v-else-if="currentPool?.gachaType === 'select'">
                 <!-- Buy Ticket (Yellow / btn-multi style) -->
-                <div
-                  class="gacha-btn btn-multi"
-                  style="overflow: visible"
+                <button
+                  type="button"
+                  class="gacha-btn btn-multi gacha-btn--bubble"
                   @click="openReplenish('ticket')"
                 >
                   <div class="btn-ticket-bubble">
                     距离结束剩余<span class="tag-highlight">32天</span>
                   </div>
                   <div class="gacha-btn-inner gacha-classic">
-                    <div
-                      class="gacha-left-icon"
-                      style="width: 110px; margin-top: -10px; margin-left: -15px"
-                    >
-                      <img
-                        src="/image/select_ticket.png"
-                        alt="Buy Ticket"
-                        style="transform: rotate(-5deg)"
-                      />
+                    <div class="gacha-left-icon gacha-left-icon--ticket-lg">
+                      <img src="/image/select_ticket.png" alt="Buy Ticket" />
                     </div>
                     <div class="gacha-right-content">
                       <div class="gacha-cost-pill">
@@ -323,20 +307,17 @@
                       }}</span>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 <!-- Use Ticket (Blue / btn-single style) -->
-                <div class="gacha-btn btn-single" @click="handleOpenSelectionModal">
+                <button
+                  type="button"
+                  class="gacha-btn btn-single"
+                  @click="handleOpenSelectionModal"
+                >
                   <div class="gacha-btn-inner gacha-classic">
-                    <div
-                      class="gacha-left-icon"
-                      style="width: 55px; margin-left: 15px; margin-top: 0"
-                    >
-                      <img
-                        src="/image/select_ticket.png"
-                        alt="Use Ticket"
-                        style="transform: rotate(-10deg)"
-                      />
+                    <div class="gacha-left-icon gacha-left-icon--ticket-sm">
+                      <img src="/image/select_ticket.png" alt="Use Ticket" />
                     </div>
                     <div class="gacha-right-content">
                       <div class="gacha-cost-pill">
@@ -347,7 +328,7 @@
                       }}</span>
                     </div>
                   </div>
-                </div>
+                </button>
               </template>
             </div>
           </div>
@@ -357,9 +338,11 @@
 
     <!-- Replenish Dialog -->
     <div v-if="showReplenishDialog" class="ba-modal-overlay">
-      <div class="ba-dialog-box animate-pop">
-        <div class="ba-dialog-header">{{ recruitConfig.replenishTitleText }}</div>
-        <div class="ba-dialog-content">
+      <div class="ba-dialog ba-pop-in replenish-dialog" role="dialog" aria-modal="true">
+        <header class="ba-dialog__header">
+          <h2 class="ba-dialog__title">{{ recruitConfig.replenishTitleText }}</h2>
+        </header>
+        <div class="ba-dialog__body replenish-body">
           <p v-if="replenishTarget === 'pyroxene'">
             老师，要阿罗娜为您补充 <span class="highlight">1,200 青辉石</span> 吗？
           </p>
@@ -377,28 +360,33 @@
           </p>
           <p v-else-if="replenishTarget === 'ticket'">
             老师，要阿罗娜为您补充 <span class="highlight">1张 ★3学生自选券</span> 吗？<br /><small
-              style="color: #8c9ba5"
+              class="replenish-note"
               >(需要消耗 30,000,000 信用积分)</small
             >
           </p>
         </div>
-        <div class="ba-dialog-actions">
-          <button class="ba-btn-cancel" @click="closeReplenishDialog">
+        <footer class="ba-dialog__footer">
+          <button type="button" class="ba-btn" @click="closeReplenishDialog">
             {{ recruitConfig.replenishCancelText }}
           </button>
-          <button class="ba-btn-confirm" @click="confirmReplenish">
+          <button type="button" class="ba-btn ba-btn--yellow" @click="confirmReplenish">
             {{ recruitConfig.replenishConfirmText }}
           </button>
-        </div>
+        </footer>
       </div>
     </div>
 
     <!-- Student Details Modal (Rates list) -->
     <div v-if="showDetailsModal" class="ba-modal-overlay">
-      <div class="ba-list-modal animate-pop">
-        <div class="ba-modal-header">
-          <span>{{ recruitConfig.ratesTitleText }}</span>
-          <button class="ba-modal-close" @click="showDetailsModal = false">
+      <div class="ba-dialog ba-pop-in list-dialog" role="dialog" aria-modal="true">
+        <header class="ba-dialog__header">
+          <h2 class="ba-dialog__title">{{ recruitConfig.ratesTitleText }}</h2>
+          <button
+            type="button"
+            class="ba-dialog__close"
+            aria-label="关闭"
+            @click="showDetailsModal = false"
+          >
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -411,8 +399,8 @@
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        </div>
-        <div class="ba-modal-body">
+        </header>
+        <div class="ba-dialog__body">
           <div class="ba-rates-summary">
             <span>总人数: {{ students.length }} 人</span>
             <span>由于是完全随机点名，所以当前每个学生的招募权重决定其招募概率哦！</span>
@@ -450,10 +438,15 @@
 
     <!-- Student Selection Ticket Modal -->
     <div v-if="showSelectionModal" class="ba-modal-overlay">
-      <div class="ba-list-modal select-modal animate-pop">
-        <div class="ba-modal-header">
-          <span>{{ recruitConfig.selectionTitleText }}</span>
-          <button class="ba-modal-close" @click="showSelectionModal = false">
+      <div class="ba-dialog ba-pop-in list-dialog select-dialog" role="dialog" aria-modal="true">
+        <header class="ba-dialog__header">
+          <h2 class="ba-dialog__title">{{ recruitConfig.selectionTitleText }}</h2>
+          <button
+            type="button"
+            class="ba-dialog__close"
+            aria-label="关闭"
+            @click="showSelectionModal = false"
+          >
             <svg
               viewBox="0 0 24 24"
               width="18"
@@ -466,8 +459,8 @@
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        </div>
-        <div class="ba-modal-body">
+        </header>
+        <div class="ba-dialog__body">
           <p class="select-desc">
             老师可以任意挑选一名已在名单中的学生，使用自选券将直接把她接回学校哦！
           </p>
@@ -490,16 +483,17 @@
             </div>
           </div>
         </div>
-        <div class="ba-modal-footer">
-          <button class="ba-btn-cancel" @click="showSelectionModal = false">先返回</button>
+        <footer class="ba-dialog__footer">
+          <button type="button" class="ba-btn" @click="showSelectionModal = false">先返回</button>
           <button
-            class="ba-btn-confirm"
+            type="button"
+            class="ba-btn ba-btn--yellow"
             :disabled="!selectedStudent"
             @click="handleConfirmSelection"
           >
             确认招募！
           </button>
-        </div>
+        </footer>
       </div>
     </div>
 
@@ -592,8 +586,6 @@
   let removeRecruitVisibleListener: (() => void) | null = null
   let removePickResultOpenListener: (() => void) | null = null
   let removePickResultResetListener: (() => void) | null = null
-
-  // __CONTINUE_HERE__
 
   // Computed properties
   const resolvedRecruitVideoPath = computed(() =>
@@ -721,319 +713,406 @@
 
 <style scoped>
   /* ==========================================================================
-   Blue Archive Recruitment Interface Styling
+   Blue Archive recruitment screen
+   Shared tokens / buttons / dialogs come from src/styles (global).
    ========================================================================== */
 
-  /* Variables */
   .recruit-container {
-    --ba-blue: #128afa;
-    --ba-blue-dark: #0068df;
-    --ba-blue-light: #e8f4ff;
-    --ba-gold: #ffd84d;
-    --ba-gold-dark: #e6a23c;
-    --ba-pink: #ff6b8b;
-    --ba-red: #f56c6c;
-    --ba-dark: #1a3a5c;
-    --ba-muted: #8ca3bf;
-    --ba-white: #ffffff;
-    --ba-trans-dark: rgba(26, 58, 92, 0.85);
-
     position: relative;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: #ebf4fc;
-    font-family: var(
-      --ba-font-family,
-      'Segoe UI Variable',
-      'Microsoft YaHei UI',
-      system-ui,
-      sans-serif
-    );
-    color: var(--ba-dark);
+    background: #e3effa;
+    color: var(--ba-ink);
     user-select: none;
   }
 
-  /* Header */
+  /* --------------------------------------------------------------------------
+   Top bar
+   -------------------------------------------------------------------------- */
   .recruit-header {
-    height: 56px;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.6) 100%
-    );
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     z-index: 10;
+    isolation: isolate;
+    flex: none;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 14px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.86) 100%
+    );
+    border-bottom: 1px solid var(--ba-line);
+    box-shadow: 0 2px 12px rgba(16, 52, 96, 0.12);
+  }
+
+  .recruit-header::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: -1;
+    width: 380px;
+    background: var(--ba-hatch);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0%, transparent 100%);
+    pointer-events: none;
   }
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    min-width: 0;
   }
 
   .header-back-btn {
-    background: var(--ba-blue-dark);
-    border: none;
-    color: var(--ba-white);
+    position: relative;
+    isolation: isolate;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 38px;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
     transition:
-      transform 0.2s,
-      background 0.2s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transform 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .header-back-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0 3px;
+    z-index: -1;
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-fill-navy);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 3px 8px rgba(16, 43, 76, 0.3);
+    transform: skewX(var(--ba-skew));
   }
 
   .header-back-btn:hover {
-    background: var(--ba-blue-light);
+    filter: brightness(1.2);
   }
 
   .header-back-btn:active {
-    transform: scale(0.92);
+    transform: scale(0.94);
   }
 
   .header-title {
-    font-size: 20px;
+    color: var(--ba-ink-strong);
+    font-size: 22px;
     font-weight: 900;
-    color: var(--ba-blue-dark);
-    letter-spacing: 2px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
   }
 
   .header-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
+    min-width: 0;
   }
 
-  /* Currency Pills */
+  /* Currency pills */
   .currency-item {
+    position: relative;
+    isolation: isolate;
+    flex: none;
     display: flex;
     align-items: center;
     gap: 6px;
-    background: transparent;
-    padding: 0 10px;
-    position: relative;
+    height: 32px;
+    padding: 0 5px 0 12px;
   }
 
-  .currency-item:not(:last-child)::after {
+  .currency-item::before {
     content: '';
     position: absolute;
-    right: -5px;
-    top: 15%;
-    height: 70%;
-    width: 1px;
-    background: rgba(0, 0, 0, 0.2);
+    inset: 0;
+    z-index: -1;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 -2px 0 rgba(16, 52, 96, 0.06);
+    transform: skewX(var(--ba-skew));
   }
 
   .currency-icon-wrapper {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .currency-icon-img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
   }
 
   .currency-val {
-    flex: 1;
+    min-width: 30px;
+    padding-right: 2px;
+    color: var(--ba-ink-strong);
+    font-family: var(--ba-font-num);
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     text-align: right;
-    padding-right: 6px;
+    white-space: nowrap;
   }
 
   .currency-add-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--ba-gold);
-    border: 1px solid var(--ba-gold-dark);
-    color: var(--ba-dark);
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: var(--ba-fill-yellow);
+    color: var(--ba-ink-strong);
+    font-family: inherit;
+    font-size: 17px;
     font-weight: 900;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 1;
+    box-shadow:
+      inset 0 -2px 0 rgba(150, 96, 0, 0.25),
+      0 1px 3px rgba(16, 43, 76, 0.2);
     cursor: pointer;
     transition:
-      transform 0.15s,
-      background 0.15s;
+      transform 0.15s ease,
+      filter 0.15s ease;
   }
 
   .currency-add-btn:hover {
-    background: #ffe485;
+    filter: brightness(1.06);
   }
 
   .currency-add-btn:active {
     transform: scale(0.9);
   }
 
-  .header-setting-btn,
-  .header-home-btn {
+  .header-icon-btn {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: var(--ba-radius-sm);
     background: transparent;
-    border: none;
-    color: var(--ba-muted);
+    color: var(--ba-ink);
     cursor: pointer;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
     transition:
-      background 0.2s,
-      color 0.2s;
+      background 0.2s ease,
+      color 0.2s ease;
   }
 
-  .header-setting-btn:hover,
-  .header-home-btn:hover {
-    background: var(--ba-blue-light);
+  .header-icon-btn:hover {
+    background: var(--ba-blue-soft);
     color: var(--ba-blue);
   }
 
-  /* Workspace Grid */
-  .recruit-workspace {
-    flex: 1;
-    display: flex;
-    height: calc(100vh - 56px);
-    background: linear-gradient(135deg, #b5cceb 0%, #d8e4f8 100%);
-    padding: 12px 16px 16px 16px;
-    gap: 16px;
-    overflow: hidden;
+  .header-back-btn:focus-visible,
+  .header-icon-btn:focus-visible,
+  .currency-add-btn:focus-visible {
+    outline: 2px solid var(--ba-blue);
+    outline-offset: 2px;
   }
 
-  /* Sidebar Tab list */
+  /* --------------------------------------------------------------------------
+   Workspace
+   -------------------------------------------------------------------------- */
+  .recruit-workspace {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 16px;
+    padding: 14px 16px 16px;
+    overflow: hidden;
+    background:
+      var(--ba-pattern-cross) -48px -48px / 96px 96px,
+      linear-gradient(135deg, #bcd3ee 0%, #dbe8f8 100%);
+  }
+
+  /* Banner list */
   .recruit-sidebar {
+    z-index: 10;
+    flex: none;
     width: 200px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    z-index: 10;
+    gap: 10px;
   }
 
   .sidebar-tabs-container {
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    overflow-y: auto;
+    padding: 4px 10px 6px 2px;
     overflow-x: hidden;
-    padding-right: 4px;
-    padding-top: 4px;
-    /* Scrollbar hiding for cleaner look */
-    -ms-overflow-style: none;
+    overflow-y: auto;
     scrollbar-width: none;
   }
+
   .sidebar-tabs-container::-webkit-scrollbar {
     display: none;
   }
 
   .sidebar-tab-item {
     position: relative;
-    height: 64px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
     flex-shrink: 0;
-    border: 2px solid transparent;
+    height: 64px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    border-radius: var(--ba-radius-sm);
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(16, 43, 76, 0.18);
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .sidebar-tab-item:not(.is-active):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    transform: translateX(3px);
+    box-shadow: 0 6px 14px rgba(16, 43, 76, 0.24);
   }
 
   .sidebar-tab-item.is-active {
-    border-color: #ffde00;
-    box-shadow:
-      0 0 12px rgba(255, 222, 0, 0.8),
-      0 4px 10px rgba(0, 0, 0, 0.15);
-    transform: scale(1.02);
     z-index: 5;
+    border-color: #ffe14a;
+    box-shadow:
+      0 0 0 2px rgba(255, 225, 74, 0.55),
+      0 0 16px rgba(255, 214, 0, 0.6),
+      0 4px 10px rgba(16, 43, 76, 0.2);
+    transform: translateX(6px) scale(1.02);
+  }
+
+  .tab-active-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent 55%, rgba(255, 244, 170, 0.55) 100%);
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar-tab-item.is-active .tab-active-glow {
+    opacity: 1;
   }
 
   .tab-banner-image {
     width: 100%;
     height: 100%;
-    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-size: cover;
   }
 
   .tab-banner-fallback {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 1px;
+    overflow: hidden;
     background: linear-gradient(135deg, #f0f6fa 0%, #dce7f3 100%);
   }
 
+  .tab-banner-fallback::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 55%;
+    background: repeating-linear-gradient(
+      -55deg,
+      rgba(255, 255, 255, 0.45) 0 2px,
+      transparent 2px 8px
+    );
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+  }
+
   .fallback-main {
-    font-size: 13px;
+    position: relative;
+    z-index: 1;
+    color: var(--ba-ink-strong);
+    font-size: 14px;
     font-weight: 900;
-    color: var(--ba-blue-dark);
   }
 
   .fallback-sub {
+    position: relative;
+    z-index: 1;
+    color: var(--ba-muted);
     font-size: 10px;
-    color: #7994b4;
+    font-style: italic;
     font-weight: 700;
   }
 
   .fallback-pickup_blue {
-    background: linear-gradient(135deg, #e6f3ff 0%, #b3d9ff 100%);
+    background: linear-gradient(135deg, #e6f3ff 0%, #a9d4ff 100%);
   }
+
   .fallback-pickup_pink {
-    background: linear-gradient(135deg, #ffe6ee 0%, #ffb3cc 100%);
+    background: linear-gradient(135deg, #ffe6f1 0%, #ffb0cf 100%);
   }
+
+  .fallback-pickup_red {
+    background: linear-gradient(135deg, #ffece8 0%, #ffb3a6 100%);
+  }
+
   .fallback-select {
-    background: linear-gradient(135deg, #fff9e6 0%, #ffe680 100%);
+    background: linear-gradient(135deg, #fff9e0 0%, #ffe27a 100%);
+  }
+
+  .fallback-gacha {
+    background: linear-gradient(135deg, #e9faf1 0%, #b4ead0 100%);
   }
 
   .selectable-members-btn {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--ba-blue-dark);
-    cursor: pointer;
+    flex: none;
     align-self: flex-start;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: background 0.2s;
-    margin-top: 10px;
   }
 
-  .selectable-members-btn:hover {
-    background: rgba(255, 255, 255, 0.95);
-  }
-
-  /* Stage Area */
+  /* --------------------------------------------------------------------------
+   Stage
+   -------------------------------------------------------------------------- */
   .recruit-stage {
-    flex: 1;
     position: relative;
-    background: #000;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--ba-radius);
+    background: #000000;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.75),
+      0 10px 30px rgba(16, 43, 76, 0.25);
   }
 
   .stage-bg-container {
@@ -1047,21 +1126,19 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background-size: cover;
     background-position: center top;
+    background-size: cover;
   }
 
-  /* Stage Overlay content styling */
   .stage-overlay {
     position: absolute;
     inset: 0;
     z-index: 5;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
     align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
     padding: 30px;
-    /* Strong white to transparent gradient from bottom */
     background: linear-gradient(
       to top,
       rgba(255, 255, 255, 1) 0%,
@@ -1073,211 +1150,159 @@
   .pool-text-info {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    margin-bottom: 12px;
     text-align: left;
     animation: slide-in 0.4s ease-out;
-    margin-bottom: 15px; /* Slight margin to align baseline beautifully with buttons */
-  }
-
-  @keyframes slide-in {
-    from {
-      transform: translateX(-30px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
   }
 
   .pool-title {
     margin: 0;
+    color: var(--ba-ink-strong);
     font-size: 32px;
     font-weight: 900;
-    color: #1f3c6d; /* Dark Blue */
-    letter-spacing: 1px;
+    letter-spacing: 0.04em;
+    text-shadow:
+      0 0 12px rgba(255, 255, 255, 0.9),
+      0 2px 0 rgba(255, 255, 255, 0.8);
   }
 
   .pool-period {
-    font-size: 14px;
-    color: #506785; /* Dark grey-blue */
+    position: relative;
+    isolation: isolate;
+    margin-top: 8px;
+    padding: 3px 16px;
+    color: #ffffff;
+    font-family: var(--ba-font-num);
+    font-size: 13px;
     font-weight: 700;
-    margin-top: 4px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
   }
 
-  /* Bottom Controls */
+  .pool-period::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--ba-radius-xs);
+    background: rgba(16, 43, 76, 0.85);
+    transform: skewX(var(--ba-skew));
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Bottom controls */
   .stage-actions-row {
+    flex: none;
     display: flex;
-    justify-content: flex-end;
     align-items: flex-end;
+    justify-content: flex-end;
     gap: 15px;
   }
 
   .rates-search-btn {
+    margin: 0 5px 8px 0;
+    padding: 0;
+    border: 0;
     background: transparent;
-    border: none;
     cursor: pointer;
-    margin-bottom: 6px;
-    margin-right: 5px;
   }
 
   .rates-btn-box {
-    width: 44px;
-    height: 40px;
-    background: #ffffff;
-    border: 1px solid #d0dfee;
-    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #1f3c6d;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 46px;
+    height: 40px;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: #ffffff;
+    color: var(--ba-ink-strong);
+    box-shadow:
+      inset 0 -3px 0 rgba(16, 52, 96, 0.08),
+      0 4px 8px rgba(16, 43, 76, 0.12);
     transition:
-      background 0.2s,
-      transform 0.2s;
+      background 0.2s ease,
+      transform 0.2s ease;
   }
 
   .rates-search-btn:hover .rates-btn-box {
-    background: #f0f6fc;
+    background: var(--ba-blue-soft);
     transform: translateY(-2px);
   }
 
-  /* Gacha button styling */
+  .rates-search-btn:focus-visible {
+    outline: none;
+  }
+
+  .rates-search-btn:focus-visible .rates-btn-box {
+    box-shadow: 0 0 0 3px var(--ba-blue-glow);
+  }
+
+  /* Gacha buttons */
   .gacha-buttons-wrapper {
     display: flex;
     gap: 12px;
   }
 
   .gacha-btn {
-    width: 190px;
-    height: 64px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    font-family: inherit;
-    transition: transform 0.16s ease;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-    transform: skewX(-15deg);
-    border-radius: 4px;
     position: relative;
-  }
-
-  .gacha-btn-inner {
+    width: 220px;
+    height: 64px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transform: skewX(15deg);
-    width: 100%;
-    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 6px 14px rgba(16, 43, 76, 0.22);
+    transform: skewX(-15deg);
+    transition:
+      transform 0.16s ease,
+      box-shadow 0.16s ease;
   }
 
-  .btn-buy-ticket {
-    border: none;
-    background: #ffd400; /* Yellow */
-  }
-
-  .btn-buy-ticket-top {
-    height: 50%;
-    background: #251b12; /* Dark Brown */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #ffffff;
-    transform: skewX(15deg);
-    width: 120%;
-    margin-left: -10%;
-    padding: 0 10%;
-  }
-
-  .btn-buy-ticket-bottom {
-    height: 50%;
-    background: #ffd400;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #0e365c; /* Dark blue text */
-    transform: skewX(15deg);
-    width: 120%;
-    margin-left: -10%;
-  }
-
-  .btn-use-ticket {
-    background: linear-gradient(135deg, #fff96e 0%, #ffcc22 100%);
-    border: none;
-    color: #4a1a04; /* Dark brown text */
-  }
-
-  .btn-use-ticket:hover {
+  .gacha-btn:hover {
     transform: skewX(-15deg) translateY(-2px);
-    box-shadow: 0 8px 18px rgba(255, 204, 34, 0.4);
-  }
-
-  .btn-buy-ticket:hover {
-    transform: skewX(-15deg) translateY(-2px);
-    box-shadow: 0 8px 18px rgba(255, 212, 0, 0.4);
-  }
-
-  .gacha-btn-title {
-    font-size: 18px;
-    font-weight: 900;
-    letter-spacing: 1px;
-  }
-
-  .gacha-btn-cost {
-    font-size: 16px;
-    font-weight: 800;
-  }
-
-  .btn-cost-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .btn-cost-icon {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
   }
 
   .gacha-btn:active {
     transform: skewX(-15deg) translateY(1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(16, 43, 76, 0.2);
   }
 
-  .btn-single {
-    background: linear-gradient(135deg, #7be4ff 0%, #46c4ff 100%);
-    border: none;
-    width: 220px;
-  }
-  .btn-single:hover {
-    transform: skewX(-15deg) translateY(-2px);
-    box-shadow: 0 6px 14px rgba(70, 196, 255, 0.4);
-  }
-  .btn-single .gacha-cost-pill {
-    background: #113854;
-    color: #ffffff;
-  }
-  .btn-single .gacha-btn-title {
-    color: #0e365c;
+  .gacha-btn:focus-visible {
+    outline: 3px solid var(--ba-blue-glow);
+    outline-offset: 2px;
   }
 
-  .btn-multi {
-    background: linear-gradient(135deg, #fff96e 0%, #ffcc22 100%);
-    border: none;
-    width: 220px;
+  .gacha-btn--bubble {
+    overflow: visible;
   }
-  .btn-multi:hover {
-    transform: skewX(-15deg) translateY(-2px);
-    box-shadow: 0 6px 14px rgba(255, 204, 34, 0.4);
-  }
-  .btn-multi .gacha-cost-pill {
-    background: #3b1c10;
-    color: #ffffff;
-  }
-  .btn-multi .gacha-btn-title {
-    color: #4a1a04;
+
+  .gacha-btn-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: skewX(15deg);
   }
 
   .gacha-btn-inner.gacha-classic {
@@ -1286,28 +1311,94 @@
     padding: 0 10px 0 0;
   }
 
+  .gacha-btn-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .btn-single {
+    background: linear-gradient(135deg, #7be4ff 0%, #46c4ff 100%);
+  }
+
+  .btn-single:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 6px 14px rgba(70, 196, 255, 0.45);
+  }
+
+  .btn-single .gacha-cost-pill {
+    background: #113854;
+    color: #ffffff;
+  }
+
+  .btn-single .gacha-btn-title {
+    color: #0e365c;
+  }
+
+  .btn-multi {
+    background: linear-gradient(135deg, #fff96e 0%, #ffcc22 100%);
+  }
+
+  .btn-multi:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 6px 14px rgba(255, 204, 34, 0.45);
+  }
+
+  .btn-multi .gacha-cost-pill {
+    background: #3b1c10;
+    color: #ffffff;
+  }
+
+  .btn-multi .gacha-btn-title {
+    color: #4a1a04;
+  }
+
   .gacha-left-icon {
-    height: 120%;
-    width: 85px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 85px;
+    height: 120%;
     margin-top: -5px;
     margin-left: -5px;
-    flex-shrink: 0;
   }
+
   .gacha-left-icon img {
-    height: 100%;
     width: 100%;
+    height: 100%;
     object-fit: contain;
   }
 
+  .gacha-left-icon--ticket-lg {
+    width: 110px;
+    margin-top: -10px;
+    margin-left: -15px;
+  }
+
+  .gacha-left-icon--ticket-lg img {
+    transform: rotate(-5deg);
+  }
+
+  .gacha-left-icon--ticket-sm {
+    width: 55px;
+    margin-top: 0;
+    margin-left: 15px;
+  }
+
+  .gacha-left-icon--ticket-sm img {
+    transform: rotate(-10deg);
+  }
+
   .gacha-right-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;
     gap: 2px;
   }
 
@@ -1318,20 +1409,22 @@
     gap: 6px;
     width: 110%;
     height: 26px;
-    margin-right: -10%;
     margin-top: 4px;
+    margin-right: -10%;
     padding: 0 4px 0 10px;
+    border-radius: 0 4px 4px 0;
+    font-family: var(--ba-font-num);
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 700;
     clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
-    border-radius: 0 4px 4px 0; /* Add rounded corners to the right side */
   }
 
   .gacha-cost-pill .btn-cost-icon {
     width: 20px;
     height: 20px;
-    margin-left: -8px;
     margin-top: -2px;
+    margin-left: -8px;
+    object-fit: contain;
     transform: scale(1.3);
   }
 
@@ -1339,17 +1432,18 @@
     position: absolute;
     top: -24px;
     left: 20px;
-    background: #3b5372;
-    color: #ffffff;
+    z-index: 10;
     padding: 4px 12px;
     border-radius: 20px;
+    background: var(--ba-ink-strong);
+    color: #ffffff;
     font-size: 13px;
     font-weight: 800;
-    z-index: 10;
-    transform: skewX(15deg); /* Un-skew from parent */
     white-space: nowrap;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(16, 43, 76, 0.3);
+    transform: skewX(15deg);
   }
+
   .btn-ticket-bubble::after {
     content: '';
     position: absolute;
@@ -1357,361 +1451,30 @@
     left: 18px;
     width: 10px;
     height: 10px;
-    background: #3b5372;
-    transform: rotate(45deg);
     border-radius: 2px;
+    background: var(--ba-ink-strong);
+    transform: rotate(45deg);
   }
+
   .tag-highlight {
-    color: #51c9ff;
-  }
-  /* Modals overlays & dialogs styling */
-  .ba-modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.62);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: var(--ba-cyan-light);
   }
 
-  .animate-pop {
-    animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes modal-pop {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .ba-dialog-box {
-    width: 360px;
-    background: var(--ba-white);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
-    border: 2px solid #d0e4f5;
-  }
-
-  .ba-dialog-header {
-    height: 48px;
-    background: #e8f4ff;
-    border-bottom: 2px solid #d0e4f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    color: var(--ba-blue-dark);
-    font-size: 15px;
-  }
-
-  .ba-dialog-content {
-    padding: 24px;
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-    color: var(--ba-dark);
-  }
-
-  .ba-dialog-content .highlight {
-    color: var(--ba-blue);
-    font-weight: 800;
-  }
-
-  .ba-dialog-actions {
-    display: flex;
-    border-top: 1px solid #e2e8f0;
-  }
-
-  .ba-btn-cancel,
-  .ba-btn-confirm {
-    flex: 1;
-    height: 46px;
-    border: none;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .ba-btn-cancel {
-    background: #f8fafc;
-    color: #64748b;
-    border-right: 1px solid #e2e8f0;
-  }
-
-  .ba-btn-cancel:hover {
-    background: #f1f5f9;
-  }
-
-  .ba-btn-confirm {
-    background: var(--ba-blue);
-    color: var(--ba-white);
-  }
-
-  .ba-btn-confirm:hover {
-    background: var(--ba-blue-dark);
-  }
-
-  .ba-btn-confirm:disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-  }
-
-  /* List details Rates modal */
-  .ba-list-modal {
-    width: 580px;
-    max-width: 90vw;
-    height: 420px;
-    background: var(--ba-white);
-    border-radius: 12px;
-    border: 2px solid #c0d6e8;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .select-modal {
-    height: 480px;
-  }
-
-  .ba-modal-header {
-    height: 50px;
-    background: #f1f7fc;
-    border-bottom: 2px solid #c0d6e8;
-    padding: 0 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 800;
-    font-size: 15px;
-    color: var(--ba-dark);
-  }
-
-  .ba-modal-close {
-    background: transparent;
-    border: none;
-    color: var(--ba-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    transition:
-      background 0.2s,
-      color 0.2s;
-  }
-
-  .ba-modal-close:hover {
-    background: #e2ebf4;
-    color: #ff5a5a;
-  }
-
-  .ba-modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-  }
-
-  .ba-rates-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    background: #f8fafc;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #64748b;
-    margin-bottom: 14px;
-    line-height: 1.4;
-    text-align: left;
-  }
-
-  .ba-rates-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 13px;
-  }
-
-  .ba-rates-table th {
-    padding: 10px;
-    background: #e8f2fa;
-    color: #1e4e79;
-    font-weight: 700;
-    border-bottom: 2px solid #c0d6e8;
-  }
-
-  .ba-rates-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #e2e8f0;
-    color: var(--ba-dark);
-  }
-
-  .ba-rates-table tr:hover {
-    background: rgba(18, 138, 250, 0.03);
-  }
-
-  .td-name {
-    font-weight: 700;
-  }
-
-  .td-weight,
-  .td-prob {
-    font-weight: 700;
-    color: var(--ba-blue);
-  }
-
-  .td-boost {
-    text-align: center;
-  }
-
-  .boost-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    color: #8b4513;
-    font-weight: 700;
-    font-size: 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
-  }
-
-  /* Student selection ticket grid view styling */
-  .select-desc {
-    font-size: 13px;
-    color: #64748b;
-    text-align: left;
-    margin: 0 0 14px;
-  }
-
-  .student-select-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-  }
-
-  .student-select-card {
-    position: relative;
-    background: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition:
-      border-color 0.16s ease,
-      background 0.16s ease,
-      transform 0.16s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-  }
-
-  .student-select-card:hover {
-    border-color: var(--ba-blue);
-    background: var(--ba-blue-light);
-    transform: translateY(-1px);
-  }
-
-  .student-select-card.is-selected {
-    border-color: var(--ba-blue);
-    background: #e1f0ff;
-    box-shadow: 0 0 0 3px rgba(18, 138, 250, 0.15);
-  }
-
-  .student-avatar-box {
-    width: 38px;
-    height: 38px;
-    background: #e2ebf4;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .student-emoji {
-    font-size: 20px;
-  }
-
-  .student-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 0;
-  }
-
-  .student-select-name {
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--ba-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-
-  .student-select-school {
-    font-size: 10px;
-    color: var(--ba-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-
-  .student-select-tick {
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--ba-blue);
-  }
-
-  .ba-modal-footer {
-    padding: 12px 16px;
-    background: #f1f7fc;
-    border-top: 2px solid #c0d6e8;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-  }
-
-  .ba-modal-footer button {
-    height: 38px;
-    padding: 0 20px;
-    border-radius: 6px;
-  }
-
-  /* CSS Backup Background animation styling */
+  /* Fallback stage backdrop (no video / image configured) */
   .ba-css-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #d3eafc 0%, #aed6f8 100%);
-    overflow: hidden;
     z-index: 1;
+    overflow: hidden;
+    background: linear-gradient(135deg, #d3eafc 0%, #aed6f8 100%);
   }
 
   .ba-bg-grids {
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(90deg, rgba(18, 138, 250, 0.05) 1px, transparent 1px),
-      linear-gradient(0deg, rgba(18, 138, 250, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-image: var(--ba-pattern-cross);
+    background-position: -48px -48px;
+    background-size: 96px 96px;
   }
 
   .ba-bg-stripes {
@@ -1727,6 +1490,27 @@
     transform: translate(24px, 24px);
   }
 
+  .ba-bg-rays {
+    position: absolute;
+    inset: 0;
+    opacity: 0.8;
+    background: radial-gradient(circle at 100% 0%, rgba(18, 138, 250, 0.15) 0%, transparent 60%);
+  }
+
+  .ba-bg-halo {
+    position: absolute;
+    top: 14%;
+    left: 50%;
+    width: 62%;
+    aspect-ratio: 3.2 / 1;
+    border: 10px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    box-shadow:
+      0 0 24px rgba(255, 255, 255, 0.35),
+      inset 0 0 24px rgba(255, 255, 255, 0.25);
+    transform: translateX(-50%) rotate(-8deg);
+  }
+
   .ba-bg-shards {
     position: absolute;
     inset: 0;
@@ -1734,76 +1518,313 @@
 
   .ba-shard {
     position: absolute;
-    background: rgba(255, 255, 255, 0.25);
     border-radius: 4px;
+    background: rgba(255, 255, 255, 0.25);
     transform: rotate(45deg);
+    animation: shard-float 8s ease-in-out infinite;
   }
 
   .ba-shard-1 {
+    top: 20%;
+    left: 10%;
     width: 40px;
     height: 40px;
-    left: 10%;
-    top: 20%;
     animation-delay: 0s;
   }
+
   .ba-shard-2 {
+    top: 30%;
+    right: 15%;
     width: 60px;
     height: 60px;
-    right: 15%;
-    top: 30%;
     animation-delay: 2s;
   }
+
   .ba-shard-3 {
+    bottom: 15%;
+    left: 30%;
     width: 30px;
     height: 30px;
-    left: 30%;
-    bottom: 15%;
     animation-delay: 4s;
   }
+
   .ba-shard-4 {
-    width: 50px;
-    height: 50px;
     right: 25%;
     bottom: 20%;
+    width: 50px;
+    height: 50px;
     animation-delay: 1s;
   }
 
-  .ba-bg-rays {
+  @keyframes shard-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(45deg);
+    }
+    50% {
+      transform: translateY(-14px) rotate(45deg);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+   Dialogs (structure from the global .ba-dialog primitive)
+   -------------------------------------------------------------------------- */
+  .ba-modal-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 100% 0%, rgba(18, 138, 250, 0.15) 0%, transparent 60%);
-    opacity: 0.8;
-  }
-
-  .currency-icon-img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-  }
-
-  .btn-cost-wrapper {
+    z-index: 100;
     display: flex;
     align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--ba-backdrop);
+    backdrop-filter: blur(2px);
+  }
+
+  .replenish-dialog {
+    width: 420px;
+    max-width: 92vw;
+  }
+
+  .replenish-body {
+    padding: 28px 24px;
+    color: var(--ba-ink);
+    font-size: 15px;
+    line-height: 1.7;
+    text-align: center;
+  }
+
+  .replenish-body p {
+    margin: 0;
+  }
+
+  .replenish-body .highlight {
+    color: var(--ba-blue-strong);
+    font-weight: 800;
+  }
+
+  .replenish-note {
+    color: var(--ba-subtle);
+  }
+
+  .list-dialog {
+    width: 640px;
+    max-width: 92vw;
+    height: 440px;
+    max-height: 88vh;
+  }
+
+  .select-dialog {
+    height: 500px;
+  }
+
+  /* Rates table */
+  .ba-rates-summary {
+    display: flex;
+    flex-direction: column;
     gap: 4px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border-left: 4px solid var(--ba-blue);
+    border-radius: 0 var(--ba-radius-sm) var(--ba-radius-sm) 0;
+    background: #ffffff;
+    color: var(--ba-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: left;
   }
 
-  .btn-cost-icon {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
+  .ba-rates-summary span:first-child {
+    color: var(--ba-ink-strong);
+    font-size: 13px;
+    font-weight: 800;
   }
 
-  .video-overlay {
+  .ba-rates-table {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .ba-rates-table th {
+    padding: 10px 12px;
+    background: var(--ba-fill-navy);
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .ba-rates-table td {
+    padding: 8px 12px;
+    border-top: 1px solid var(--ba-line-soft);
+    color: var(--ba-ink);
+  }
+
+  .ba-rates-table tbody tr:nth-child(even) {
+    background: #f7fafd;
+  }
+
+  .ba-rates-table tbody tr:hover {
+    background: var(--ba-blue-soft);
+  }
+
+  .td-name {
+    color: var(--ba-ink-strong);
+    font-weight: 800;
+  }
+
+  .ba-rates-table .td-weight,
+  .ba-rates-table .td-prob {
+    color: var(--ba-blue-strong);
+    font-family: var(--ba-font-num);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .td-boost {
+    text-align: center;
+  }
+
+  .boost-badge {
+    position: relative;
+    isolation: isolate;
+    display: inline-block;
+    padding: 1px 10px;
+    color: var(--ba-ink-strong);
+    font-family: var(--ba-font-num);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .boost-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 3px;
+    background: var(--ba-fill-yellow);
+    box-shadow: 0 1px 3px rgba(150, 96, 0, 0.3);
+    transform: skewX(var(--ba-skew));
+  }
+
+  /* Student selection grid */
+  .select-desc {
+    margin: 0 0 14px;
+    color: var(--ba-muted);
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .student-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+  }
+
+  .student-select-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    overflow: hidden;
+    border: 2px solid var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(16, 52, 96, 0.06);
+    cursor: pointer;
+    transition:
+      border-color 0.16s ease,
+      background 0.16s ease,
+      transform 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+
+  .student-select-card:hover {
+    border-color: var(--ba-blue-hover);
+    box-shadow: 0 4px 10px rgba(16, 52, 96, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .student-select-card.is-selected {
+    border-color: var(--ba-blue);
+    background: linear-gradient(135deg, #ffffff 0%, var(--ba-blue-soft) 100%);
+    box-shadow: 0 0 0 3px var(--ba-blue-glow);
+  }
+
+  .student-avatar-box {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ba-blue-soft) 0%, #d6e6f6 100%);
+  }
+
+  .student-emoji {
+    font-size: 20px;
+  }
+
+  .student-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .student-select-name {
+    width: 100%;
+    overflow: hidden;
+    color: var(--ba-ink-strong);
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-select-school {
+    width: 100%;
+    overflow: hidden;
+    color: var(--ba-muted);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-select-tick {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 22px;
+    border-bottom-left-radius: 8px;
+    background: var(--ba-blue);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  /* --------------------------------------------------------------------------
+   Recruit video & result overlays
+   -------------------------------------------------------------------------- */
+  .video-overlay {
+    position: absolute;
+    inset: 0;
     z-index: 9999;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background: #000000;
     cursor: pointer;
   }
 
@@ -1816,24 +1837,89 @@
   .skip-hint {
     position: absolute;
     top: 20px;
-    right: 20px;
-    color: rgba(255, 255, 255, 0.7);
+    right: 24px;
+    isolation: isolate;
+    padding: 6px 18px;
+    color: #ffffff;
     font-size: 14px;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 6px 12px;
-    border-radius: 4px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
     pointer-events: none;
+  }
+
+  .skip-hint::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 4px;
+    background: rgba(10, 26, 48, 0.55);
+    transform: skewX(var(--ba-skew));
   }
 
   .recruit-result-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 10000;
     background-image: url('/image/background.png');
-    background-size: cover;
     background-position: center;
+    background-size: cover;
+  }
+
+  /* --------------------------------------------------------------------------
+   Narrow windows (window minimum is 960 × 540)
+   -------------------------------------------------------------------------- */
+  @media (max-width: 1180px) {
+    .recruit-header {
+      gap: 10px;
+    }
+
+    .header-right {
+      gap: 6px;
+    }
+
+    .currency-item {
+      gap: 4px;
+      padding-left: 10px;
+    }
+
+    .currency-val {
+      font-size: 14px;
+    }
+
+    .header-icon-btn {
+      width: 32px;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    /* Stack the banner info above the buttons instead of squeezing them */
+    .stage-overlay {
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+      gap: 32px; /* leaves room for the ticket bubble above the buttons */
+      padding: 22px 24px;
+    }
+
+    .pool-text-info {
+      margin-bottom: 0;
+    }
+
+    .stage-actions-row {
+      align-self: flex-end;
+    }
+
+    .pool-title {
+      font-size: 26px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ba-shard,
+    .pool-text-info {
+      animation: none;
+    }
   }
 </style>

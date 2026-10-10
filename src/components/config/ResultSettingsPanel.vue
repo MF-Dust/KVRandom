@@ -97,25 +97,29 @@
       <div class="ba-form-grid-2">
         <div class="ba-form-item">
           <label class="ba-label">背景变暗</label>
-          <n-slider
-            v-model:value="config.pickResultDialog.backgroundDarknessPercent"
-            :min="0"
-            :max="100"
-            :step="1"
-          />
-          <span class="ba-slider-value"
-            >{{ config.pickResultDialog.backgroundDarknessPercent }}%</span
-          >
+          <div class="ba-slider-row">
+            <n-slider
+              v-model:value="config.pickResultDialog.backgroundDarknessPercent"
+              :min="0"
+              :max="100"
+              :step="1"
+            />
+            <span class="ba-slider-value"
+              >{{ config.pickResultDialog.backgroundDarknessPercent }}%</span
+            >
+          </div>
         </div>
         <div class="ba-form-item">
           <label class="ba-label">卡片尺寸</label>
-          <n-slider
-            v-model:value="config.pickResultDialog.cardSizePercent"
-            :min="50"
-            :max="200"
-            :step="5"
-          />
-          <span class="ba-slider-value">{{ config.pickResultDialog.cardSizePercent }}%</span>
+          <div class="ba-slider-row">
+            <n-slider
+              v-model:value="config.pickResultDialog.cardSizePercent"
+              :min="50"
+              :max="200"
+              :step="5"
+            />
+            <span class="ba-slider-value">{{ config.pickResultDialog.cardSizePercent }}%</span>
+          </div>
         </div>
       </div>
     </div>
@@ -207,98 +211,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: var(--ba-card-radius, 12px);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ba-blue, #128afa);
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-toggle-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .ba-toggle-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .ba-toggle-label,
-  .ba-label {
-    font-size: 14px;
-    color: #1a3a5c;
-    font-weight: 600;
-  }
-
-  .ba-toggle-hint {
-    font-size: 12px;
-    color: #8ca3bf;
-  }
-
-  .ba-form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .ba-slider-row,
-  .ba-input-action-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .ba-slider-value {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ba-blue, #128afa);
-    text-align: right;
-  }
-
-  .ba-form-grid-2,
-  .ba-form-grid-3 {
-    display: grid;
-    gap: 14px;
-  }
-
-  .ba-form-grid-2 {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .ba-form-grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    .ba-form-grid-2,
-    .ba-form-grid-3,
-    .ba-slider-row,
-    .ba-input-action-row {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>

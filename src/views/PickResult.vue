@@ -116,19 +116,20 @@
     </div>
 
     <div v-if="isRecruitMode && canClose" class="recruit-actions">
-      <button class="ba-action-btn ba-btn-confirm" @click.stop="handleConfirm">
-        <div class="btn-content">
-          <span class="btn-text">{{ confirmButtonText }}</span>
-        </div>
+      <button
+        type="button"
+        class="ba-btn ba-btn--lg ba-btn--blue result-action-btn"
+        @click.stop="handleConfirm"
+      >
+        {{ confirmButtonText }}
       </button>
       <button
         v-if="results.length === 10"
-        class="ba-action-btn ba-btn-again"
+        type="button"
+        class="ba-btn ba-btn--lg ba-btn--yellow ba-btn--shine result-action-btn"
         @click.stop="handleDrawAgain"
       >
-        <div class="btn-content">
-          <span class="btn-text">{{ drawAgainButtonText }}</span>
-        </div>
+        {{ drawAgainButtonText }}
       </button>
     </div>
     <p v-else-if="results.length && canClose && !isRecruitMode" class="result-hint">
@@ -178,7 +179,10 @@
     gap: 28px;
   }
 
+  /* ---- Envelopes ---- */
   .letter-card {
+    --rarity: #5cbcff;
+    --rarity-glow: rgba(92, 188, 255, 0);
     position: relative;
     width: calc(clamp(120px, 16vw, 200px) * var(--result-card-scale, 1));
     aspect-ratio: 4 / 3;
@@ -188,51 +192,80 @@
     animation-delay: calc(var(--index) * var(--result-fly-interval, 80ms));
   }
 
+  .letter-card.is-gold {
+    --rarity: #ffc928;
+    --rarity-glow: rgba(255, 201, 40, 0.55);
+  }
+
+  .letter-card.is-pink {
+    --rarity: #ff6fcf;
+    --rarity-glow: rgba(255, 111, 207, 0.55);
+  }
+
   .letter-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
   }
 
+  /* ---- Student name plate ---- */
   .name-card {
     position: absolute;
     inset: 18% 10%;
-    background: #ffffff;
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 6px 10px;
+    padding: 8px 10px 6px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #eef5fc 100%);
+    color: var(--ba-ink-strong);
     font-size: clamp(16px, 2.1vw, 26px);
-    font-weight: 700;
-    color: #1c2741;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    box-shadow:
+      0 0 0 3px var(--rarity),
+      0 0 0 5px rgba(255, 255, 255, 0.85),
+      0 0 22px 4px var(--rarity-glow),
+      0 8px 18px rgba(0, 0, 0, 0.28);
     opacity: 0;
     transform: translateY(12px) scale(0.96);
     animation: none;
-    border: 3px solid transparent;
   }
 
-  .letter-card.is-blue .name-card {
-    border-color: #76c7ff;
-    box-shadow:
-      0 0 0 2px rgba(118, 199, 255, 0.45),
-      0 6px 16px rgba(0, 0, 0, 0.2);
+  /* Rarity band */
+  .name-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 5px;
+    background: var(--rarity);
   }
 
-  .letter-card.is-gold .name-card {
-    border-color: #ffd84d;
-    box-shadow:
-      0 0 0 2px rgba(255, 216, 77, 0.45),
-      0 6px 16px rgba(0, 0, 0, 0.2);
+  /* Hatched corner */
+  .name-card::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    height: 55%;
+    background: repeating-linear-gradient(
+      -55deg,
+      color-mix(in srgb, var(--rarity) 28%, transparent) 0 2px,
+      transparent 2px 7px
+    );
+    -webkit-mask-image: linear-gradient(315deg, #000 0%, transparent 75%);
+    mask-image: linear-gradient(315deg, #000 0%, transparent 75%);
+    pointer-events: none;
   }
 
-  .letter-card.is-pink .name-card {
-    border-color: #ff7ee2;
-    box-shadow:
-      0 0 0 2px rgba(255, 126, 226, 0.45),
-      0 6px 16px rgba(0, 0, 0, 0.2);
+  .name-card span {
+    position: relative;
+    z-index: 1;
   }
 
   .name-card.is-reveal {
@@ -240,18 +273,55 @@
     animation-delay: calc(var(--reveal-index) * var(--result-fly-interval, 80ms) + 0.08s);
   }
 
-  .result-hint {
+  /* ---- Hints ---- */
+  .result-hint,
+  .result-empty {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin: 0;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  }
+
+  .result-hint {
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.8);
-    letter-spacing: 2px;
+    animation: result-hint-pulse 1.8s ease-in-out infinite;
   }
 
   .result-empty {
-    margin: 0;
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.75);
-    letter-spacing: 2px;
+    opacity: 0.85;
+  }
+
+  .result-hint::before,
+  .result-hint::after,
+  .result-empty::before,
+  .result-empty::after {
+    content: '';
+    width: 56px;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  .result-hint::after,
+  .result-empty::after {
+    transform: scaleX(-1);
+  }
+
+  /* ---- Recruit mode actions ---- */
+  .recruit-actions {
+    display: flex;
+    gap: 28px;
+    margin-top: 18px;
+    animation: actions-fade-in 0.3s ease both;
+  }
+
+  .result-action-btn {
+    min-width: 210px;
   }
 
   @keyframes letter-fly-in {
@@ -285,78 +355,14 @@
     }
   }
 
-  .recruit-actions {
-    display: flex;
-    gap: 30px;
-    margin-top: 30px;
-    animation: actions-fade-in 0.3s ease forwards;
-  }
-
-  .ba-action-btn {
-    position: relative;
-    min-width: 180px;
-    height: 60px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transform: skewX(-12deg);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition:
-      filter 0.2s,
-      transform 0.1s;
-  }
-
-  .ba-action-btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 6px;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-    pointer-events: none;
-  }
-
-  .ba-action-btn .btn-content {
-    transform: skewX(12deg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .ba-action-btn .btn-text {
-    font-size: 24px;
-    font-weight: 800;
-    color: #1e334a;
-    letter-spacing: 4px;
-    margin-left: 4px;
-  }
-
-  .ba-action-btn .btn-sub {
-    font-size: 14px;
-    color: #fff;
-    background: #344866;
-    padding: 0px 8px;
-    border-radius: 4px;
-    margin-top: -2px;
-    font-weight: 700;
-  }
-
-  .ba-btn-confirm {
-    background: linear-gradient(180deg, #7ae2ff 0%, #4dbbff 100%);
-  }
-
-  .ba-btn-again {
-    background: linear-gradient(180deg, #ffe066 0%, #ffc033 100%);
-  }
-
-  .ba-action-btn:active {
-    transform: skewX(-12deg) scale(0.96);
+  @keyframes result-hint-pulse {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   @keyframes actions-fade-in {
@@ -367,6 +373,12 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .result-hint {
+      animation: none;
     }
   }
 </style>

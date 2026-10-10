@@ -82,51 +82,11 @@
 </script>
 
 <style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition:
-      box-shadow 0.25s,
-      transform 0.25s;
-  }
-
-  .ba-card:hover {
-    box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #128afa;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-card-desc {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-  }
-
   .ba-import-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    flex-wrap: wrap;
   }
 </style>

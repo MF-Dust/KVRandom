@@ -64,25 +64,29 @@
 
       <div class="ba-form-item">
         <label class="ba-label">按钮圆角</label>
-        <n-slider
-          v-model:value="config.floatingButton.borderRadiusPercent"
-          :min="0"
-          :max="50"
-          :step="1"
-        />
-        <div class="ba-slider-value">{{ config.floatingButton.borderRadiusPercent }}%</div>
+        <div class="ba-slider-row">
+          <n-slider
+            v-model:value="config.floatingButton.borderRadiusPercent"
+            :min="0"
+            :max="50"
+            :step="1"
+          />
+          <span class="ba-slider-value">{{ config.floatingButton.borderRadiusPercent }}%</span>
+        </div>
       </div>
 
       <div class="ba-form-item">
         <label class="ba-label">透～明～度</label>
         <p class="ba-sublabel">数值越高越透明，0就是完全不透明～</p>
-        <n-slider
-          v-model:value="config.floatingButton.transparencyPercent"
-          :min="0"
-          :max="100"
-          :step="1"
-        />
-        <div class="ba-slider-value">{{ config.floatingButton.transparencyPercent }}%</div>
+        <div class="ba-slider-row">
+          <n-slider
+            v-model:value="config.floatingButton.transparencyPercent"
+            :min="0"
+            :max="100"
+            :step="1"
+          />
+          <span class="ba-slider-value">{{ config.floatingButton.transparencyPercent }}%</span>
+        </div>
       </div>
 
       <div class="ba-toggle-row">
@@ -127,14 +131,16 @@
 
       <div class="ba-form-item">
         <label class="ba-label">点击音效音量</label>
-        <n-slider
-          v-model:value="config.floatingButton.clickSoundVolume"
-          :min="0"
-          :max="1"
-          :step="0.05"
-        />
-        <div class="ba-slider-value">
-          {{ (config.floatingButton.clickSoundVolume * 100).toFixed(0) }}%
+        <div class="ba-slider-row">
+          <n-slider
+            v-model:value="config.floatingButton.clickSoundVolume"
+            :min="0"
+            :max="1"
+            :step="0.05"
+          />
+          <span class="ba-slider-value">
+            {{ (config.floatingButton.clickSoundVolume * 100).toFixed(0) }}%
+          </span>
         </div>
       </div>
 
@@ -167,7 +173,7 @@
         <span>按钮位置～</span>
       </div>
       <p class="ba-card-desc">屏幕左上角是原点～退出时我会自动记住位置，留空就恢复默认哦！</p>
-      <div class="ba-position-grid">
+      <div class="ba-form-grid-2">
         <div class="ba-form-item">
           <label class="ba-label">位置 X</label>
           <n-input-number
@@ -211,94 +217,3 @@
     }
   }
 </script>
-
-<style scoped>
-  .ba-card-group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .ba-card {
-    background: #ffffff;
-    border: 1px solid rgba(18, 138, 250, 0.1);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    transition:
-      box-shadow 0.25s,
-      transform 0.25s;
-  }
-
-  .ba-card:hover {
-    box-shadow: 0 4px 20px rgba(18, 138, 250, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .ba-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #128afa;
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .ba-card-desc {
-    margin: 0;
-    color: #5a7394;
-    font-size: 13px;
-    line-height: 1.65;
-  }
-
-  .ba-form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .ba-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1a3a5c;
-  }
-
-  .ba-sublabel {
-    margin: 0;
-    font-size: 12px;
-    color: #8ca3bf;
-  }
-
-  .ba-slider-value {
-    font-size: 13px;
-    font-weight: 700;
-    color: #128afa;
-    text-align: right;
-    margin-top: -4px;
-  }
-
-  .ba-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .ba-toggle-label {
-    font-size: 14px;
-    color: #1a3a5c;
-  }
-
-  .ba-position-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .ba-input-action-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-  }
-</style>

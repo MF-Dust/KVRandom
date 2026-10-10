@@ -1,71 +1,76 @@
 <template>
-  <n-config-provider :theme-overrides="baTheme">
+  <n-config-provider :theme-overrides="naiveTheme">
     <main
-      class="ba-page"
+      class="ba-page ba-themed"
       :class="{ 'is-compact': config.appearance.compactMode }"
       :style="pageStyle"
     >
-      <!-- Cross-hatch background decorations -->
-      <div class="ba-bg-grid"></div>
-      <div class="ba-bg-circle ba-bg-circle-1"></div>
-      <div class="ba-bg-circle ba-bg-circle-2"></div>
+      <!-- Blue Archive menu backdrop: crosshair grid, hatching, halo and shards -->
+      <div class="ba-backdrop" aria-hidden="true">
+        <div class="ba-backdrop-grid"></div>
+        <div class="ba-backdrop-stripes"></div>
+        <div class="ba-backdrop-halo"></div>
+        <span class="ba-backdrop-shard ba-backdrop-shard-1"></span>
+        <span class="ba-backdrop-shard ba-backdrop-shard-2"></span>
+        <span class="ba-backdrop-shard ba-backdrop-shard-3"></span>
+      </div>
 
       <div class="ba-shell">
         <!-- Sidebar -->
         <aside class="ba-sidebar">
           <div class="ba-sidebar-brand">
-            <div class="ba-logo">
-              <svg
-                viewBox="0 0 24 24"
-                width="22"
-                height="22"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polygon
-                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                />
-              </svg>
-            </div>
-            <div class="ba-brand-text">
-              <h1>KVRandom</h1>
-              <p>阿罗娜的设置面板～</p>
-            </div>
+            <h1 class="ba-brand-title"><span>KV</span>Random</h1>
+            <p class="ba-brand-caption">阿罗娜的设置面板～</p>
           </div>
 
           <ConfigTabs :active-tab="activeTab" :tab-groups="tabGroups" @switch-tab="switchTab" />
 
           <div class="ba-sidebar-footer">
-            <button type="button" class="ba-save-btn" @click="saveConfig">
+            <button
+              type="button"
+              class="ba-btn ba-btn--yellow ba-btn--shine ba-btn--block ba-save-btn"
+              title="保存设置"
+              @click="saveConfig"
+            >
               <svg
                 viewBox="0 0 24 24"
                 width="18"
                 height="18"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
+                aria-hidden="true"
               >
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                 <polyline points="17 21 17 13 7 13 7 21" />
                 <polyline points="7 3 7 8 15 8" />
               </svg>
-              <span>保存设置！</span>
+              <span class="ba-save-label">保存设置！</span>
             </button>
           </div>
         </aside>
 
         <!-- Main content area -->
         <div class="ba-main">
-          <!-- Content header -->
-          <div class="ba-content-header">
-            <h2 class="ba-content-title">{{ currentTabTitle }}</h2>
-            <p class="ba-content-hint">{{ currentTabHint }}</p>
-          </div>
+          <header class="ba-content-header">
+            <div class="ba-title-row">
+              <h2 class="ba-content-title">{{ currentTabTitle }}</h2>
+              <span v-if="currentTabSubtitle" class="ba-content-subtitle">
+                {{ currentTabSubtitle }}
+              </span>
+            </div>
+            <div class="ba-arona-tip">
+              <span class="ba-arona-avatar" aria-hidden="true">
+                <img src="/image/Arona_Empty.webp" alt="" />
+              </span>
+              <p class="ba-arona-bubble">
+                <span class="ba-name-tag">阿罗娜</span>
+                <span class="ba-arona-text">{{ currentTabHint }}</span>
+              </p>
+            </div>
+          </header>
 
           <!-- Scrollable content -->
           <form id="config-form" class="ba-content-body" @submit.prevent="saveConfig">
@@ -157,6 +162,7 @@
   import { useLogStream } from '../composables/useLogStream'
   import { useStudentListSync } from '../composables/useStudentListSync'
   import { useUpdateCheck } from '../composables/useUpdateCheck'
+  import { createNaiveThemeOverrides } from '../theme/naiveTheme'
 
   const AboutSettingsPanel = defineAsyncComponent(
     () => import('../components/config/AboutSettingsPanel.vue')
@@ -222,66 +228,21 @@
 
   const activeTabMeta = computed(() => getActiveTabMeta())
   const currentTabTitle = computed(() => activeTabMeta.value?.title || '设置')
+  const currentTabSubtitle = computed(() => activeTabMeta.value?.subtitle || '')
   const currentTabHint = computed(
     () => activeTabMeta.value?.hint || '老师，这里可以调整各项设置哦～'
   )
+
+  // Brand colours feed the CSS tokens; derived shades are computed by `.ba-themed`.
   const pageStyle = computed(() => ({
     '--ba-blue': config.value.appearance.themeColor,
-    '--ba-blue-hover': config.value.appearance.themeColor,
     '--ba-yellow': config.value.appearance.accentColor,
-    '--ba-yellow-strong': config.value.appearance.accentColor,
     '--ba-card-radius': `${config.value.appearance.cardRadiusPx}px`,
     background: config.value.appearance.pageBackground,
   }))
 
-  // Blue Archive theme overrides for Naive UI
-  const baTheme = {
-    common: {
-      primaryColor: '#128AFA',
-      primaryColorHover: '#3EA8FF',
-      primaryColorPressed: '#0068DF',
-      primaryColorSuppl: '#128AFA',
-      infoColor: '#128AFA',
-      infoColorHover: '#3EA8FF',
-      infoColorPressed: '#0068DF',
-      successColor: '#36B37E',
-      successColorHover: '#57D9A3',
-      successColorPressed: '#2D9F6F',
-      warningColor: '#F3B900',
-      warningColorHover: '#FFD84D',
-      warningColorPressed: '#D4A200',
-      errorColor: '#E05454',
-      errorColorHover: '#F07070',
-      errorColorPressed: '#C24040',
-      borderRadius: '8px',
-      borderRadiusSmall: '6px',
-      fontFamily:
-        'var(--ba-font-family, "Segoe UI Variable", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif)',
-      fontSize: '14px',
-    },
-    Button: {
-      borderRadiusMedium: '10px',
-      borderRadiusSmall: '8px',
-      fontWeightStrong: '700',
-    },
-    Switch: {
-      railColorActive: '#128AFA',
-    },
-    Slider: {
-      fillColor: '#128AFA',
-      fillColorHover: '#3EA8FF',
-      handleColor: '#128AFA',
-    },
-    Input: {
-      borderRadius: '8px',
-      borderHover: '1px solid #128AFA',
-      borderFocus: '1px solid #128AFA',
-      boxShadowFocus: '0 0 0 3px rgba(18, 138, 250, 0.12)',
-    },
-    Tag: {
-      borderRadius: '20px',
-    },
-  }
+  // Naive UI controls follow the same configurable theme colour.
+  const naiveTheme = computed(() => createNaiveThemeOverrides(config.value.appearance.themeColor))
 
   onMounted(() => {
     fetchConfig(rawListText)
@@ -295,102 +256,116 @@
   })
 </script>
 
-<style>
+<style scoped>
   /* ============================================
-   Blue Archive Settings Page — Global Styles
+   Blue Archive settings page shell
    ============================================ */
 
-  :root {
-    --ba-blue: #128afa;
-    --ba-blue-hover: #3ea8ff;
-    --ba-blue-strong: #0068df;
-    --ba-blue-soft: #e8f4ff;
-    --ba-yellow: #ffd84d;
-    --ba-yellow-strong: #f3b900;
-    --ba-ink: #1a3a5c;
-    --ba-muted: #5a7394;
-    --ba-sidebar-w: 220px;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-  }
-
-  /* ---- Page shell ---- */
   .ba-page {
+    --ba-sidebar-w: 232px;
     position: relative;
     height: 100vh;
-    font-family: var(
-      --ba-font-family,
-      'Segoe UI Variable',
-      'Microsoft YaHei UI',
-      'PingFang SC',
-      system-ui,
-      sans-serif
-    );
-    color: var(--ba-ink);
     overflow: hidden;
+    color: var(--ba-ink);
     background: linear-gradient(160deg, #f0f7ff 0%, #e6f1ff 40%, #f5f9ff 100%);
   }
 
-  .ba-page.is-compact .ba-content-body {
-    padding: 14px 20px;
-  }
-
-  .ba-page.is-compact .ba-content-header {
-    padding: 16px 22px 12px;
-  }
-
-  /* ---- Decorative background ---- */
-  .ba-bg-grid {
+  /* ---- Decorative backdrop ---- */
+  .ba-backdrop {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(90deg, rgba(18, 138, 250, 0.04) 1px, transparent 1px),
-      linear-gradient(0deg, rgba(18, 138, 250, 0.04) 1px, transparent 1px);
-    background-size: 32px 32px;
-    pointer-events: none;
     z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
-  .ba-bg-circle {
+  .ba-backdrop-grid {
     position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
+    inset: 0;
+    background-image: var(--ba-pattern-cross);
+    background-position: -48px -48px;
+    background-size: 96px 96px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.35) 100%);
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.35) 100%);
   }
 
-  .ba-bg-circle-1 {
-    width: 400px;
-    height: 400px;
-    top: -120px;
+  .ba-backdrop-stripes {
+    position: absolute;
+    top: -40px;
     right: -80px;
-    background: radial-gradient(circle, rgba(18, 138, 250, 0.06) 0%, transparent 70%);
+    width: 560px;
+    height: 280px;
+    background: repeating-linear-gradient(
+      -55deg,
+      color-mix(in srgb, var(--ba-blue) 10%, transparent) 0 3px,
+      transparent 3px 14px
+    );
+    -webkit-mask-image: radial-gradient(ellipse at top right, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse at top right, #000 0%, transparent 70%);
   }
 
-  .ba-bg-circle-2 {
-    width: 300px;
-    height: 300px;
-    bottom: -60px;
-    left: -40px;
-    background: radial-gradient(circle, rgba(243, 185, 0, 0.05) 0%, transparent 70%);
+  .ba-backdrop-halo {
+    position: absolute;
+    right: -150px;
+    bottom: 50px;
+    width: 580px;
+    height: 190px;
+    border: 12px solid color-mix(in srgb, var(--ba-blue) 8%, transparent);
+    border-radius: 50%;
+    transform: rotate(-14deg);
   }
 
-  /* ---- Main shell grid ---- */
+  .ba-backdrop-halo::after {
+    content: '';
+    position: absolute;
+    top: -150px;
+    bottom: -150px;
+    left: 46%;
+    width: 4px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ba-blue) 12%, transparent) 50%,
+      transparent 100%
+    );
+    transform: rotate(32deg);
+  }
+
+  .ba-backdrop-shard {
+    position: absolute;
+    background: color-mix(in srgb, var(--ba-cyan) 16%, transparent);
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+  }
+
+  .ba-backdrop-shard-1 {
+    top: 18%;
+    right: 20%;
+    width: 120px;
+    height: 104px;
+  }
+
+  .ba-backdrop-shard-2 {
+    top: 54%;
+    right: 5%;
+    width: 72px;
+    height: 62px;
+  }
+
+  .ba-backdrop-shard-3 {
+    bottom: -36px;
+    left: 42%;
+    width: 160px;
+    height: 138px;
+    clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  }
+
+  /* ---- Shell grid ---- */
   .ba-shell {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: var(--ba-sidebar-w) 1fr;
+    grid-template-columns: var(--ba-sidebar-w) minmax(0, 1fr);
     height: 100vh;
-    gap: 0;
   }
 
   /* ============================================
@@ -399,110 +374,83 @@
   .ba-sidebar {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.9);
-    border-right: 1px solid rgba(18, 138, 250, 0.08);
-    padding: 20px 12px;
-    gap: 4px;
+    gap: 10px;
+    min-height: 0;
+    padding: 16px 12px 14px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    border-right: 1px solid var(--ba-line);
+    box-shadow: 4px 0 18px rgba(16, 52, 96, 0.06);
   }
 
   .ba-sidebar-brand {
+    position: relative;
+    isolation: isolate;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 8px 18px;
-    border-bottom: 1px solid rgba(18, 138, 250, 0.08);
-    margin-bottom: 12px;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 10px 14px;
+    border-bottom: 1px solid var(--ba-line-soft);
   }
 
-  .ba-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #128afa 0%, #3ea8ff 100%);
-    color: #ffffff;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(18, 138, 250, 0.25);
+  .ba-sidebar-brand::before {
+    content: '';
+    position: absolute;
+    inset: -16px -12px 0;
+    z-index: -1;
+    background: var(--ba-hatch);
+    -webkit-mask-image: linear-gradient(200deg, #000 0%, transparent 55%);
+    mask-image: linear-gradient(200deg, #000 0%, transparent 55%);
   }
 
-  .ba-brand-text h1 {
+  .ba-brand-title {
     margin: 0;
-    font-size: 17px;
-    font-weight: 800;
-    color: #0c2d4f;
+    white-space: nowrap;
+    color: var(--ba-ink-strong);
+    font-family: var(--ba-font-num);
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 700;
     line-height: 1.2;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.02em;
   }
 
-  .ba-brand-text p {
-    margin: 0;
-    font-size: 11px;
-    color: #8ca3bf;
-    font-weight: 500;
+  .ba-brand-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 20px;
+    margin-right: 14px;
+    vertical-align: -3px;
+    border-radius: 2px;
+    background: var(--ba-blue);
+    box-shadow: 5px 0 0 -1px var(--ba-yellow);
+    transform: skewX(var(--ba-skew));
+  }
+
+  .ba-brand-title span {
+    color: var(--ba-blue);
+  }
+
+  .ba-brand-caption {
+    margin: 0 0 0 16px;
+    color: var(--ba-subtle);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
   }
 
   .ba-sidebar-footer {
-    margin-top: auto;
     padding-top: 12px;
-    border-top: 1px solid rgba(18, 138, 250, 0.08);
+    border-top: 1px solid var(--ba-line-soft);
   }
 
-  /* ---- Save button ---- */
   .ba-save-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 16px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(
-      135deg,
-      #ffe066 0%,
-      var(--ba-yellow) 40%,
-      var(--ba-yellow-strong) 100%
-    );
-    color: #5b4100;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    box-shadow: 0 4px 14px rgba(243, 185, 0, 0.25);
-    transition:
-      transform 0.18s ease,
-      background 0.18s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ba-save-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.3) 50%,
-      transparent 100%
-    );
-    transform: translateX(-100%);
-    transition: transform 0.5s;
-  }
-
-  .ba-save-btn:hover {
-    transform: translateY(-1px);
-  }
-
-  .ba-save-btn:hover::after {
-    transform: translateX(100%);
-  }
-
-  .ba-save-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(243, 185, 0, 0.2);
+    min-height: 48px;
+    font-size: 15px;
   }
 
   /* ============================================
@@ -511,43 +459,145 @@
   .ba-main {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     min-height: 0;
     overflow: hidden;
   }
 
   .ba-content-header {
-    padding: 22px 28px 16px;
-    border-bottom: 1px solid rgba(18, 138, 250, 0.06);
-    background: rgba(255, 255, 255, 0.72);
+    position: relative;
+    isolation: isolate;
     flex-shrink: 0;
+    padding: 18px 28px 14px;
+    overflow: hidden;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96) 0%,
+      rgba(255, 255, 255, 0.8) 100%
+    );
+    border-bottom: 1px solid var(--ba-line);
+  }
+
+  .ba-content-header::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: -1;
+    width: 42%;
+    background: var(--ba-hatch);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+  }
+
+  .ba-content-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 24px;
+    width: 128px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--ba-blue) 0%, var(--ba-cyan) 100%);
+    transform: skewX(var(--ba-skew));
+  }
+
+  .ba-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
   }
 
   .ba-content-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    color: #0c2d4f;
-    letter-spacing: -0.01em;
-    position: relative;
-    display: inline-block;
+    color: var(--ba-ink-strong);
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
   }
 
-  .ba-content-title::after {
+  .ba-content-title::before {
+    content: '';
+    flex: none;
+    width: 8px;
+    height: 26px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--ba-blue-hover) 0%, var(--ba-blue) 100%);
+    box-shadow: 6px 0 0 -2px var(--ba-yellow);
+    transform: skewX(var(--ba-skew));
+  }
+
+  .ba-content-subtitle {
+    color: color-mix(in srgb, var(--ba-blue) 55%, var(--ba-subtle));
+    font-family: var(--ba-font-num);
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .ba-arona-tip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .ba-arona-avatar {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: var(--ba-blue-soft);
+    box-shadow:
+      0 0 0 2px var(--ba-blue-tint),
+      0 2px 6px rgba(16, 52, 96, 0.16);
+  }
+
+  .ba-arona-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(2.1);
+    transform-origin: 50% 69%;
+  }
+
+  .ba-arona-bubble {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    padding: 6px 14px 6px 8px;
+    border: 1px solid var(--ba-line);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--ba-shadow-sm);
+    color: var(--ba-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .ba-arona-bubble::before {
     content: '';
     position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 100%;
-    height: 3px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--ba-blue) 0%, var(--ba-blue-hover) 100%);
-    opacity: 0.6;
-  }
-
-  .ba-content-hint {
-    margin: 8px 0 0;
-    font-size: 13px;
-    color: var(--ba-muted);
+    top: 50%;
+    left: -6px;
+    width: 10px;
+    height: 10px;
+    border-bottom: 1px solid var(--ba-line);
+    border-left: 1px solid var(--ba-line);
+    background: #ffffff;
+    transform: translateY(-50%) rotate(45deg);
   }
 
   /* Scrollable form body */
@@ -555,71 +605,75 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 20px 28px;
+    padding: 20px 28px 24px;
     scrollbar-width: thin;
-    scrollbar-color: #c4ddf5 transparent;
+    scrollbar-color: #bcd4ec transparent;
   }
 
   .ba-content-body::-webkit-scrollbar {
     width: 6px;
   }
 
-  .ba-content-body::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
   .ba-content-body::-webkit-scrollbar-thumb {
-    background: #c4ddf5;
     border-radius: 3px;
+    background: #bcd4ec;
   }
 
   .ba-content-body::-webkit-scrollbar-thumb:hover {
-    background: #9bcfff;
+    background: #8fc2f2;
   }
 
   .ba-tab-content {
-    animation: ba-fade-in 0.3s ease;
+    animation: ba-fade-up 0.3s ease;
   }
 
-  @keyframes ba-fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* ---- Compact appearance ---- */
+  .ba-page.is-compact .ba-content-header {
+    padding: 12px 22px 10px;
+  }
+
+  .ba-page.is-compact .ba-arona-tip {
+    margin-top: 6px;
+  }
+
+  .ba-page.is-compact .ba-content-body {
+    padding: 14px 20px 18px;
   }
 
   /* ============================================
    Responsive
    ============================================ */
   @media (max-width: 768px) {
-    :root {
-      --ba-sidebar-w: 64px;
+    .ba-page {
+      --ba-sidebar-w: 68px;
     }
 
-    .ba-brand-text,
-    .ba-save-btn span {
+    .ba-sidebar {
+      padding: 14px 8px;
+    }
+
+    .ba-sidebar-brand,
+    .ba-save-label,
+    .ba-content-subtitle {
       display: none;
     }
 
-    .ba-sidebar-brand {
-      justify-content: center;
-      padding-bottom: 12px;
-    }
-
     .ba-save-btn {
-      padding: 12px;
+      padding: 0;
     }
 
     .ba-content-header {
-      padding: 16px 18px 12px;
+      padding: 14px 18px 12px;
     }
 
     .ba-content-body {
       padding: 14px 18px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ba-tab-content {
+      animation: none;
     }
   }
 </style>

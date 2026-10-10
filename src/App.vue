@@ -68,14 +68,16 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: var(
-      --ba-font-family,
-      '方正兰亭圆_GBK',
-      'FZLanTingYuan-R-GBK',
-      'Microsoft YaHei UI',
-      'PingFang SC',
-      sans-serif
-    );
+    font-family: var(--ba-font);
+    color: var(--ba-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
   }
 
   html:not(.is-config-page),
@@ -89,8 +91,8 @@
   html.is-config-page,
   body.is-config-page,
   html.is-config-page > body > #app {
-    background: #f4f5f7;
-    overflow: auto;
+    background: #eaf3fc;
+    overflow: hidden;
     user-select: text;
   }
 </style>

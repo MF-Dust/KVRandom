@@ -106,9 +106,11 @@
 
 <style scoped>
   .ba-log-panel {
-    border-top: 1px solid rgba(18, 138, 250, 0.12);
-    background: rgba(255, 255, 255, 0.86);
+    position: relative;
     flex-shrink: 0;
+    border-top: 1px solid var(--ba-line);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 -4px 16px rgba(16, 52, 96, 0.06);
   }
 
   .ba-log-header {
@@ -116,33 +118,47 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 20px;
+    padding: 9px 20px;
     border: none;
     background: transparent;
-    cursor: pointer;
     font-family: inherit;
+    cursor: pointer;
     transition: background 0.2s;
   }
 
   .ba-log-header:hover {
-    background: rgba(18, 138, 250, 0.04);
+    background: var(--ba-blue-soft);
+  }
+
+  .ba-log-header:focus-visible {
+    outline: 2px solid var(--ba-blue);
+    outline-offset: -2px;
   }
 
   .ba-log-title-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #3d5a80;
+    color: var(--ba-ink);
+  }
+
+  .ba-log-title-row > svg {
+    width: 22px;
+    height: 22px;
+    padding: 4px;
+    border-radius: 5px;
+    background: var(--ba-fill-navy);
+    color: #ffffff;
   }
 
   .ba-log-title {
+    color: var(--ba-ink-strong);
     font-size: 14px;
-    font-weight: 700;
-    color: #1a3a5c;
+    font-weight: 800;
   }
 
   .ba-log-chevron {
-    color: #8ca3bf;
+    color: var(--ba-subtle);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -159,11 +175,11 @@
     display: flex;
     flex-direction: column-reverse;
     gap: 6px;
-    padding: 0 16px 14px;
     max-height: 186px;
+    padding: 0 16px 14px;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: #b8d4f0 transparent;
+    scrollbar-color: #bcd4ec transparent;
   }
 
   .ba-log-empty {
@@ -172,48 +188,48 @@
     justify-content: center;
     gap: 8px;
     padding: 16px;
-    color: #8ca3bf;
+    border: 1px dashed var(--ba-line);
+    border-radius: var(--ba-radius-sm);
+    background: var(--ba-surface-soft);
+    color: var(--ba-subtle);
     font-size: 13px;
-    background: rgba(18, 138, 250, 0.03);
-    border: 1px dashed rgba(18, 138, 250, 0.15);
-    border-radius: 8px;
   }
 
   .ba-log-item {
     display: grid;
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 64px 1fr;
     gap: 10px;
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 7px 12px;
+    border: 1px solid var(--ba-line-soft);
+    border-left: 4px solid #c9d7e6;
+    border-radius: var(--ba-radius-sm);
     background: #ffffff;
-    border: 1px solid #e8f0f8;
     font-size: 12px;
-    border-left: 3px solid #d0dde8;
-    transition: background 0.15s;
   }
 
   .ba-log-item.ba-log-info {
-    border-left-color: #128afa;
+    border-left-color: var(--ba-blue);
   }
 
   .ba-log-item.ba-log-success {
-    border-left-color: #36b37e;
-    background: #f6fff9;
+    border-left-color: var(--ba-green);
+    background: #f4fdf8;
   }
 
   .ba-log-item.ba-log-error {
-    border-left-color: #e05454;
-    background: #fff8f8;
+    border-left-color: var(--ba-red);
+    background: #fff6f8;
   }
 
   .ba-log-time {
-    font-variant-numeric: tabular-nums;
-    color: #8ca3bf;
+    color: var(--ba-subtle);
+    font-family: var(--ba-font-num);
     font-size: 11px;
+    font-variant-numeric: tabular-nums;
   }
 
   .ba-log-text {
-    color: #1a3a5c;
+    color: var(--ba-ink);
     word-break: break-word;
     overflow-wrap: anywhere;
   }
