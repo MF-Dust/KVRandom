@@ -4,12 +4,12 @@ namespace KVRandom;
 
 public sealed class AssetHandler
 {
-  public static string Url(string path)
+  public static string Url(string path, string appUrl = "https://kvrandom.local")
   {
     path = path.Trim();
     if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" or "data" or "blob") return path;
     if (Path.IsPathFullyQualified(path)) return "https://assets.kvrandom.local/file?path=" + Uri.EscapeDataString(path);
-    return "https://kvrandom.local/" + path.Replace('\\', '/').TrimStart('/').Replace("public/", "", StringComparison.Ordinal);
+    return appUrl.TrimEnd('/') + "/" + path.Replace('\\', '/').TrimStart('/').Replace("public/", "", StringComparison.Ordinal);
   }
 
   public void Handle(CoreWebView2 core, CoreWebView2WebResourceRequestedEventArgs e)

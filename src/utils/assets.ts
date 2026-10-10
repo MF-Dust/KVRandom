@@ -1,5 +1,3 @@
-export type AssetKind = 'image' | 'audio' | 'video' | 'asset'
-
 const WINDOWS_ABSOLUTE_RE = /^[a-zA-Z]:[\\/]/
 
 export function resolveAssetUrl(path?: string | null): string {

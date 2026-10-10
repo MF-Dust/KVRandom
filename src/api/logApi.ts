@@ -8,5 +8,3 @@ export const logApi = {
     invoke('renderer_log', { level, text: safeText }).catch(() => {})
   },
 }
-
-export type LogApi = typeof logApi

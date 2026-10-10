@@ -57,18 +57,22 @@ jobs:
       - name: Detect release mode
         id: release_mode
         shell: pwsh
+        env:
+          RELEASE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_NAME: ${{ inputs.release_name }}
         run: |
           $version = node -p "require('./package.json').version"
           $isPush = "${{ github.event_name }}" -eq "push"
-          $message = if ($isPush) { "${{ github.event.head_commit.message }}" } else { "" }
+          $message = if ($isPush) { $env:RELEASE_COMMIT_MESSAGE } else { "" }
           $isUnstable = $message -match "\[unstable\]"
           if ($isUnstable) {
             $tag = "preview-${{ github.run_number }}"
             $name = "Preview ${{ github.run_number }}"
             $prerelease = "true"
           } else {
-            $tag = if ($isPush) { "v$version" } else { "${{ inputs.release_tag }}" }
-            $name = if ($isPush) { "v$version" } else { "${{ inputs.release_name }}" }
+            $tag = if ($isPush) { "v$version" } else { $env:RELEASE_TAG }
+            $name = if ($isPush) { "v$version" } else { $env:RELEASE_NAME }
             $prerelease = "false"
           }
           "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
@@ -77,11 +81,13 @@ jobs:
 
       - name: Package artifacts
         shell: pwsh
+        env:
+          RELEASE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           $version = node -p "require('./package.json').version"
           $commit = "${{ github.sha }}"
           $isPush = "${{ github.event_name }}" -eq "push"
-          $message = if ($isPush) { "${{ github.event.head_commit.message }}" } else { "" }
+          $message = if ($isPush) { $env:RELEASE_COMMIT_MESSAGE } else { "" }
           $type = if ($message -match "\[unstable\]") { "preview" } else { "stable" }
           
           mkdir artifacts

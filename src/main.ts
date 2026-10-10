@@ -6,10 +6,6 @@ import router from './router'
 import { logApi } from './api/logApi'
 import { notifyRendererReady } from './api/desktopCore'
 
-const logToMain = (level: string, text: string) => {
-  logApi.send(level, text)
-}
-
 ;(['warn', 'error'] as const).forEach((method) => {
   const original = console[method].bind(console)
   console[method] = (...args: unknown[]) => {
@@ -24,7 +20,7 @@ const logToMain = (level: string, text: string) => {
       })
       .join(' ')
       .slice(0, 800)
-    logToMain(method, text)
+    logApi.send(method, text)
     original(...args)
   }
 })

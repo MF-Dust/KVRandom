@@ -27,6 +27,7 @@ export function useRecruitGacha(
   currentPool: Ref<RecruitPool | null>
 ) {
   const showResultOverlay = ref(false)
+  let isSelecting = false
 
   const resolvePayment = (count: number): RecruitPayment | null => {
     if (count === 1) {
@@ -96,7 +97,7 @@ export function useRecruitGacha(
     selectedStudent: Ref<Student | null>,
     closeSelectionModal: () => void
   ) => {
-    if (!selectedStudent.value) return
+    if (!selectedStudent.value || isSelecting) return
 
     audioApi.playClickSoundSafely()
 
@@ -106,14 +107,26 @@ export function useRecruitGacha(
       return
     }
 
+    if (!(currencies.value.selectionTicket > 0)) {
+      alert('老师，您手头上没有自选券了哦，点击左侧按钮可以购买一张自选券～')
+      return
+    }
+
     const studentName = selectedStudent.value.name
     closeSelectionModal()
 
     const executeSelection = async () => {
+      // 等待视频时券数可能改变；只锁住真正的后台提交。
+      if (isSelecting || !(currencies.value.selectionTicket > 0)) return
+      isSelecting = true
       try {
         await recruitApi.confirmSelectStudent(studentName, 'recruit', poolId)
+        currencies.value.selectionTicket -= 1
+        saveCurrencies()
       } catch (err) {
         console.error('Failed to trigger selection:', err)
+      } finally {
+        isSelecting = false
       }
     }
 

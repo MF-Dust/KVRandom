@@ -114,7 +114,6 @@ export function useStudentListSync(appApi: AppApi, config: Ref<AppConfig>, addLo
     rawListText,
     syncTextToList,
     scheduleTextSync,
-    syncListToText,
     removeStudent,
     addStudents,
     resetWeights,

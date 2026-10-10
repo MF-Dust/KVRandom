@@ -42,7 +42,7 @@ public sealed class DesktopHost : IDisposable
     var profile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KVRandom", "WebView2");
     EnvironmentTask = CoreWebView2Environment.CreateAsync(null, profile,
         new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required"));
-    audio = new AudioController(() => windows.GetValueOrDefault("floating"));
+    audio = new AudioController(() => windows.GetValueOrDefault("floating"), AppUrl);
   }
 
   public bool IsAppUrl(string value) => Uri.TryCreate(value, UriKind.Absolute, out var uri)
@@ -230,7 +230,6 @@ public sealed class DesktopHost : IDisposable
         if (dragStart is { } start) NativeWindow.Move(window, start.X + (int)Math.Clamp(Math.Round(Number("dx")), int.MinValue, int.MaxValue), start.Y + (int)Math.Clamp(Math.Round(Number("dy")), int.MinValue, int.MaxValue));
         break;
       case "floating_button_drag_end": dragStart = null; PersistFloatingPosition(); break;
-      case "floating_button_set_ignore_mouse": break; // The original backend always kept cursor events enabled.
       case "cancel_pick_count": CancelPickCount(); break;
       case "confirm_pick_count":
         var drawConfig = store.Load(); ApplyFloating(drawConfig);
@@ -266,7 +265,9 @@ public sealed class DesktopHost : IDisposable
         };
         return assetDialog.ShowDialog(window) == true ? assetDialog.FileName : null;
       case "save_app_config":
-        var saved = store.Save(args["config"]); ApplyFloating(saved);
+        var draft = ConfigStore.Normalize(args["config"]);
+        draft["floatingButton"]!["position"] = store.Load()["floatingButton"]!["position"]!.DeepClone();
+        var saved = store.Save(draft); ApplyFloating(saved);
         foreach (var target in windows.Values.Where(w => w.IsReady).ToArray()) target.Emit("config-updated", saved);
         Log("info", "配置保存成功！悬浮窗已经刷新啦～");
         return SystemIntegration.Result(true, "配置保存成功！悬浮窗已经刷新啦～");
@@ -315,7 +316,7 @@ public sealed class DesktopHost : IDisposable
     recentLogs[key] = now;
     if (recentLogs.Count > 100)
       foreach (var old in recentLogs.Where(pair => now - pair.Value > TimeSpan.FromSeconds(10)).Select(pair => pair.Key).ToArray()) recentLogs.Remove(old);
-    var entry = new JsonObject { ["id"] = Guid.NewGuid().ToString("N"), ["level"] = level, ["text"] = text, ["time"] = DateTime.Now.ToString("HH:mm:ss") };
+    var entry = new JsonObject { ["id"] = Guid.NewGuid().ToString("N"), ["level"] = level, ["text"] = text, ["time"] = DateTime.Now.ToString("O") };
     logs.Add(entry);
     if (logs.Count > 2000) logs.RemoveAt(0);
     foreach (var window in windows.Values.Where(w => w.IsReady).ToArray()) window.Emit("log-entry", entry);

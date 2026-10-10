@@ -15,5 +15,3 @@ export const pickCountApi = {
   onStopBgm: (callback: EventCallback<void>): Unlisten =>
     listenEvent<void>('pick-count-stop-bgm', callback),
 }
-
-export type PickCountApi = typeof pickCountApi

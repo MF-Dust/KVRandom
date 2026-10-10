@@ -104,51 +104,6 @@
       </div>
     </div>
 
-    <div class="ba-card">
-      <div class="ba-card-header">
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <rect x="2" y="5" width="20" height="14" rx="2" />
-          <line x1="2" y1="10" x2="22" y2="10" />
-        </svg>
-        <span>顶部资源显示值～</span>
-      </div>
-
-      <div class="ba-form-grid-3">
-        <div class="ba-form-item">
-          <label class="ba-label">AP</label>
-          <n-input v-model:value="config.recruitConfig.apDisplay" />
-        </div>
-        <div class="ba-form-item">
-          <label class="ba-label">信用积分</label>
-          <n-input v-model:value="config.recruitConfig.creditDisplay" />
-        </div>
-        <div class="ba-form-item">
-          <label class="ba-label">青辉石</label>
-          <n-input v-model:value="config.recruitConfig.pyroxeneDisplay" />
-        </div>
-        <div class="ba-form-item">
-          <label class="ba-label">10次券</label>
-          <n-input v-model:value="config.recruitConfig.recruitTicket10Display" />
-        </div>
-        <div class="ba-form-item">
-          <label class="ba-label">1次券</label>
-          <n-input v-model:value="config.recruitConfig.recruitTicket1Display" />
-        </div>
-        <div class="ba-form-item">
-          <label class="ba-label">自选券</label>
-          <n-input v-model:value="config.recruitConfig.selectTicketDisplay" />
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

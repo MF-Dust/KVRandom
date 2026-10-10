@@ -2,15 +2,6 @@
  * Desktop command input/output types. Names match src-dotnet/DesktopHost.cs.
  */
 
-import type {
-  AppConfig,
-  FloatingButtonConfig,
-  PickCountDialogConfig,
-  PickResultDialogConfig,
-  StudentListParseResult,
-} from './config'
-import type { PickedStudent, Student, ApiResult } from './domain'
-
 // ---------- App / system ----------
 
 export interface AppInfo {
@@ -30,16 +21,4 @@ export interface UpdateResult {
   localVersion: string
   remoteVersion?: string
   debug: string[]
-}
-
-// Re-exports useful for API modules
-export type {
-  AppConfig,
-  FloatingButtonConfig,
-  PickCountDialogConfig,
-  PickResultDialogConfig,
-  StudentListParseResult,
-  PickedStudent,
-  Student,
-  ApiResult,
 }

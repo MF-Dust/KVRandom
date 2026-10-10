@@ -78,7 +78,7 @@ export function usePickCountDialog() {
     musicLabelText.value = cfg.musicLabelText || musicLabelText.value
     rangeHintTemplate.value = cfg.rangeHintText || rangeHintTemplate.value
     panelBackground.value = cfg.panelBackground || panelBackground.value
-    bgmVolume.value = Math.max(0, Math.min(1, Number(cfg.bgmVolume) || 0.3))
+    bgmVolume.value = Math.max(0, Math.min(1, Number(cfg.bgmVolume ?? 0.3)))
     bgmPaths.value =
       Array.isArray(cfg.bgmPaths) && cfg.bgmPaths.length ? cfg.bgmPaths : ['sound/bgm.mp3']
     allowMusicToggle.value = cfg.allowMusicToggle ?? true
@@ -251,8 +251,6 @@ export function usePickCountDialog() {
   })
 
   return {
-    MIN_COUNT,
-    MAX_COUNT,
     count,
     playMusic,
     isLeaving,

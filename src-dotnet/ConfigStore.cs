@@ -74,24 +74,43 @@ public sealed class ConfigStore
   public JsonObject Save(JsonNode? value, bool saveStudents = true)
   {
     var config = Normalize(value);
-    if (saveStudents)
-      WriteAtomic(ListPath, "# 学生名单: name, weight, avatar, academy, club\n" + ToYaml(new JsonObject
+    var configYaml = ConfigYaml(config);
+    var listYaml = saveStudents ? "# 学生名单: name, weight, avatar, academy, club\n" + ToYaml(new JsonObject
+    {
+      ["students"] = config["studentList"]!.DeepClone()
+    }) : null;
+    var previousList = saveStudents && File.Exists(ListPath) ? File.ReadAllBytes(ListPath) : null;
+    if (listYaml != null) WriteAtomic(ListPath, listYaml);
+    try { WriteAtomic(ConfigPath, configYaml); }
+    catch (Exception error)
+    {
+      if (saveStudents)
       {
-        ["students"] = config["studentList"]!.DeepClone()
-      }));
-    WriteAtomic(ConfigPath, ConfigYaml(config));
+        try
+        {
+          if (previousList == null) File.Delete(ListPath);
+          else WriteAtomic(ListPath, previousList);
+        }
+        catch (Exception rollbackError)
+        {
+          throw new AggregateException("配置保存失败，恢复学生名单也失败", error, rollbackError);
+        }
+      }
+      throw;
+    }
     cached = null;
     signature = null;
     return config;
   }
 
-  private static void WriteAtomic(string path, string text)
+  private static void WriteAtomic(string path, string text) => WriteAtomic(path, System.Text.Encoding.UTF8.GetBytes(text));
+  private static void WriteAtomic(string path, byte[] bytes)
   {
     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
     var temp = path + ".tmp";
     try
     {
-      File.WriteAllText(temp, text, new System.Text.UTF8Encoding(false));
+      File.WriteAllBytes(temp, bytes);
       File.Move(temp, path, true);
     }
     finally { if (File.Exists(temp)) File.Delete(temp); }

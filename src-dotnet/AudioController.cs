@@ -5,7 +5,12 @@ namespace KVRandom;
 public sealed class AudioController
 {
   private readonly Func<BrowserWindow?> window;
-  public AudioController(Func<BrowserWindow?> window) => this.window = window;
+  private readonly string appUrl;
+  public AudioController(Func<BrowserWindow?> window, string appUrl)
+  {
+    this.window = window;
+    this.appUrl = appUrl;
+  }
   public const string Script = """
         window.__kvAudio = (() => {
           const tracks = new Map();
@@ -33,7 +38,7 @@ public sealed class AudioController
   public Task Play(string channel, string path, double volume, bool loop = false)
   {
     var current = window() ?? throw new InvalidOperationException("音频窗口尚未创建");
-    return current.RunAudioAsync($"window.__kvAudio.play({JsonSerializer.Serialize(channel)}, {JsonSerializer.Serialize(AssetHandler.Url(path))}, {JsonSerializer.Serialize(Math.Clamp(volume, 0, 1))}, {(loop ? "true" : "false")})");
+    return current.RunAudioAsync($"window.__kvAudio.play({JsonSerializer.Serialize(channel)}, {JsonSerializer.Serialize(AssetHandler.Url(path, appUrl))}, {JsonSerializer.Serialize(Math.Clamp(volume, 0, 1))}, {(loop ? "true" : "false")})");
   }
   public Task Stop(string channel)
   {

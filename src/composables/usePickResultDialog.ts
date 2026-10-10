@@ -39,10 +39,6 @@ export function usePickResultDialog() {
   const emptyText = ref('还没有点名结果呢～')
   const confirmButtonText = ref('确认')
   const drawAgainButtonText = ref('再次抽取')
-  const resultMode = ref('quick')
-  const instructionText = computed(() =>
-    resultMode.value === 'full' ? '点一下回到快速模式～' : closeHintText.value
-  )
   const stageStyle = computed(() => ({
     background: `rgba(0, 0, 0, ${Math.max(0, Math.min(100, backgroundDarknessPercent.value)) / 100})`,
     '--result-card-scale': String(Math.max(0.5, Math.min(2, cardSizePercent.value / 100))),
@@ -104,7 +100,6 @@ export function usePickResultDialog() {
     revealStarted.value = false
     canClose.value = false
     isClosing.value = false
-    resultMode.value = 'quick'
     if (revealTimer) {
       clearTimeout(revealTimer)
       revealTimer = null
@@ -155,15 +150,14 @@ export function usePickResultDialog() {
       return
     }
 
-    resultMode.value = 'quick'
-
-    const totalDelayMs =
-      Math.max(results.value.length - 1, 0) * flyIntervalMs.value + revealDelayMs.value
+    const lastFlyDelayMs = Math.max(results.value.length - 1, 0) * flyIntervalMs.value
+    const totalDelayMs = lastFlyDelayMs + revealDelayMs.value
     revealTimer = setTimeout(() => {
       revealStarted.value = true
     }, totalDelayMs)
 
-    const totalDurationMs = totalDelayMs + 320
+    // 对齐 PickResult.vue：信封飞入 420ms，名字延迟 index * interval + 80ms 后播放 320ms。
+    const totalDurationMs = Math.max(lastFlyDelayMs + 420, totalDelayMs + lastFlyDelayMs + 80 + 320)
     closeTimer = setTimeout(() => {
       canClose.value = true
     }, totalDurationMs)
@@ -244,7 +238,7 @@ export function usePickResultDialog() {
   return {
     results,
     animationKey,
-    instructionText,
+    instructionText: closeHintText,
     stageStyle,
     blueEnvelopeImage,
     goldEnvelopeImage,

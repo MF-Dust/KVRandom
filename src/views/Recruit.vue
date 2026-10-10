@@ -566,7 +566,8 @@
     selectStudent,
   } = useRecruitModals(students)
 
-  const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo } = useRecruitFlow()
+  const { isPlayingVideo, playVideoAndExecute, handleVideoEnd, skipVideo, cancel } =
+    useRecruitFlow()
 
   const autoSkipVideo = computed(() => recruitConfigRaw.value.autoSkipVideo)
 
@@ -643,6 +644,7 @@
 
   // Window actions
   const handleExit = async () => {
+    cancel()
     audioApi.playClickSoundSafely()
     pauseStageVideo()
     try {
@@ -679,12 +681,14 @@
       if (visible) {
         syncStageMediaPlayback()
       } else {
+        cancel()
         pauseStageVideo()
       }
     })
   })
 
   onBeforeUnmount(() => {
+    cancel()
     document.removeEventListener('visibilitychange', handleVisibilityChange)
     if (typeof removeRecruitVisibleListener === 'function') {
       removeRecruitVisibleListener()

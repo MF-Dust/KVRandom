@@ -21,12 +21,6 @@ export interface PickedStudent {
   club?: string | null
 }
 
-export interface LogEntry {
-  level: string
-  text: string
-  time: string | number
-}
-
 export interface ApiResult {
   ok: boolean
   message: string

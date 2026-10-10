@@ -1,7 +1,6 @@
 import { invoke, listenEvent, type EventCallback, type Unlisten } from './desktopCore'
 
 export const recruitApi = {
-  openRecruit: () => invoke<void>('open_recruit'),
   closeRecruit: () => invoke<void>('close_recruit'),
   openConfig: () => invoke<void>('open_config'),
   confirmSelectStudent: (
@@ -12,5 +11,3 @@ export const recruitApi = {
   onWindowVisible: (callback: EventCallback<boolean>): Unlisten =>
     listenEvent<boolean>('recruit-window-visible', callback),
 }
-
-export type RecruitApi = typeof recruitApi

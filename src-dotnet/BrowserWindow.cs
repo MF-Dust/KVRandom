@@ -51,7 +51,7 @@ public sealed class BrowserWindow : Window, IDisposable
       if (label == "recruit") { e.Cancel = true; host.CloseRecruit(); }
       else if (label == "pick_count") { e.Cancel = true; host.CancelPickCount(); }
       else if (label == "pick_result") { e.Cancel = true; host.ClosePickResult(); }
-      else if (label == "floating") host.PersistFloatingPosition();
+      else if (label == "floating") { e.Cancel = true; host.PersistFloatingPosition(); }
     };
     Closed += (_, _) => { Dispose(); host.WindowClosed(label); };
     Route = route;

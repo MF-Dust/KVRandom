@@ -1,6 +1,6 @@
-// Run after npm run build on Windows. Uses only Node's built-in CDP/WebSocket support.
+// Run after npm run build on Windows. Uses CDP and PowerShell for native close checks.
 import assert from 'node:assert/strict'
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -10,6 +10,55 @@ const folder = await mkdtemp(path.join(tmpdir(), 'KVRandom-smoke-'))
 const sockets = []
 let app
 const endpoint = 'http://127.0.0.1:9229/json/list'
+function closeNativeWindow(title) {
+  const titleArg = title ? `'${title.replaceAll("'", "''")}'` : '$null'
+  const script = `
+    $ErrorActionPreference = 'Stop'
+    $ProgressPreference = 'SilentlyContinue'
+    Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+public static class KVRandomSmokeWindow {
+  private delegate bool WindowCallback(IntPtr handle, IntPtr parameter);
+  [DllImport("user32.dll")]
+  private static extern bool EnumWindows(WindowCallback callback, IntPtr parameter);
+  [DllImport("user32.dll")]
+  private static extern bool IsWindowVisible(IntPtr handle);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+  private static extern int GetWindowText(IntPtr handle, StringBuilder text, int count);
+  [DllImport("user32.dll")]
+  private static extern uint GetWindowThreadProcessId(IntPtr handle, out uint processId);
+  [DllImport("user32.dll")]
+  public static extern IntPtr SendMessage(IntPtr handle, uint message, IntPtr wParam, IntPtr lParam);
+  public static IntPtr Find(uint processId, string title) {
+    var found = IntPtr.Zero;
+    EnumWindows((handle, parameter) => {
+      uint ownerId;
+      GetWindowThreadProcessId(handle, out ownerId);
+      if (ownerId != processId || !IsWindowVisible(handle)) return true;
+      if (!String.IsNullOrEmpty(title)) {
+        var text = new StringBuilder(256);
+        GetWindowText(handle, text, text.Capacity);
+        if (text.ToString() != title) return true;
+      }
+      found = handle;
+      return false;
+    }, IntPtr.Zero);
+    return found;
+  }
+}
+'@
+    $handle = [KVRandomSmokeWindow]::Find(${app.pid}, ${titleArg})
+    if ($handle -eq [IntPtr]::Zero) { throw 'Smoke window not found for process ${app.pid}' }
+    [KVRandomSmokeWindow]::SendMessage($handle, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+  `
+  execFileSync(
+    'powershell.exe',
+    ['-NoProfile', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')],
+    { timeout: 10000 }
+  )
+}
 async function poll(action) {
   const deadline = Date.now() + 60000
   while (Date.now() < deadline) {
@@ -86,7 +135,7 @@ try {
   assert(!occupied, 'Port 9229 must be free')
   await writeFile(
     path.join(folder, 'config.yml'),
-    'floatingButton:\n  mode: simple\npickResultDialog:\n  defaultPlayGachaSound: false\n'
+    'floatingButton:\n  mode: simple\n  position:\n    x: 120\n    y: 120\npickResultDialog:\n  defaultPlayGachaSound: false\n'
   )
   await writeFile(
     path.join(folder, 'list.yaml'),
@@ -105,15 +154,26 @@ try {
     floating.evaluate('document.querySelector(".floating-button img")?.naturalWidth > 0')
   )
   console.log('PASS: floating window and bundled image')
+  // Only the floating window exists here; borderless windows need not have a native caption.
+  closeNativeWindow()
+  assert.equal(await floating.invoke('is_window_visible'), true)
+  console.log('PASS: native close preserves the floating window and audio host')
   await floating.invoke('open_config')
   const config = await page('#/config')
   const value = await config.invoke('get_config')
   assert.equal(value.studentList.length, 2)
   assert.equal((await config.invoke('get_app_info')).version, '26.5.3')
+  await floating.invoke('floating_button_drag_start')
+  await floating.invoke('floating_button_drag_move', { dx: 24, dy: 16 })
+  await floating.invoke('floating_button_drag_end')
+  const movedPosition = (await floating.invoke('get_config')).floatingButton.position
+  assert.notDeepEqual(movedPosition, value.floatingButton.position)
   value.recruitConfig.autoSkipVideo = true
   await config.invoke('save_app_config', { config: value })
-  assert.equal((await floating.invoke('get_config')).recruitConfig.autoSkipVideo, true)
-  console.log('PASS: config window, native IPC and YAML save')
+  const savedConfig = await floating.invoke('get_config')
+  assert.equal(savedConfig.recruitConfig.autoSkipVideo, true)
+  assert.deepEqual(savedConfig.floatingButton.position, movedPosition)
+  console.log('PASS: config save preserves the latest floating position')
   await floating.invoke('floating_button_clicked')
   const count = await page('#/pick-count')
   assert.equal(await count.invoke('is_window_visible'), true)
@@ -141,8 +201,10 @@ try {
   })
   assert.equal((await recruit.invoke('get_pick_results'))[0].name, 'Smoke Alice')
   await floating.invoke('close_pick_result')
-  await floating.invoke('close_recruit')
-  console.log('PASS: recruit draw/select and close lifecycle')
+  closeNativeWindow('ブルーアーカイブ')
+  assert.equal(await recruit.invoke('is_window_visible'), false)
+  assert.equal(await floating.invoke('is_window_visible'), true)
+  console.log('PASS: recruit draw/select and native close lifecycle')
   await floating.invoke('play_click_sound', { volume: 0 })
   await floating.invoke('play_gacha_sound', { volume: 0 })
   await floating.invoke('stop_gacha_sound')
@@ -161,8 +223,14 @@ try {
   })
   await floating.invoke('stop_gacha_sound')
   console.log('PASS: external local image and OGG media')
-  const errors = (await floating.invoke('get_logs')).filter((log) => log.level === 'error')
-  assert.deepEqual(errors, [], 'Backend must not report errors')
+  const logs = await floating.invoke('get_logs')
+  assert(logs.length > 0 && logs.every((log) => Number.isFinite(Date.parse(log.time))))
+  assert.deepEqual(
+    logs.filter((log) => log.level === 'error'),
+    [],
+    'Backend must not report errors'
+  )
+  console.log('PASS: backend log timestamps are parseable')
   console.log('All desktop smoke checks passed.')
 } finally {
   for (const socket of sockets) socket.close()

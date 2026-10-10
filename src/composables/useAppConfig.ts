@@ -109,7 +109,6 @@ export function useAppConfig(appApi: AppApi, addLog: AddLog) {
     isDebugMode,
     isAdmin,
     appVersion,
-    defaultExePath,
     fetchConfig,
     fetchAppInfo,
     saveConfig,

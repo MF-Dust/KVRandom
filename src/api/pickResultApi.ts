@@ -15,5 +15,3 @@ export const pickResultApi = {
   onReset: (callback: EventCallback<PickResultResetPayload>): Unlisten =>
     listenEvent<PickResultResetPayload>('pick-result-reset', callback),
 }
-
-export type PickResultApi = typeof pickResultApi

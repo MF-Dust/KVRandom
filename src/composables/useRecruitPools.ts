@@ -95,8 +95,6 @@ export function useRecruitPools() {
     recruitConfig,
     currentPool,
     sortedStudents,
-    totalBoostedWeight,
-    getBoostedWeight,
     getBoostMultiplier,
     calculateProb,
     switchPool,
