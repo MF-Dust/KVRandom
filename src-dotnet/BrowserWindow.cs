@@ -27,7 +27,7 @@ public sealed class BrowserWindow : Window, IDisposable
     WindowStyle = overlay ? WindowStyle.None : WindowStyle.SingleBorderWindow;
     AllowsTransparency = overlay;
     Background = overlay ? Brushes.Transparent : Brushes.White;
-    ShowInTaskbar = !overlay || DesktopHost.IsDebug;
+    ShowInTaskbar = label != "floating" && (!overlay || DesktopHost.IsDebug);
     ResizeMode = overlay ? ResizeMode.NoResize : ResizeMode.CanResize;
     Topmost = overlay;
     Width = label switch { "config" => 1120, "recruit" => 1280, _ => 72 };
