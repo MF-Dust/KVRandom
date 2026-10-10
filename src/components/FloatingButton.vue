@@ -10,6 +10,7 @@
       @pointermove="handlePointerMove"
       @pointerup="handlePointerUp"
       @pointercancel="handlePointerCancel"
+      @lostpointercapture="handlePointerCancel"
     >
       <img :src="resolvedIconPath" alt="阿罗娜的点名按钮" draggable="false" />
     </button>

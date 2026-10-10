@@ -21,6 +21,8 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
   const pendingDy = ref(0)
   const rafId = ref(0)
   let dragCommandQueue: Promise<unknown> = Promise.resolve()
+  let moveQueued = false
+  let nativeDragging = false
 
   const enqueueDragCommand = (task: DragTask) => {
     dragCommandQueue = dragCommandQueue
@@ -63,10 +65,21 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
       rafId.value = 0
       return
     }
-    const dx = pendingDx.value
-    const dy = pendingDy.value
-    enqueueDragCommand(() => floatingButtonApi.moveDrag(dx, dy))
     rafId.value = 0
+    if (moveQueued) return
+    moveQueued = true
+    let sentDx = pendingDx.value
+    let sentDy = pendingDy.value
+    enqueueDragCommand(() => {
+      sentDx = pendingDx.value
+      sentDy = pendingDy.value
+      return floatingButtonApi.moveDrag(sentDx, sentDy)
+    }).finally(() => {
+      moveQueued = false
+      if (isDragging.value && (sentDx !== pendingDx.value || sentDy !== pendingDy.value)) {
+        scheduleMove()
+      }
+    })
   }
 
   const scheduleMove = () => {
@@ -82,6 +95,7 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
   }
 
   const handlePointerDown = (event: PointerEvent) => {
+    if (nativeDragging) return
     if (event.pointerType === 'mouse' && event.button !== 0) return
     pointerDown.value = true
     activePointerId.value = event.pointerId
@@ -91,7 +105,6 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
     startGlobalY.value = point.y
     pendingDx.value = 0
     pendingDy.value = 0
-    dragCommandQueue = Promise.resolve()
     cancelScheduledMove()
     const target = event.currentTarget as Element | null
     if (target && 'setPointerCapture' in target) {
@@ -100,7 +113,7 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
   }
 
   const handlePointerMove = (event: PointerEvent) => {
-    if (activePointerId.value !== event.pointerId) return
+    if (nativeDragging || activePointerId.value !== event.pointerId) return
     if (!pointerDown.value) return
 
     const point = getGlobalPoint(event)
@@ -111,6 +124,25 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
 
     if (!isDragging.value && movedEnough) {
       isDragging.value = true
+      if (event.pointerType === 'mouse') {
+        nativeDragging = true
+        const target = event.currentTarget as Element | null
+        if (target?.hasPointerCapture?.(event.pointerId)) {
+          target.releasePointerCapture(event.pointerId)
+        }
+        floatingButtonApi
+          .dragMouse()
+          .catch((error) => {
+            console.warn('Floating native drag failed:', error)
+          })
+          .finally(() => {
+            nativeDragging = false
+            pointerDown.value = false
+            activePointerId.value = null
+            isDragging.value = false
+          })
+        return
+      }
       enqueueDragCommand(() => floatingButtonApi.startDrag())
     }
 
@@ -122,6 +154,7 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
   }
 
   const handlePointerUp = async (event: PointerEvent) => {
+    if (nativeDragging) return
     if (activePointerId.value !== event.pointerId) return
     if (!pointerDown.value) return
 
@@ -152,6 +185,7 @@ export function useFloatingDrag(emit: FloatingEmit, options: FloatingDragOptions
   }
 
   const handlePointerCancel = (event: PointerEvent) => {
+    if (nativeDragging) return
     if (activePointerId.value !== null && activePointerId.value !== event.pointerId) return
     if (isDragging.value) {
       cancelScheduledMove()

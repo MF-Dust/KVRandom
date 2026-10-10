@@ -14,6 +14,22 @@ internal static class NativeWindow
   [return: MarshalAs(UnmanagedType.Bool)]
   private static extern bool SetWindowPos(IntPtr hwnd, IntPtr insertAfter, int x, int y, int cx, int cy, uint flags);
 
+  [DllImport("user32.dll")]
+  private static extern short GetAsyncKeyState(int key);
+  [DllImport("user32.dll")]
+  [return: MarshalAs(UnmanagedType.Bool)]
+  private static extern bool ReleaseCapture();
+  [DllImport("user32.dll")]
+  private static extern IntPtr SendMessage(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam);
+
+  public static void DragMouse(BrowserWindow window)
+  {
+    if ((GetAsyncKeyState(0x01) & 0x8000) == 0) return;
+    ReleaseCapture();
+    // Let Windows own the move loop and detect button release outside the WebView.
+    SendMessage(new WindowInteropHelper(window).Handle, 0x0112, new IntPtr(0xF012), IntPtr.Zero); // WM_SYSCOMMAND, SC_MOVE | HTCAPTION
+  }
+
   public static (int X, int Y) Position(BrowserWindow window)
   {
     if (!GetWindowRect(new WindowInteropHelper(window).Handle, out var rect)) throw new System.ComponentModel.Win32Exception();

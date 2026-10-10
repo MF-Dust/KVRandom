@@ -219,6 +219,12 @@ public sealed class DesktopHost : IDisposable
       case "floating_button_clicked":
         if (ConfigStore.Text(store.Load()["floatingButton"]?["mode"]) == "simple") await OpenPickCount(); else await OpenRecruit();
         break;
+      case "floating_button_drag_mouse":
+        if (window.Label != "floating") throw new InvalidOperationException("Only the floating window can be dragged.");
+        dragStart = NativeWindow.Position(window);
+        try { NativeWindow.DragMouse(window); }
+        finally { dragStart = null; PersistFloatingPosition(); }
+        break;
       case "floating_button_drag_start": dragStart = NativeWindow.Position(window); break;
       case "floating_button_drag_move":
         if (dragStart is { } start) NativeWindow.Move(window, start.X + (int)Math.Clamp(Math.Round(Number("dx")), int.MinValue, int.MaxValue), start.Y + (int)Math.Clamp(Math.Round(Number("dy")), int.MinValue, int.MaxValue));
