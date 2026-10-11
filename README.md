@@ -89,7 +89,7 @@ KVRandom 是一款基于 .NET 10、C# WPF/WebView2 和 Vue 3 的 Windows 桌面�
 
 环境要求：
 
-- Node.js 22.12+（推荐 24）
+- Node.js 22.22.1+（推荐 24）
 - .NET 10 SDK
 - Windows 10/11 与 Microsoft Edge WebView2 Runtime
 

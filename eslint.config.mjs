@@ -1,5 +1,5 @@
 import vue from 'eslint-plugin-vue'
-import vueTsConfig from '@vue/eslint-config-typescript'
+import tseslint from 'typescript-eslint'
 import prettier from 'eslint-config-prettier'
 
 export default [
@@ -17,8 +17,20 @@ export default [
       '*.config.mts',
     ],
   },
+  ...tseslint.configs.recommended,
   ...vue.configs['flat/recommended'],
-  ...vueTsConfig(),
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.vue'],
+      },
+    },
+    rules: {
+      'vue/block-lang': ['error', { script: { lang: ['ts'], allowNoLang: false } }],
+    },
+  },
   prettier,
   {
     files: ['**/*.{ts,vue}'],
